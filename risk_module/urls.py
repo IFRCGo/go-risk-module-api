@@ -23,6 +23,17 @@ from oddrin.views import (
     SeasonalViewSet,
     ImminentViewSet,
     OddrinViewSet,
+    IdmcViewSet,
+    InformRiskViewSet,
+    IdmcSuddenOnsetViewSet,
+    InformRiskSeasonalViewSet,
+    DisplacementViewSet,
+    GarHazardViewSet,
+    PdcDisplacementViewSet
+)
+from ipc.views import (
+    GlobalDisplacementViewSet,
+    ThinkHazardInformationViewSet
 )
 
 from rest_framework import routers
@@ -33,6 +44,16 @@ router.register(r'earthquake', EarthquakeViewSet, basename='earthquake')
 router.register(r'global-exposure-data', OddrinViewSet, basename='oddrin')
 router.register(r'seasonal', SeasonalViewSet, basename='seasonal')
 router.register(r'imminent', ImminentViewSet, basename='imminent')
+router.register(r'global-exposure-data', OddrinViewSet, basename='oddrin')
+router.register(r'idmc-data', IdmcViewSet, basename='idmc')
+router.register(r'displacement-data', GlobalDisplacementViewSet, basename='global')
+router.register(r'inform-data', InformRiskViewSet, basename='inform')
+router.register(r'idmc-return-period-data', IdmcSuddenOnsetViewSet, basename='idmc return period')
+router.register(r'inform-seasonal-data', InformRiskSeasonalViewSet, basename='inform seasonal')
+router.register(r'exposure-data', DisplacementViewSet, basename='global exposure')
+router.register(r'hazard_info', ThinkHazardInformationViewSet, basename='hazard info')
+router.register(r'gar-return-period', GarHazardViewSet, basename='gar return period')
+router.register(r'pdc-displacement', PdcDisplacementViewSet, basename='pdc displacement')
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
