@@ -106,122 +106,57 @@ class SeasonalViewSet(viewsets.ViewSet):
 
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get('iso3')
-        hazard_type = self.request.query_params.get('hazard_type')
-        if iso3 or hazard_type:
-            hazard_info = ThinkHazardInformationSerializer(
-                ThinkHazardInformation.objects.filter(
-                    Q(country__iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ),
-                many=True
-            ).data
-            inform = InformRiskSerializer(
-                InformRisk.objects.filter(
-                    Q(country__iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ).select_related('country'),
-                many=True
-            ).data
-            inform_seasonal = InformRiskSeasonalSerializer(
-                InformRiskSeasonal.objects.filter(
-                    Q(country__iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ).select_related('country'),
-                many=True
-            ).data
-            idmc = IdmcSerializer(
-                Idmc.objects.filter(
-                    Q(iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ),
-                many=True
-            ).data
-            idmc_return_period_data = IdmcSuddenOnsetSerializer(
-                IdmcSuddenOnset.objects.filter(
-                    Q(country__iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ).select_related('country'),
-                many=True
-            ).data
-            gar_return_period_data = GarHazardSerializer(
-                GarHazard.objects.filter(
-                    Q(country__iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ).select_related('country'),
-                many=True
-            ).data
-            ipc_displacement_data = GlobalDisplacementSerializer(
-                GlobalDisplacement.objects.filter(
-                    Q(country__iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ).select_related('country'),
-                many=True
-            ).data
-            raster_displacement_data = DisplacementDataSerializer(
-                DisplacementData.objects.filter(
-                    Q(country__iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ).select_related('country'),
-                many=True
-            ).data
-
-        if iso3 and hazard_type:
+        #hazard_type = self.request.query_params.get('hazard_type')
+        if iso3 is not None:
             hazard_info = ThinkHazardInformationSerializer(
                 ThinkHazardInformation.objects.filter(
                     country__iso3__icontains=iso3,
-                    hazard_type=hazard_type
                 ),
                 many=True
             ).data
             inform = InformRiskSerializer(
                 InformRisk.objects.filter(
                     country__iso3__icontains=iso3,
-                    hazard_type=hazard_type
                 ).select_related('country'),
                 many=True
             ).data
             inform_seasonal = InformRiskSeasonalSerializer(
                 InformRiskSeasonal.objects.filter(
-                    country__iso3__icontains=iso3,
-                    hazard_type=hazard_type
+                    country__iso3__icontains=iso3
                 ).select_related('country'),
                 many=True
             ).data
             idmc = IdmcSerializer(
                 Idmc.objects.filter(
                     iso3__icontains=iso3,
-                    hazard_type=hazard_type
                 ),
                 many=True
             ).data
             idmc_return_period_data = IdmcSuddenOnsetSerializer(
                 IdmcSuddenOnset.objects.filter(
-                    country__iso3__icontains=iso3,
-                    hazard_type=hazard_type
+                    country__iso3__icontains=iso3
                 ).select_related('country'),
                 many=True
             ).data
             gar_return_period_data = GarHazardSerializer(
                 GarHazard.objects.filter(
-                    country__iso3__icontains=iso3,
-                    hazard_type=hazard_type
+                    country__iso3__icontains=iso3
                 ).select_related('country'),
                 many=True
             ).data
             ipc_displacement_data = GlobalDisplacementSerializer(
                 GlobalDisplacement.objects.filter(
-                    country__iso3__icontains=iso3,
-                    hazard_type=hazard_type
+                    country__iso3__icontains=iso3
                 ).select_related('country'),
                 many=True
             ).data
             raster_displacement_data = DisplacementDataSerializer(
                 DisplacementData.objects.filter(
-                    country__iso3__icontains=iso3,
-                    hazard_type=hazard_type
+                    country__iso3__icontains=iso3
                 ).select_related('country'),
                 many=True
             ).data
+
         else:
             hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
             inform = InformRiskSerializer(InformRisk.objects.select_related('country'), many=True).data
@@ -231,7 +166,6 @@ class SeasonalViewSet(viewsets.ViewSet):
             gar_return_period_data = GarHazardSerializer(GarHazard.objects.select_related('country'), many=True).data
             ipc_displacement_data = GlobalDisplacementSerializer(GlobalDisplacement.objects.select_related('country'), many=True).data
             raster_displacement_data = DisplacementDataSerializer(DisplacementData.objects.select_related('country'), many=True).data
-
         return response.Response(
             {
                 'inform': inform,
@@ -255,31 +189,10 @@ class ImminentViewSet(viewsets.ViewSet):
         hazard_type = self.request.query_params.get('hazard_type')
         today = datetime.now().date()
         yesterday = today + timedelta(days=-1)
-        if iso3 or hazard_type:
+        if iso3:
             oddrin_data = OddrinSerializer(
                 Oddrin.objects.filter(
-                    Q(iso3__icontains=iso3) |
-                    Q(hazard_type=hazard_type)
-                ), many=True
-            ).data
-            pdc_data = PdcDisplacementSerializer(
-                PdcDisplacement.objects.filter(
-                    Q(country__iso3__icontains=iso3,
-                        pdc__created_at__date__lte=today,
-                        pdc__created_at__date__gte=yesterday,
-                        pdc__status=Pdc.Status.ACTIVE) |
-                    Q(pdc__created_at__date__lte=today,
-                        pdc__created_at__date__gte=yesterday,
-                        pdc__status=Pdc.Status.ACTIVE,
-                        hazard_type=hazard_type)
-                ).select_related('country'),
-                many=True
-            ).data
-        if iso3 and hazard_type:
-            oddrin_data = OddrinSerializer(
-                Oddrin.objects.filter(
-                    iso3__icontains=iso3,
-                    hazard_type=hazard_type
+                    iso3__icontains=iso3
                 ), many=True
             ).data
             pdc_data = PdcDisplacementSerializer(
@@ -287,11 +200,11 @@ class ImminentViewSet(viewsets.ViewSet):
                     country__iso3__icontains=iso3,
                     pdc__created_at__date__lte=today,
                     pdc__created_at__date__gte=yesterday,
-                    pdc__status=Pdc.Status.ACTIVE,
-                    hazard_type=hazard_type
+                    pdc__status=Pdc.Status.ACTIVE
                 ).select_related('country'),
                 many=True
             ).data
+
         else:
             oddrin_data = OddrinSerializer(
                 Oddrin.objects.all(), many=True
