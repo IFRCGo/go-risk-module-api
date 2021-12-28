@@ -94,8 +94,6 @@ class PdcDisplacementViewSet(viewsets.ReadOnlyModelViewSet):
         today = datetime.now().date()
         yesterday = today + timedelta(days=-1)
         return PdcDisplacement.objects.filter(
-            pdc__created_at__date__lte=today,
-            pdc__created_at__date__gte=yesterday,
             pdc__status=Pdc.Status.ACTIVE,
         ).select_related('country')
 
@@ -211,8 +209,6 @@ class ImminentViewSet(viewsets.ViewSet):
             ).data
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
-                    pdc__created_at__date__lte=today,
-                    pdc__created_at__date__gte=yesterday,
                     pdc__status=Pdc.Status.ACTIVE,
                 ).select_related('country'),
                 many=True
