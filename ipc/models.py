@@ -68,7 +68,7 @@ class IpcMonthly(models.Model):
     estimation_type = models.CharField(max_length=100, verbose_name=_('estimation type'), choices=EstimationType.choices, blank=True)
 
     def __str__(self):
-        return f'{self.analysis_date} - {self.is_projected}'
+        return f'{self.analysis_date} - {self.country.name}'
 
 
 class GlobalDisplacement(models.Model):

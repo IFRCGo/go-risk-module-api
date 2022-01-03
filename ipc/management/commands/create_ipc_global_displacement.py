@@ -23,7 +23,6 @@ class Command(BaseCommand):
             'year',
             'month',
             'estimation_type',
-            'analysis_date'
         )
         for d in queryset:
             data = {
@@ -35,4 +34,4 @@ class Command(BaseCommand):
                 'estimation_type': d['estimation_type'],
                 'analysis_date': d['analysis_date']
             }
-            GlobalDisplacement.objects.create(**data)
+            GlobalDisplacement.objects.get_or_create(**data)

@@ -10,6 +10,8 @@ from geopy.extra.rate_limiter import RateLimiter
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from ipc.models import Country
+
 from earthquake.models import Earthquake
 
 logger = logging.getLogger()
@@ -30,6 +32,13 @@ class Command(BaseCommand):
             return location.raw['address']['country']
 
     def handle(self, *args, **options):
+        """
+        NOTE: We will delete all the previous earthquake
+              Call this api every day and try to pull data one week prior to today
+        """
+        # Delete all the previous earthquake
+        Earthquake.objects.all().delete()
+        # call the api to import data prior to one week from today
         now = timezone.now()
         today = now.date()
         seven_days_before = (now + relativedelta(days=-7)).date()
@@ -49,23 +58,25 @@ class Command(BaseCommand):
         ]
         all_data = []
         for earthquake in earthquake_data['features']:
-            data = {
-                'event_id': earthquake['id'],
-                'event_title': earthquake['properties']['title'],
-                'event_place': earthquake['properties']['place'],
-                'event_date': self.parse_timestamp(earthquake['properties']['time']),
-                'updated_at': self.parse_timestamp(earthquake['properties']['updated']),
-                'latitude': earthquake['geometry']['coordinates'][1],
-                'longitude': earthquake['geometry']['coordinates'][0],
-                'depth': earthquake['geometry']['coordinates'][2],
-                'magnitude': earthquake['properties']['mag'],
-                'magnitude_type': earthquake['properties']['magType'],
-                'country': self.get_country(earthquake['geometry']['coordinates'][1],
-                                            earthquake['geometry']['coordinates'][0])
-            }
-            # lets create corresponding database field
-            Earthquake.objects.get_or_create(**data)
-            all_data.append(data)
+            country = self.get_country(earthquake['geometry']['coordinates'][1],
+                                       earthquake['geometry']['coordinates'][0])
+            if Country.objects.filter(name=country).exists():
+                data = {
+                    'event_id': earthquake['id'],
+                    'event_title': earthquake['properties']['title'],
+                    'event_place': earthquake['properties']['place'],
+                    'event_date': self.parse_timestamp(earthquake['properties']['time']),
+                    'updated_at': self.parse_timestamp(earthquake['properties']['updated']),
+                    'latitude': earthquake['geometry']['coordinates'][1],
+                    'longitude': earthquake['geometry']['coordinates'][0],
+                    'depth': earthquake['geometry']['coordinates'][2],
+                    'magnitude': earthquake['properties']['mag'],
+                    'magnitude_type': earthquake['properties']['magType'],
+                    'country': Country.objects.filter(name=country).first(),
+                }
+                # lets create corresponding database field
+                Earthquake.objects.get_or_create(**data)
+                all_data.append(data)
 
         # lets log the imported data as well
         file_name = f'{today}-earthquake-data.csv'

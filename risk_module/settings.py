@@ -202,13 +202,17 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(minute=0, hour=0),  # This task execute daily at 12 AM (UTC)
     },
     "create_pdc_data": {
-        "task": "earthquake.tasks.create_pdc_data",
-        "schedule": crontab(minute=0, hour=0),  # This task execute daily at 12 AM (UTC)
+        "task": "oddrin.tasks.create_pdc_data",
+        "schedule": crontab(minute=4, hour=0),  # This task execute daily at 4 AM (UTC)
     },
     "create_pdc_displacement": {
-        "task": "earthquake.tasks.create_pdc_displacement",
-        "schedule": crontab(minute=0, hour=0),  # This task execute daily at 12 AM (UTC)
+        "task": "oddrin.tasks.create_pdc_displacement",
+        "schedule": crontab(minute=6, hour=0),  # This task execute daily at 6 AM (UTC)
     },
+    "create_hazard_information": {
+        "task": "ipc.tasks.import_think_hazard_informations",
+        "schedule": crontab(0, 0, day_of_month='2')  # This task execute at second day of every month
+    }
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

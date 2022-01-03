@@ -29,6 +29,11 @@ class Command(BaseCommand):
         return hazard_level
 
     def handle(self, **options):
+        '''
+            We are deleting all the information from think_hazard information
+            Calling this api in every month and replace all the previous informational
+        '''
+
         # listing the hazard type to be mapped from the thinkhazard
         HazadTypeList = [HazardType.CYCLONE, HazardType.DROUGHT, HazardType.FLOOD]
         hazardTypeThinkHazard = ['CY', 'FL', 'DR']

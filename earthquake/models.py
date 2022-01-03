@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from ipc.models import Country
+
 
 class Earthquake(models.Model):
 
@@ -57,10 +59,11 @@ class Earthquake(models.Model):
     depth = models.FloatField(verbose_name=_('depth'))
     magnitude = models.FloatField(verbose_name=_('magnitude'))
     magnitude_type = models.CharField(max_length=20, choices=MagnitudeType.choices, verbose_name=_('magnitude type'))
-    # earthquake might occur in place that don't have country
-    country = models.CharField(
-        max_length=100, verbose_name=_('country'),
-        null=True, blank=True
+    country = models.ForeignKey(
+        Country,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_('country')
     )
 
     def __str__(self):

@@ -1,6 +1,7 @@
 import requests
 import logging
 import datetime
+import os
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -21,7 +22,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data
-        access_token = 'eyJraWQiOiIyMDE4LTA0LTA1fHRlc3RhcHBzLnBkYy5vcmciLCJhbGciOiJSUzUxMiJ9.eyJqdGkiOiJkNzM1MDk4NS1mMDZiLTQyZGUtYjhhYi1mMDg5ZGU3YmNhY2MiLCJpc3MiOiJodHRwczovL3Rlc3RhcHBzLnBkYy5vcmcvand0L2p3a3MuanNvbiIsImlhdCI6MTYzOTA5OTI3NywibmJmIjoxNjM5MDk5Mjc3LCJzdWIiOiJ0ZXN0YXBwcy5wZGMub3JnIiwiZXhwIjo0MTAyNDQ0ODAwLCJ1c2VyUm9sZXMiOlsiTE9HSU4iXSwidXNlckdyb3VwSWQiOiIyIiwidG9rZW5UeXBlIjoibG9uZyJ9.U4PEr83nLptbQ0OIKWhGGuokYN9FkfMociiBrYCe4v8j7yvG-1RzM-ETCqi8t7U-TTiIk9AA4bKAl72Tf30mtNC42etpga7wStOUpzHnmJ32WkYw9xocMQhJIuORz4aVDNjlyhsO2nyTGOpZWy4EFQVhUkw3Zx0Ka8K0HZ0JTN1kaQuAMg2JciL8Y1mKNKE9f0rWIg0UM80FF1Rt_R1x9HtioXzA3pVRZTOcgN5Fydv6NEaR8NonTaXigt1p_1NFuw3RuAJffqfgvgKnyi8aEUYo_Ec6J_i3vSmJrcX2_kV0H7L-vzJK1mHl-lZNG0ytJw3GZQiCIsI4kzGJcr4NiA'
+        access_token = os.environ.get('PDC_ACCESS_TOKEN')
         url = 'https://testsentry.pdc.org/hp_srv/services/hazards/t/json/search_hazard'
         headers = {'Authorization': "Bearer {}".format(access_token)}
         # make sure to use the datetime now and timestamp for the post data
