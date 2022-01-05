@@ -62,10 +62,15 @@ class Oddrin(models.Model):
     higher_displacement = models.IntegerField(verbose_name=_('higher displacement'), null=True, blank=True)
     file = models.FileField(
         verbose_name=_('file'),
-        blank=True, null=True
+        blank=True, null=True,
+        upload_to='oddrin/files/'
+    )
+    cog_file = models.FileField(
+        verbose_name=_('cog file'),
+        blank=True, null=True,
+        upload_to='oddrin/cog_files/'
     )
     file_type = models.CharField(max_length=100, verbose_name=_('file type'), choices=FileType.choices, blank=True)
-    mapbox_layer_id = models.CharField(max_length=255, verbose_name=_('mapbox id'), null=True, blank=True)
 
     def str(self):
         return f'{self.hazard_title} - {self.hazard_type}'

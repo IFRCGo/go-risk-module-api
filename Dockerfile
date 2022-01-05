@@ -6,8 +6,18 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /code
 
-RUN apt-get update \
-    && apt-get install -y git gcc curl
+RUN apt-get -y update \
+    && apt-get install -y --no-install-recommends \
+        git \
+        g++ \
+        curl \
+        gdal-bin \
+        libgdal-dev
+
+
+ARG CPLUS_INCLUDE_PATH=/usr/include/gdal
+ARG C_INCLUDE_PATH=/usr/include/gdal
+RUN pip install GDAL==2.4.0
 
 COPY pyproject.toml poetry.lock /code/
 

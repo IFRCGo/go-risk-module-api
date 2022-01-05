@@ -14,9 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.conf.urls import url, include, static
+from django.conf.urls import url, include
 from django.urls import path
 from django.conf import settings
+from django.conf.urls.static import static
 
 from earthquake.views import EarthquakeViewSet
 from oddrin.views import (
@@ -59,5 +60,5 @@ urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
     path('admin/', admin.site.urls),
 ]
-urlpatterns += static.static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-urlpatterns += static.static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

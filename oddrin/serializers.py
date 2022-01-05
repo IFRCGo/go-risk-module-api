@@ -1,4 +1,10 @@
+import os
+import subprocess
+
+#from osgeo import gdal
 from rest_framework import serializers
+
+from django.conf import settings
 
 from oddrin.models import (
     Oddrin,
@@ -12,8 +18,18 @@ from oddrin.models import (
     PdcDisplacement,
     Pdc,
 )
+#from oddrin.scripts import get_cloud_optimized_file
+
 from ipc.serializers import CountrySerializer, GlobalDisplacementSerializer, ThinkHazardInformationSerializer
-from oddrin.scripts.create_raster_tile import create_raster_tile
+#from oddrin.scripts.create_raster_tile import create_raster_tile
+
+
+def get_cloud_optimized_file(file):
+    destination_file = os.path.join(settings.BASE_DIR, 'media/test', 'test.tif')
+    scaled_command_using_glad = f'gdalwarp {file} {destination_file} -of COG'
+    data = subprocess.Popen(scaled_command_using_glad, stdout=subprocess.PIPE, shell=True)
+    _, tail = os.path.split(destination_file)
+    return os.path.join('oddrin/cog_files', tail)
 
 
 class RiskFileSerializer(serializers.ModelSerializer):
@@ -30,14 +46,12 @@ class OddrinSerializer(serializers.ModelSerializer):
         model = Oddrin
         fields = '__all__'
 
-    """def create(self, validate_data):
-        file = validate_data.get('file')
-        glide_number = validate_data.get('glide_number')
+    def create(self, validated_data):
+        """file = validated_data.get('file')
         if file:
-            mapbox_layer_id = create_raster_tile(file)
-        data = super().create(validate_data)
-        data['mapbox_layer_id'] = mapbox_layer_id
-        return data"""
+            cog_file = get_cloud_optimized_file(file)
+            validated_data['cog_file'] = cog_file"""
+        return super().create(validated_data)
 
 
 class IdmcSerializer(serializers.ModelSerializer):
