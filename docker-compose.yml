@@ -15,6 +15,13 @@ services:
     volumes:
       - redis-data:/redis_data
 
+  titiler:
+    image: developmentseed/titiler:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - FORWARDED_ALLOW_IPS="*"
+
   server:
     build: .
     env_file:
