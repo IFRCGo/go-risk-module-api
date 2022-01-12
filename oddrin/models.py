@@ -375,6 +375,11 @@ class Pdc(models.Model):
         null=True, blank=True,
         verbose_name=_('end_date')
     )
+    features = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('features')
+    )
 
     def __str__(self):
         return f'{self.hazard_id} - {self.hazard_name}'

@@ -18,7 +18,7 @@ class Command(BaseCommand):
         uuids = Pdc.objects.values_list('uuid', 'hazard_type')
         for uuid, hazard_type in uuids:
             access_token = os.environ.get('PDC_ACCESS_TOKEN')
-            url = f'https://testsentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/'
+            url = f'https://sentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/'
             headers = {'Authorization': "Bearer {}".format(access_token)}
             response = requests.get(url, headers=headers)
             if response.status_code != 200:

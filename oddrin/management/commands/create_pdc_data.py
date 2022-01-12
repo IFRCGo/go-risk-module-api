@@ -23,11 +23,11 @@ class Command(BaseCommand):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data
         access_token = os.environ.get('PDC_ACCESS_TOKEN')
-        url = 'https://testsentry.pdc.org/hp_srv/services/hazards/t/json/search_hazard'
+        url = 'https://sentry.pdc.org/hp_srv/services/hazards/t/json/search_hazard'
         headers = {'Authorization': "Bearer {}".format(access_token)}
         # make sure to use the datetime now and timestamp for the post data
         # current date and time
-        now = datetime.datetime.now()
+        now = datetime.datetime.now() - datetime.timedelta(days=-6)
         today_timestmap = str(datetime.datetime.timestamp(now)).replace('.', '')
         data = {
                 "pagination": {
