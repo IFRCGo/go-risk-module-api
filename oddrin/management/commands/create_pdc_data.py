@@ -27,7 +27,7 @@ class Command(BaseCommand):
         headers = {'Authorization': "Bearer {}".format(access_token)}
         # make sure to use the datetime now and timestamp for the post data
         # current date and time
-        now = datetime.datetime.now() - datetime.timedelta(days=-6)
+        now = datetime.datetime.now()
         today_timestmap = str(datetime.datetime.timestamp(now)).replace('.', '')
         data = {
                 "pagination": {

@@ -211,6 +211,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "oddrin.tasks.create_pdc_displacement",
         "schedule": crontab(minute=6, hour=0),  # This task execute daily at 6 AM (UTC)
     },
+    "create_pdc_polygon": {
+        "task": "odrin.tasks.create_pdc_polygon",
+        "schedule": crontab(day_of_week='sun,fri', hour=12)  # This task to execute twice a week
+    },
     "create_hazard_information": {
         "task": "ipc.tasks.import_think_hazard_informations",
         "schedule": crontab(0, 0, day_of_month='2')  # This task execute at second day of every month
