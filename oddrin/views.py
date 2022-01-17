@@ -196,8 +196,6 @@ class ImminentViewSet(viewsets.ViewSet):
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
                     country__iso3__icontains=iso3,
-                    pdc__created_at__date__lte=today,
-                    pdc__created_at__date__gte=yesterday,
                     pdc__status=Pdc.Status.ACTIVE
                 ).select_related('country'),
                 many=True
