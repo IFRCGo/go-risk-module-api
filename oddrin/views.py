@@ -197,7 +197,7 @@ class ImminentViewSet(viewsets.ViewSet):
                 PdcDisplacement.objects.filter(
                     country__iso3__icontains=iso3,
                     pdc__status=Pdc.Status.ACTIVE
-                ).select_related('country'),
+                ).order_by('-pdc__created_at').select_related('country').distinct('pdc__created_at'),
                 many=True
             ).data
 
