@@ -314,6 +314,10 @@ class GarHazard(models.Model):
         null=True, blank=True,
         verbose_name=_('return period 20 years')
     )
+    return_period_25_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('return period 25 years')
+    )
     return_period_50_years = models.FloatField(
         null=True, blank=True,
         verbose_name=_('return period 50 years')
