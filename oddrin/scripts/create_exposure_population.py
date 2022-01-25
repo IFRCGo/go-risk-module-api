@@ -34,10 +34,12 @@ def create_exposure_population(file):
         country = worksheet.cell(row=i, column=1).value
         hazard_type = parse_hazard_type(worksheet.cell(row=i, column=3).value)
         return_period_25_years = parse_empty_cell_value(worksheet.cell(row=i, column=4).value)
+        return_period_50_years = parse_empty_cell_value(worksheet.cell(row=i, column=5).value)
         if Country.objects.filter(name=country).exists():
             data_flood = {
                 'country': Country.objects.filter(name=country).first(),
                 'hazard_type': hazard_type,
                 'return_period_25_years': return_period_25_years,
+                'return_period_50_years': return_period_50_years,
             }
             GarHazard.objects.get_or_create(**data_flood)
