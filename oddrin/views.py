@@ -13,7 +13,7 @@ from oddrin.models import (
     IdmcSuddenOnset,
     InformRiskSeasonal,
     DisplacementData,
-    GarHazard,
+    GarHazardDisplacement,
     PdcDisplacement,
     Pdc,
 )
@@ -28,7 +28,7 @@ from oddrin.serializers import (
     IdmcSuddenOnsetSerializer,
     InformRiskSeasonalSerializer,
     DisplacementDataSerializer,
-    GarHazardSerializer,
+    GarHazardDisplacementSerializer,
     PdcDisplacementSerializer,
 )
 from oddrin.filter_set import (
@@ -38,7 +38,7 @@ from oddrin.filter_set import (
     InfromRiskSeasonalFilterSet,
     OddrinFilterSet,
     DisplacementDataFilterSet,
-    GarHazardFilterSet,
+    GarHazardDisplacementFilterSet,
     PdcDisplacemenFilterSet
 )
 from ipc.serializers import ThinkHazardInformationSerializer, GlobalDisplacementSerializer
@@ -81,9 +81,9 @@ class DisplacementViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class GarHazardViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = GarHazard.objects.select_related('country')
-    serializer_class = GarHazardSerializer
-    filterset_class = GarHazardFilterSet
+    queryset = GarHazardDisplacement.objects.select_related('country')
+    serializer_class = GarHazardDisplacementSerializer
+    filterset_class = GarHazardDisplacementFilterSet
 
 
 class PdcDisplacementViewSet(viewsets.ReadOnlyModelViewSet):
@@ -136,8 +136,8 @@ class SeasonalViewSet(viewsets.ViewSet):
                 ).select_related('country'),
                 many=True
             ).data
-            gar_return_period_data = GarHazardSerializer(
-                GarHazard.objects.filter(
+            gar_return_period_data = GarHazardDisplacementSerializer(
+                GarHazardDisplacement.objects.filter(
                     country__iso3__icontains=iso3
                 ).select_related('country'),
                 many=True
@@ -161,7 +161,7 @@ class SeasonalViewSet(viewsets.ViewSet):
             inform_seasonal = InformRiskSeasonalSerializer(InformRiskSeasonal.objects.select_related('country'), many=True).data
             idmc = IdmcSerializer(Idmc.objects.all(), many=True).data
             idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data
-            gar_return_period_data = GarHazardSerializer(GarHazard.objects.select_related('country'), many=True).data
+            gar_return_period_data = GarHazardDisplacementSerializer(GarHazardDisplacement.objects.select_related('country'), many=True).data
             ipc_displacement_data = GlobalDisplacementSerializer(GlobalDisplacement.objects.select_related('country'), many=True).data
             raster_displacement_data = DisplacementDataSerializer(DisplacementData.objects.select_related('country'), many=True).data
         return response.Response(

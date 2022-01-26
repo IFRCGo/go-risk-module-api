@@ -339,6 +339,70 @@ class GarHazard(models.Model):
         return f'{self.country} - {self.hazard_type}'
 
 
+
+class GarHazardDisplacement(models.Model):
+    """
+    This model displays both the economic loss and population exposure
+    """
+
+    country = models.ForeignKey(
+        'ipc.Country', on_delete=models.CASCADE,
+        verbose_name=_('country'), null=True, blank=True
+    )
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+
+    # fields for economic loss
+    economic_loss_return_period_20_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('economic loss return period 20 years')
+    )
+    economic_loss_return_period_50_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('economic loss return period 50 years')
+    )
+    economic_loss_return_period_100_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('economic loss return period 100 years')
+    )
+    economic_loss_return_period_250_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('economic loss return period 250 years')
+    )
+    economic_loss_return_period_500_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('economic loss return period 500 years')
+    )
+
+    # fields for population exposure
+    population_exposure_return_period_25_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('population exposure return period 25 years')
+    )
+    population_exposure_return_period_50_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('population exposure return period 50 years')
+    )
+    population_exposure_return_period_100_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('population exposure return period 100 years')
+    )
+    population_exposure_return_period_200_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('population exposure return period 250 years')
+    )
+    population_exposure_return_period_500_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('population exposure return period 500 years')
+    )
+    population_exposure_return_period_1000_years = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('population exposure return period 1000 years')
+    )
+
+
 class Pdc(models.Model):
     class Status(models.TextChoices):
         ACTIVE = 'A', 'Active',

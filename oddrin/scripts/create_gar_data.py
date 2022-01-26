@@ -1,6 +1,6 @@
 import openpyxl
 
-from oddrin.models import GarHazard, HazardType
+from oddrin.models import GarHazardDisplacement, HazardType
 
 
 def get_maximum_rows(*, sheet_object):
@@ -41,20 +41,20 @@ def create_gar_data(file):
             data_storm = {
                 'country': Country.objects.filter(name=country).first(),
                 'hazard_type': HazardType.STORM,
-                'return_period_20_years': ss_return_period_20_years,
-                'return_period_50_years': ss_return_period_50_years,
-                'return_period_100_years': ss_return_period_100_years,
-                'return_period_250_years': ss_return_period_250_years,
-                'return_period_500_years': ss_return_period_500_years
+                'economic_loss_return_period_20_years': ss_return_period_20_years,
+                'economic_loss_return_period_50_years': ss_return_period_50_years,
+                'economic_loss_return_period_100_years': ss_return_period_100_years,
+                'economic_loss_return_period_250_years': ss_return_period_250_years,
+                'economic_loss_return_period_500_years': ss_return_period_500_years
             }
-            GarHazard.objects.create(**data_storm)
+            GarHazardDisplacement.objects.create(**data_storm)
             data_wind = {
                 'country': Country.objects.filter(name=country).first(),
                 'hazard_type': HazardType.WIND,
-                'return_period_20_years': wd_return_period_20_years,
-                'return_period_50_years': wd_return_period_50_years,
-                'return_period_100_years': wd_return_period_100_years,
-                'return_period_250_years': wd_return_period_250_years,
-                'return_period_500_years': wd_return_period_500_years
+                'economic_loss_return_period_20_years': wd_return_period_20_years,
+                'economic_loss_return_period_50_years': wd_return_period_50_years,
+                'economic_loss_return_period_100_years': wd_return_period_100_years,
+                'economic_loss_return_period_250_years': wd_return_period_250_years,
+                'economic_loss_return_period_500_years': wd_return_period_500_years
             }
-            GarHazard.objects.create(**data_wind)
+            GarHazardDisplacement.objects.create(**data_wind)

@@ -37,6 +37,6 @@ class Command(BaseCommand):
                                     'hazard_type': hazard_type,
                                     'population_exposure': d['population'],
                                     'capital_exposure': d['capital'],
-                                    'pdc': Pdc.objects.get(uuid=uuid)
+                                    'pdc': Pdc.objects.get(uuid=uuid).first(),
                                 }
                                 PdcDisplacement.objects.get_or_create(**c_data)

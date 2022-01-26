@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_celery_beat',
     'corsheaders',
+    'storages',
 
     # DJANGO APPS
     'django.contrib.admin',
@@ -176,15 +177,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+
+if os.environ.get('USE_AWS_FOR_MEDIA', 'false').lower() == 'true':
+    AWS_S3_ACCESS_KEY_ID = os.environ['S3_AWS_ACCESS_KEY_ID']
+    AWS_S3_SECRET_ACCESS_KEY = os.environ['S3_AWS_SECRET_ACCESS_KEY']
+    AWS_STORAGE_BUCKET_NAME = os.environ['S3_STORAGE_BUCKET_NAME']
+    AWS_S3_REGION_NAME = os.environ['S3_REGION_NAME']
+
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = 'private'
+
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
-if DEBUG:
-    STATIC_URL = "/staticfiles/"
-    MEDIA_URL = '/media/'
-else:
-    STATIC_URL = "/staticfiles/"
-    MEDIA_URL = '/media/'
+MEDIA_URL = '/media/'
+STATIC_URL = "/staticfiles/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -205,15 +213,15 @@ CELERY_BEAT_SCHEDULE = {
     },
     "create_pdc_data": {
         "task": "oddrin.tasks.create_pdc_data",
-        "schedule": crontab(minute=4, hour=0),  # This task execute daily at 4 AM (UTC)
+        "schedule": crontab(minute=0, hour='*/2'),  # This task execute daily in 2 hours interval
     },
     "create_pdc_displacement": {
         "task": "oddrin.tasks.create_pdc_displacement",
-        "schedule": crontab(minute=6, hour=0),  # This task execute daily at 6 AM (UTC)
+        "schedule": crontab(minute=0, hour='*/3'),  # This task execute daily in 3 hours interval
     },
     "create_pdc_polygon": {
-        "task": "odrin.tasks.create_pdc_polygon",
-        "schedule": crontab(day_of_week='sun,fri', hour=12)  # This task to execute twice a week
+        "task": "oddrin.tasks.create_pdc_polygon",
+        "schedule": crontab(minute=0, hour='*/6')  # This task to execute daily in 6  interval
     },
     "create_hazard_information": {
         "task": "ipc.tasks.import_think_hazard_informations",

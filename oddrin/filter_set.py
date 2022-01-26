@@ -6,7 +6,7 @@ from oddrin.models import (
     IdmcSuddenOnset,
     InformRiskSeasonal,
     DisplacementData,
-    GarHazard,
+    GarHazardDisplacement,
     PdcDisplacement
 )
 from oddrin.models import HazardType, Oddrin
@@ -66,9 +66,9 @@ class DisplacementDataFilterSet(BaseFilterSet):
         fields = ()
 
 
-class GarHazardFilterSet(BaseFilterSet):
+class GarHazardDisplacementFilterSet(BaseFilterSet):
     class Meta:
-        model = GarHazard
+        model = GarHazardDisplacement
         fields = ()
 
 

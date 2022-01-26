@@ -14,7 +14,7 @@ from oddrin.models import (
     InformRiskSeasonal,
     RiskFile,
     DisplacementData,
-    GarHazard,
+    GarHazardDisplacement,
     PdcDisplacement,
     Pdc,
 )
@@ -99,12 +99,12 @@ class DisplacementDataSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class GarHazardSerializer(serializers.ModelSerializer):
+class GarHazardDisplacementSerializer(serializers.ModelSerializer):
     hazard_type_display = serializers.CharField(source='get_hazard_type_display')
     country_details = CountrySerializer(source='country', read_only=True)
 
     class Meta:
-        model = GarHazard
+        model = GarHazardDisplacement
         fields = '__all__'
 
 

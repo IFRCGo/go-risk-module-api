@@ -1,6 +1,6 @@
 import openpyxl
 
-from oddrin.models import GarHazard, HazardType
+from oddrin.models import GarHazardDisplacement, HazardType
 
 
 def get_maximum_rows(*, sheet_object):
@@ -39,7 +39,7 @@ def create_exposure_population(file):
             data_flood = {
                 'country': Country.objects.filter(name=country).first(),
                 'hazard_type': hazard_type,
-                'return_period_25_years': return_period_25_years,
-                'return_period_50_years': return_period_50_years,
+                'population_exposure_return_period_25_years': return_period_25_years,
+                'population_exposure_return_period_50_years': return_period_50_years,
             }
-            GarHazard.objects.get_or_create(**data_flood)
+            GarHazardDisplacement.objects.get_or_create(**data_flood)
