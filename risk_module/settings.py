@@ -38,9 +38,9 @@ ALLOWED_HOSTS = [os.environ.get('DJANGO_ALLOWED_HOST', 'localhost')]
 
 INSTALLED_APPS = [
     # LOCAL APPS
-    'earthquake',
-    'ipc',
-    'oddrin',
+    'imminent',
+    'seasonal',
+    'common',
 
     # LIBRARIES
     'rest_framework',
@@ -208,23 +208,23 @@ CELERY_ACKS_LATE = True
 
 CELERY_BEAT_SCHEDULE = {
     "import_earthquake_data": {
-        "task": "earthquake.tasks.import_earthquake_data",
+        "task": "imminent.tasks.import_earthquake_data",
         "schedule": crontab(minute=0, hour=0),  # This task execute daily at 12 AM (UTC)
     },
     "create_pdc_data": {
-        "task": "oddrin.tasks.create_pdc_data",
+        "task": "imminent.tasks.create_pdc_data",
         "schedule": crontab(minute=0, hour='*/2'),  # This task execute daily in 2 hours interval
     },
     "create_pdc_displacement": {
-        "task": "oddrin.tasks.create_pdc_displacement",
+        "task": "imminent.tasks.create_pdc_displacement",
         "schedule": crontab(minute=0, hour='*/3'),  # This task execute daily in 3 hours interval
     },
     "create_pdc_polygon": {
-        "task": "oddrin.tasks.create_pdc_polygon",
+        "task": "imminent.tasks.create_pdc_polygon",
         "schedule": crontab(minute=0, hour='*/6')  # This task to execute daily in 6  interval
     },
     "create_hazard_information": {
-        "task": "ipc.tasks.import_think_hazard_informations",
+        "task": "seasonal.tasks.import_think_hazard_informations",
         "schedule": crontab(0, 0, day_of_month='2')  # This task execute at second day of every month
     }
 }

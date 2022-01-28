@@ -19,22 +19,22 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from earthquake.views import EarthquakeViewSet
-from oddrin.views import (
+from seasonal.views import (
     SeasonalViewSet,
-    ImminentViewSet,
-    OddrinViewSet,
     IdmcViewSet,
     InformRiskViewSet,
     IdmcSuddenOnsetViewSet,
     InformRiskSeasonalViewSet,
     DisplacementViewSet,
     GarHazardViewSet,
-    PdcDisplacementViewSet
-)
-from ipc.views import (
     GlobalDisplacementViewSet,
     ThinkHazardInformationViewSet
+)
+from imminent.views import (
+    ImminentViewSet,
+    OddrinViewSet,
+    PdcDisplacementViewSet,
+    EarthquakeViewSet,
 )
 
 from rest_framework import routers
@@ -45,7 +45,6 @@ router.register(r'earthquake', EarthquakeViewSet, basename='earthquake')
 router.register(r'global-exposure-data', OddrinViewSet, basename='oddrin')
 router.register(r'seasonal', SeasonalViewSet, basename='seasonal')
 router.register(r'imminent', ImminentViewSet, basename='imminent')
-router.register(r'global-exposure-data', OddrinViewSet, basename='oddrin')
 router.register(r'idmc-data', IdmcViewSet, basename='idmc')
 router.register(r'displacement-data', GlobalDisplacementViewSet, basename='global')
 router.register(r'inform-data', InformRiskViewSet, basename='inform')
