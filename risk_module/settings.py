@@ -215,6 +215,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "imminent.tasks.create_pdc_data",
         "schedule": crontab(minute=0, hour='*/2'),  # This task execute daily in 2 hours interval
     },
+    "create_pdc_daily": {
+        "task": "imminent.tasks.create_pdc_daily",
+        "schedule": crontab(minute=0, hour='5'),  # This task execute daily at 5 AM (UTC)
+    },
     "create_pdc_displacement": {
         "task": "imminent.tasks.create_pdc_displacement",
         "schedule": crontab(minute=0, hour='*/3'),  # This task execute daily in 3 hours interval

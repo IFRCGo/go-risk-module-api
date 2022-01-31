@@ -8,6 +8,11 @@ def create_pdc_data():
 
 
 @shared_task
+def create_pdc_daily():
+    call_command('create_pdc_daily',)
+
+
+@shared_task
 def create_pdc_displacement():
     call_command('create_pdc_displacement',)
 

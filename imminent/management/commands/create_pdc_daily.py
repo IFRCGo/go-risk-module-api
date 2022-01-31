@@ -24,32 +24,9 @@ class Command(BaseCommand):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data
         access_token = os.environ.get('PDC_ACCESS_TOKEN')
-        url = 'https://sentry.pdc.org/hp_srv/services/hazards/t/json/search_hazard'
+        url = 'https://sentry.pdc.org/hp_srv/services/hazards/t/json/get_active_hazards'
         headers = {'Authorization': "Bearer {}".format(access_token)}
-        # make sure to use the datetime now and timestamp for the post data
-        # current date and time
-        now = datetime.datetime.now()
-        today_timestmap = str(datetime.datetime.timestamp(now)).replace('.', '')
-        data = {
-                "pagination": {
-                    "page": 1,
-                    "pagesize": 100
-                },
-                "order": {
-                    "orderlist": {
-                    "updateDate": "DESC"
-                    }
-                },
-                "restrictions": [
-                    [
-                        {
-                            "searchType": "LESS_THAN",
-                            "updateDate": today_timestmap
-                        }
-                    ]
-                ]
-        }
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.get(url, headers=headers)
         if response.status_code != 200:
             error_log = f'Error querying PDC data at {url}'
             logger.error(error_log)
