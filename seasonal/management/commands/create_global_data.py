@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from oddrin.scripts.create_global_data import create_global_displacment_data
+from seasonal.scripts.create_global_data import create_global_displacment_data
 
 
 class Command(BaseCommand):

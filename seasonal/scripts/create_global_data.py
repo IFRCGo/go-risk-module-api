@@ -1,9 +1,7 @@
 import openpyxl
 
-from oddrin.models import (
-    DisplacementData,
-    HazardType
-)
+from seasonal.models import DisplacementData
+from common.models import Country, HazardType
 
 
 def get_maximum_rows(*, sheet_object):
@@ -29,7 +27,6 @@ def parse_empty_cell_value(data):
 
 
 def create_global_displacment_data(file):
-    from ipc.models import Country
     workbook = openpyxl.load_workbook(file)
     worksheet = workbook.get_sheet_by_name('Displacement Risk Per Month')
     max_rows = get_maximum_rows(sheet_object=worksheet)
