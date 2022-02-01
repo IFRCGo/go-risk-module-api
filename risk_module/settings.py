@@ -227,6 +227,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "imminent.tasks.create_pdc_polygon",
         "schedule": crontab(minute=0, hour='*/6')  # This task to execute daily in 6  interval
     },
+    "check_pdc_status": {
+        "task": "imminent.tasks.check_pdc_status",
+        "schedule": crontab(minute=0, hour=1)  # This task to execute daily in 1 AM(UTC)
+    },
     "create_hazard_information": {
         "task": "seasonal.tasks.import_think_hazard_informations",
         "schedule": crontab(0, 0, day_of_month='2')  # This task execute at second day of every month

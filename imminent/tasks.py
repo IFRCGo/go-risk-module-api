@@ -23,5 +23,10 @@ def create_pdc_polygon():
 
 
 @shared_task
+def check_pdc_status():
+    call_command('check_pdc_status',)
+
+
+@shared_task
 def import_earthquake_data():
     call_command('import_earthquake_data',)
