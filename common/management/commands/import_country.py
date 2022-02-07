@@ -20,4 +20,4 @@ class Command(BaseCommand):
                     'iso3': data['iso3'],
                     'iso': data['iso']
                 }
-                Country.objects.create(**data)
+                Country.objects.get_or_create(**data)

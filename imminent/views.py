@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 from rest_framework import viewsets, response
 
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db import models
 
 from imminent.models import (
     Oddrin,
@@ -46,6 +47,7 @@ class ImminentViewSet(viewsets.ViewSet):
 
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get('iso3')
+        region = self.request.query_params.get('region')
         hazard_type = self.request.query_params.get('hazard_type')
         today = datetime.now().date()
         yesterday = today + timedelta(days=-1)
@@ -58,6 +60,18 @@ class ImminentViewSet(viewsets.ViewSet):
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
                     country__iso3__icontains=iso3,
+                    pdc__status=Pdc.Status.ACTIVE
+                ).order_by('-pdc__created_at').select_related('country').distinct('pdc__created_at'),
+                many=True
+            ).data
+
+        elif region:
+            oddrin_data = OddrinSerializer(
+                Oddrin.objects.all(), many=True
+            ).data
+            pdc_data = PdcDisplacementSerializer(
+                PdcDisplacement.objects.filter(
+                    country__region__region_id=region,
                     pdc__status=Pdc.Status.ACTIVE
                 ).order_by('-pdc__created_at').select_related('country').distinct('pdc__created_at'),
                 many=True

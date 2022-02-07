@@ -11,7 +11,11 @@ class Idmc(models.Model):
         LOAD = 'low', 'Low'
         UNDEFINED = 'undefined', 'Undefined'
 
-    country = models.CharField(max_length=255, verbose_name=_('country'))
+    country = models.ForeignKey(
+        Country,
+        on_delete=models.SET_NULL,
+        null=True, blank=True
+    )
     iso3 = models.CharField(max_length=3, verbose_name=_('iso3'), null=True, blank=True)
     hazard_type = models.CharField(
         max_length=100, verbose_name=_('hazard type'),

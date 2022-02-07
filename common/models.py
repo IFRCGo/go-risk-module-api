@@ -14,6 +14,14 @@ class HazardType(models.TextChoices):
     WIND = 'CD', 'Cyclonic Wind'
 
 
+class Region(models.Model):
+    region_id = models.IntegerField(verbose_name=_('region id'))
+    region_name = models.CharField(verbose_name=_('region name'), max_length=255)
+
+    def __str__(self):
+        return f'{self.region_id} - {self.region_name}'
+
+
 class Country(models.Model):
     name = models.CharField(max_length=255, verbose_name=_('name'), null=True, blank=True)
     iso3 = models.CharField(
@@ -21,8 +29,14 @@ class Country(models.Model):
         null=True, blank=True
     )
     iso = models.CharField(
-        max_length=2, verbose_name=_('iso3'),
+        max_length=2, verbose_name=_('iso2'),
         null=True, blank=True
+    )
+    region = models.ForeignKey(
+        Region,
+        verbose_name=_('region'),
+        null=True, blank=True,
+        on_delete=models.SET_NULL
     )
 
     def __str__(self):

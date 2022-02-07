@@ -69,6 +69,7 @@ class SeasonalViewSet(viewsets.ViewSet):
 
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get('iso3')
+        region = self.request.query_params.get('region')
         #hazard_type = self.request.query_params.get('hazard_type')
         if iso3 is not None:
             hazard_info = ThinkHazardInformationSerializer(
@@ -116,6 +117,56 @@ class SeasonalViewSet(viewsets.ViewSet):
             raster_displacement_data = DisplacementDataSerializer(
                 DisplacementData.objects.filter(
                     country__iso3__icontains=iso3
+                ).select_related('country'),
+                many=True
+            ).data
+
+        elif region:
+            hazard_info = ThinkHazardInformationSerializer(
+                ThinkHazardInformation.objects.filter(
+                    country__region__region_id=region,
+                ),
+                many=True
+            ).data
+            inform = InformRiskSerializer(
+                InformRisk.objects.filter(
+                    country__region__region_id=region,
+                ).select_related('country'),
+                many=True
+            ).data
+            inform_seasonal = InformRiskSeasonalSerializer(
+                InformRiskSeasonal.objects.filter(
+                    country__region__region_id=region,
+                ).select_related('country'),
+                many=True
+            ).data
+            idmc = IdmcSerializer(
+                Idmc.objects.filter(
+                    country__region__region_id=region,
+                ),
+                many=True
+            ).data
+            idmc_return_period_data = IdmcSuddenOnsetSerializer(
+                IdmcSuddenOnset.objects.filter(
+                    country__region__region_id=region,
+                ).select_related('country'),
+                many=True
+            ).data
+            gar_return_period_data = GarHazardDisplacementSerializer(
+                GarHazardDisplacement.objects.filter(
+                    country__region__region_id=region,
+                ).select_related('country'),
+                many=True
+            ).data
+            ipc_displacement_data = GlobalDisplacementSerializer(
+                GlobalDisplacement.objects.filter(
+                    country__region__region_id=region,
+                ).select_related('country'),
+                many=True
+            ).data
+            raster_displacement_data = DisplacementDataSerializer(
+                DisplacementData.objects.filter(
+                    country__region__region_id=region,
                 ).select_related('country'),
                 many=True
             ).data

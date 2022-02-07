@@ -1,6 +1,6 @@
 import openpyxl
 
-from common.models import HazardType
+from common.models import HazardType, Country
 from seasonal.models import Idmc
 
 
@@ -78,7 +78,7 @@ def fetch_idmc_data(file):
             december = None
 
         data = {
-            'country': country,
+            'country': Country.objects.filter(iso3=iso3.lower()).first(),
             'iso3': iso3,
             'hazard_type': parse_hazard_type(hazard_type),
             'annual_average_displacement': annual_average_displacement,

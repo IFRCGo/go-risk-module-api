@@ -35,7 +35,7 @@ class ThinkHazardInformationSerializer(serializers.ModelSerializer):
 
 class IdmcSerializer(serializers.ModelSerializer):
     hazard_type_display = serializers.CharField(source='get_hazard_type_display')
-    confidence_type_display = serializers.CharField(source='get_confidence_type_display')
+    country_details = CountrySerializer(source='country', read_only=True)
 
     class Meta:
         model = Idmc
