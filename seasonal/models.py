@@ -12,9 +12,8 @@ class Idmc(models.Model):
         UNDEFINED = 'undefined', 'Undefined'
 
     country = models.ForeignKey(
-        Country,
-        on_delete=models.SET_NULL,
-        null=True, blank=True
+        Country, on_delete=models.CASCADE,
+        verbose_name=_('country'), null=True, blank=True
     )
     iso3 = models.CharField(max_length=3, verbose_name=_('iso3'), null=True, blank=True)
     hazard_type = models.CharField(
