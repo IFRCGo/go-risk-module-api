@@ -47,30 +47,31 @@ def create_global_displacment_data(file):
         november = parse_empty_cell_value(str(worksheet.cell(row=i, column=15).value).replace("%", ""))
         december = parse_empty_cell_value(str(worksheet.cell(row=i, column=16).value).replace("%", ""))
         if annual_average_displacement:
-            if january:
-                january = float(january) * annual_average_displacement
-            if february:
-                february = float(february) * annual_average_displacement
-            if march:
-                march = float(march) * annual_average_displacement
-            if april:
-                april = float(april) * annual_average_displacement
-            if may:
-                may = float(may) * annual_average_displacement
-            if june:
-                june = float(june) * annual_average_displacement
-            if july:
-                july = float(july) * annual_average_displacement
-            if august:
-                august = float(august) * annual_average_displacement
-            if september:
-                september = float(september) * annual_average_displacement
-            if october:
-                october = float(october) * annual_average_displacement
-            if november:
-                november = float(november) * annual_average_displacement
-            if december:
-                december = float(december) * annual_average_displacement
+            january = float(january) * annual_average_displacement
+            february = float(february) * annual_average_displacement
+            march = float(march) * annual_average_displacement
+            april = float(april) * annual_average_displacement
+            may = float(may) * annual_average_displacement
+            june = float(june) * annual_average_displacement
+            july = float(july) * annual_average_displacement
+            august = float(august) * annual_average_displacement
+            september = float(september) * annual_average_displacement
+            october = float(october) * annual_average_displacement
+            november = float(november) * annual_average_displacement
+            december = float(december) * annual_average_displacement
+        elif annual_average_displacement is None:
+            january = None
+            february = None
+            march = None
+            april = None
+            may = None
+            june = None
+            july = None
+            august = None
+            september = None
+            october = None
+            november = None
+            december = None
 
         if Country.objects.filter(iso3=iso3.lower()).exists():
             data = {
