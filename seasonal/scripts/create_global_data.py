@@ -32,8 +32,8 @@ def create_global_displacment_data(file):
     max_rows = get_maximum_rows(sheet_object=worksheet)
     for i in range(2, max_rows):
         iso3 = worksheet.cell(row=i, column=2).value
-        hazard_type = parse_hazard_type(worksheet.cell(row=i, column=3).value)
-        annual_average_displacement = parse_empty_cell_value(worksheet.cell(row=i, column=4).value)
+        hazard_type = parse_hazard_type(worksheet.cell(row=i, column=4).value)
+        annual_average_displacement = parse_empty_cell_value(worksheet.cell(row=i, column=3).value)
         january = parse_empty_cell_value(str(worksheet.cell(row=i, column=5).value).replace("%", ""))
         february = parse_empty_cell_value(str(worksheet.cell(row=i, column=6).value).replace("%", ""))
         march = parse_empty_cell_value(str(worksheet.cell(row=i, column=7).value).replace("%", ""))
@@ -59,6 +59,7 @@ def create_global_displacment_data(file):
             october = float(october) * annual_average_displacement
             november = float(november) * annual_average_displacement
             december = float(december) * annual_average_displacement
+
         elif annual_average_displacement is None:
             january = None
             february = None
