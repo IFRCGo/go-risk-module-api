@@ -15,11 +15,17 @@ class HazardType(models.TextChoices):
 
 
 class Region(models.Model):
-    region_id = models.IntegerField(verbose_name=_('region id'))
-    region_name = models.CharField(verbose_name=_('region name'), max_length=255)
+    class RegionName(models.IntegerChoices):
+        AFRICA = 0, _('Africa')
+        AMERICAS = 1, _('Americas')
+        ASIA_PACIFIC = 2, _('Asia Pacific')
+        EUROPE = 3, _('Europe')
+        MENA = 4, _('Middle East & North Africa')
+
+    name = models.IntegerField(verbose_name=_('name'), choices=RegionName.choices,)
 
     def __str__(self):
-        return f'{self.region_id} - {self.region_name}'
+        return f'{self.name}'
 
 
 class Country(models.Model):

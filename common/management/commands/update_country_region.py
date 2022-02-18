@@ -15,13 +15,12 @@ class Command(BaseCommand):
             response_data = response.json()
             url = response_data['next']
             for data in response_data['results']:
-                print(data)
                 region = data['region']
                 iso3 = data['iso3']
                 if iso3:
                     if Country.objects.filter(iso3=iso3.lower()).exists():
                         country = Country.objects.filter(iso3=iso3.lower()).first()
-                        region = Region.objects.filter(region_id=region)
+                        region = Region.objects.filter(name=region)
                         if region.exists():
                             region = region.first()
                         else:

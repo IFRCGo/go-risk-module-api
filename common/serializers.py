@@ -4,6 +4,8 @@ from common.models import Country, Region
 
 
 class RegionSerializer(serializers.ModelSerializer):
+    name_display = serializers.CharField(source='get_name_display', read_only=True)
+
     class Meta:
         model = Region
         fields = '__all__'
