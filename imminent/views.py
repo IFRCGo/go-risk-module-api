@@ -71,7 +71,7 @@ class ImminentViewSet(viewsets.ViewSet):
             ).data
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                     pdc__status=Pdc.Status.ACTIVE
                 ).order_by('-pdc__created_at').select_related('country').distinct('pdc__created_at'),
                 many=True

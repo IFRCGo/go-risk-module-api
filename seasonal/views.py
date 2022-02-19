@@ -1,6 +1,11 @@
 from rest_framework import viewsets, response
 from django_filters.rest_framework import DjangoFilterBackend
 
+from datetime import datetime
+from datetime import timedelta
+from openpyxl import Workbook
+from django.http import HttpResponse
+from common.models import HazardType
 from seasonal.models import (
     Idmc,
     InformRisk,
@@ -124,49 +129,49 @@ class SeasonalViewSet(viewsets.ViewSet):
         elif region:
             hazard_info = ThinkHazardInformationSerializer(
                 ThinkHazardInformation.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                 ),
                 many=True
             ).data
             inform = InformRiskSerializer(
                 InformRisk.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                 ).select_related('country'),
                 many=True
             ).data
             inform_seasonal = InformRiskSeasonalSerializer(
                 InformRiskSeasonal.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                 ).select_related('country'),
                 many=True
             ).data
             idmc = IdmcSerializer(
                 Idmc.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                 ),
                 many=True
             ).data
             idmc_return_period_data = IdmcSuddenOnsetSerializer(
                 IdmcSuddenOnset.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                 ).select_related('country'),
                 many=True
             ).data
             gar_return_period_data = GarHazardDisplacementSerializer(
                 GarHazardDisplacement.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                 ).select_related('country'),
                 many=True
             ).data
             ipc_displacement_data = GlobalDisplacementSerializer(
                 GlobalDisplacement.objects.filter(
-                    country__region__region_id=region,
+                    country__region=region,
                 ).select_related('country'),
                 many=True
             ).data
             raster_displacement_data = DisplacementDataSerializer(
                 DisplacementData.objects.filter(
-                    country__region__region_id=region,
+                    country__region__name=region,
                 ).select_related('country'),
                 many=True
             ).data
