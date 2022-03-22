@@ -56,6 +56,8 @@ class Command(BaseCommand):
                         'start_date': self.parse_timestamp(data['start_Date']),
                         'end_date': self.parse_timestamp(data['end_Date']),
                         'status': Pdc.Status.ACTIVE,
+                        'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                        'pdc_updated_at': self.parse_timestamp(data['update_Date']),
                     }
                     Pdc.objects.get_or_create(**data)
                 elif hazard_type == 'CYCLONE':
@@ -71,6 +73,8 @@ class Command(BaseCommand):
                         'start_date': self.parse_timestamp(data['start_Date']),
                         'end_date': self.parse_timestamp(data['end_Date']),
                         'status': Pdc.Status.ACTIVE,
+                        'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                        'pdc_updated_at': self.parse_timestamp(data['update_Date']),
                     }
                     Pdc.objects.get_or_create(**data)
                 elif hazard_type == 'STORM':
@@ -86,6 +90,8 @@ class Command(BaseCommand):
                         'start_date': self.parse_timestamp(data['start_Date']),
                         'end_date': self.parse_timestamp(data['end_Date']),
                         'status': Pdc.Status.ACTIVE,
+                        'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                        'pdc_updated_at': self.parse_timestamp(data['update_Date']),
                     }
                     Pdc.objects.get_or_create(**data)
                 elif hazard_type == 'DROUGHT':
@@ -101,6 +107,8 @@ class Command(BaseCommand):
                         'start_date': self.parse_timestamp(data['start_Date']),
                         'end_date': self.parse_timestamp(data['end_Date']),
                         'status': Pdc.Status.ACTIVE,
+                        'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                        'pdc_updated_at': self.parse_timestamp(data['update_Date']),
                     }
                     Pdc.objects.get_or_create(**data)
                 elif hazard_type == 'WIND':
@@ -116,6 +124,8 @@ class Command(BaseCommand):
                         'start_date': self.parse_timestamp(data['start_Date']),
                         'end_date': self.parse_timestamp(data['end_Date']),
                         'status': Pdc.Status.ACTIVE,
+                        'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                        'pdc_updated_at': self.parse_timestamp(data['update_Date']),
                     }
                     Pdc.objects.get_or_create(**data)
                 elif hazard_type == 'TSUNAMI':
@@ -131,6 +141,8 @@ class Command(BaseCommand):
                         'start_date': self.parse_timestamp(data['start_Date']),
                         'end_date': self.parse_timestamp(data['end_Date']),
                         'status': Pdc.Status.ACTIVE,
+                        'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                        'pdc_updated_at': self.parse_timestamp(data['update_Date']),
                     }
                     Pdc.objects.get_or_create(**data)
                 elif hazard_type == 'EARTHQUAKE':
@@ -146,5 +158,7 @@ class Command(BaseCommand):
                         'start_date': self.parse_timestamp(data['start_Date']),
                         'end_date': self.parse_timestamp(data['end_Date']),
                         'status': Pdc.Status.ACTIVE,
+                        'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                        'pdc_updated_at': self.parse_timestamp(data['update_Date']),
                     }
                     Pdc.objects.get_or_create(**data)

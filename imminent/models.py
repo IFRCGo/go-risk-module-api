@@ -53,6 +53,9 @@ class Pdc(models.Model):
         EXPIRED = 'E', 'Expired',
 
     created_at = models.DateTimeField(auto_now_add=True)
+    # Adding following as to keep track of pdc create and update date
+    pdc_created_at = models.DateTimeField(verbose_name=_('pdc created at'), null=True, blank=True)
+    pdc_updated_at = models.DateTimeField(verbose_name=_('pdc updated at'), null=True, blank=True)
     hazard_id = models.CharField(verbose_name=_('hazard id'), max_length=255)
     hazard_name = models.CharField(verbose_name=_('hazard name'), max_length=255)
     hazard_type = models.CharField(

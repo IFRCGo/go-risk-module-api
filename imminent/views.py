@@ -48,9 +48,6 @@ class ImminentViewSet(viewsets.ViewSet):
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get('iso3')
         region = self.request.query_params.get('region')
-        hazard_type = self.request.query_params.get('hazard_type')
-        today = datetime.now().date()
-        yesterday = today + timedelta(days=-1)
         if iso3:
             oddrin_data = OddrinSerializer(
                 Oddrin.objects.filter(
@@ -61,7 +58,7 @@ class ImminentViewSet(viewsets.ViewSet):
                 PdcDisplacement.objects.filter(
                     country__iso3__icontains=iso3,
                     pdc__status=Pdc.Status.ACTIVE
-                ).order_by('-pdc__created_at').select_related('country').distinct('pdc__created_at'),
+                ).order_by('-pdc__created_at').select_related('country'),
                 many=True
             ).data
 
@@ -73,7 +70,7 @@ class ImminentViewSet(viewsets.ViewSet):
                 PdcDisplacement.objects.filter(
                     country__region__name=region,
                     pdc__status=Pdc.Status.ACTIVE
-                ).order_by('-pdc__created_at').select_related('country').distinct('pdc__created_at'),
+                ).order_by('-pdc__created_at').select_related('country'),
                 many=True
             ).data
 
