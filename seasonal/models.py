@@ -282,53 +282,45 @@ class GarHazardDisplacement(models.Model):
         max_length=100, verbose_name=_('hazard type'),
         choices=HazardType.choices, blank=True
     )
-
-    # fields for economic loss
-    economic_loss_return_period_20_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('economic loss return period 20 years')
+    ten_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Ten years'),
     )
-    economic_loss_return_period_50_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('economic loss return period 50 years')
+    twenty_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Twenty years'),
     )
-    economic_loss_return_period_100_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('economic loss return period 100 years')
+    twenty_five_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Twenty five years'),
     )
-    economic_loss_return_period_250_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('economic loss return period 250 years')
+    fifty_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Fifty years'),
     )
-    economic_loss_return_period_500_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('economic loss return period 500 years')
+    hundred_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Hundred years'),
     )
-
-    # fields for population exposure
-    population_exposure_return_period_25_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('population exposure return period 25 years')
+    two_hundred_fifty_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Two Hundred Fifty years'),
     )
-    population_exposure_return_period_50_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('population exposure return period 50 years')
+    five_hundred_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Five Hundred years'),
     )
-    population_exposure_return_period_100_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('population exposure return period 100 years')
-    )
-    population_exposure_return_period_200_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('population exposure return period 250 years')
-    )
-    population_exposure_return_period_500_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('population exposure return period 500 years')
-    )
-    population_exposure_return_period_1000_years = models.FloatField(
-        null=True, blank=True,
-        verbose_name=_('population exposure return period 1000 years')
+    one_thousand_years = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('One Thousand years')
     )
 
 

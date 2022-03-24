@@ -35,24 +35,54 @@ def create_gar_data(file):
         ss_return_period_100_years = parse_empty_cell_value(worksheet.cell(row=i, column=13).value)
         ss_return_period_250_years = parse_empty_cell_value(worksheet.cell(row=i, column=14).value)
         ss_return_period_500_years = parse_empty_cell_value(worksheet.cell(row=i, column=15).value)
+        ss_return_period_20_years = {
+            'economic_loss': ss_return_period_20_years
+        }
+        ss_return_period_50_years = {
+            'economic_loss': ss_return_period_50_years
+        }
+        ss_return_period_100_years = {
+            'economic_loss': ss_return_period_100_years
+        }
+        ss_return_period_250_years = {
+            'economic_loss': ss_return_period_250_years
+        }
+        ss_return_period_500_years = {
+            'economic_loss': ss_return_period_500_years
+        }
+        wd_return_period_20_years = {
+            'economic_loss': wd_return_period_20_years
+        }
+        wd_return_period_50_years = {
+            'economic_loss': wd_return_period_50_years
+        }
+        wd_return_period_100_years = {
+            'economic_loss': wd_return_period_100_years
+        }
+        wd_return_period_250_years = {
+            'economic_loss': wd_return_period_250_years
+        }
+        wd_return_period_500_years = {
+            'economic_loss': wd_return_period_500_years
+        }
         if Country.objects.filter(name=country).exists():
             data_storm = {
                 'country': Country.objects.filter(name=country).first(),
                 'hazard_type': HazardType.STORM,
-                'economic_loss_return_period_20_years': ss_return_period_20_years,
-                'economic_loss_return_period_50_years': ss_return_period_50_years,
-                'economic_loss_return_period_100_years': ss_return_period_100_years,
-                'economic_loss_return_period_250_years': ss_return_period_250_years,
-                'economic_loss_return_period_500_years': ss_return_period_500_years
+                'twenty_years': ss_return_period_20_years,
+                'fifty_years': ss_return_period_50_years,
+                'hundred_years': ss_return_period_100_years,
+                'two_hundred_fifty_years': ss_return_period_250_years,
+                'five_hundred_years': ss_return_period_500_years
             }
             GarHazardDisplacement.objects.create(**data_storm)
             data_wind = {
                 'country': Country.objects.filter(name=country).first(),
                 'hazard_type': HazardType.WIND,
-                'economic_loss_return_period_20_years': wd_return_period_20_years,
-                'economic_loss_return_period_50_years': wd_return_period_50_years,
-                'economic_loss_return_period_100_years': wd_return_period_100_years,
-                'economic_loss_return_period_250_years': wd_return_period_250_years,
-                'economic_loss_return_period_500_years': wd_return_period_500_years
+                'twenty_years': wd_return_period_20_years,
+                'fifty_years': wd_return_period_50_years,
+                'hundred_years': wd_return_period_100_years,
+                'two_hundred_fifty_years': wd_return_period_250_years,
+                'five_hundred_years': wd_return_period_500_years
             }
             GarHazardDisplacement.objects.create(**data_wind)

@@ -56,8 +56,7 @@ class ImminentViewSet(viewsets.ViewSet):
             ).data
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
-                    country__iso3__icontains=iso3,
-                    pdc__status=Pdc.Status.ACTIVE
+                    country__iso3__icontains=iso3
                 ).order_by('-pdc__created_at').select_related('country'),
                 many=True
             ).data
@@ -68,8 +67,7 @@ class ImminentViewSet(viewsets.ViewSet):
             ).data
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
-                    country__region__name=region,
-                    pdc__status=Pdc.Status.ACTIVE
+                    country__region__name=region
                 ).order_by('-pdc__created_at').select_related('country'),
                 many=True
             ).data
@@ -79,9 +77,7 @@ class ImminentViewSet(viewsets.ViewSet):
                 Oddrin.objects.all(), many=True
             ).data
             pdc_data = PdcDisplacementSerializer(
-                PdcDisplacement.objects.filter(
-                    pdc__status=Pdc.Status.ACTIVE,
-                ).select_related('country'),
+                PdcDisplacement.objects.all().select_related('country'),
                 many=True
             ).data
 
