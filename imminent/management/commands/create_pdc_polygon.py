@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # get all the uuids and use them to query to the
         # arch-gis server of pdc
-        uuids = Pdc.objects.values_list('uuid', flat=True)
+        uuids = Pdc.objects.filter(status=Pdc.Status.ACTIVE).values_list('uuid', flat=True)
         username = os.environ.get('PDC_USERNAME')
         password = os.environ.get('PDC_PASSWORD')
         for uuid in uuids:
