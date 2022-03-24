@@ -90,10 +90,15 @@ class Pdc(models.Model):
         null=True, blank=True,
         verbose_name=_('end_date')
     )
-    features = models.JSONField(
+    footprint_geojson = models.JSONField(
         blank=True, null=True,
         default=None,
-        verbose_name=_('features')
+        verbose_name=_('Footprint Geojson')
+    )
+    storm_position_geojson = models.JSONField(
+        blank=True, null=True,
+        default=None,
+        verbose_name=_('Storm Position Geojson')
     )
 
     def __str__(self):
@@ -125,7 +130,7 @@ class PdcDisplacement(models.Model):
     )
 
     def __str__(self):
-        return f'{self.country.name} - {self.hazard_type}'
+        return f'{self.pdc.hazard_name} - {self.hazard_type}'
 
 
 class Earthquake(models.Model):

@@ -38,6 +38,6 @@ class Command(BaseCommand):
             response_data = arch_response.json()
             for data in response_data['features']:
                 features = data
-                pdc = Pdc.objects.filter(uuid=uuid).first()
-                pdc.features = features
-                pdc.save(update_fields=['features'])
+                for pdc in Pdc.objects.filter(uuid=uuid):
+                    pdc.footprint_geojson = features
+                    pdc.save(update_fields=['footprint_geojson'])

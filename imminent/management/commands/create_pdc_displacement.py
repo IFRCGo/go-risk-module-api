@@ -5,7 +5,7 @@ import logging
 from django.core.management.base import BaseCommand
 
 from imminent.models import Pdc, PdcDisplacement
-from common.models import Country
+from common.models import Country, HazardType
 
 
 logger = logging.getLogger()
@@ -26,17 +26,21 @@ class Command(BaseCommand):
                 logger.error(error_log)
                 logger.error(response.content)
             response_data = response.json()
-            for key, value in response_data.items():
-                if 'totalByCountry' in key:
-                    data = response_data['totalByCountry']
-                    if len(data) > 0:
-                        for d in data:
-                            if Country.objects.filter(iso3=d['country'].lower()).exists():
-                                c_data = {
-                                    'country': Country.objects.filter(iso3=d['country'].lower()).first(),
-                                    'hazard_type': hazard_type,
-                                    'population_exposure': d['population'],
-                                    'capital_exposure': d['capital'],
-                                    'pdc': Pdc.objects.filter(uuid=uuid).first(),
-                                }
-                                PdcDisplacement.objects.get_or_create(**c_data)
+            for pdc in Pdc.objects.filter(uuid=uuid):
+                data = response_data.get('totalByCountry')
+                if data and len(data) > 0:
+                    for d in data:
+                        if Country.objects.filter(iso3=d['country'].lower()).exists():
+                            c_data = {
+                                'country': Country.objects.filter(iso3=d['country'].lower()).first(),
+                                'hazard_type': hazard_type,
+                                'population_exposure': d['population'],
+                                'capital_exposure': d['capital'],
+                                'pdc': pdc,
+                            }
+                            PdcDisplacement.objects.create(**c_data)
+                else:
+                    PdcDisplacement.objects.create(
+                        hazard_type=hazard_type,
+                        pdc=pdc
+                    )
