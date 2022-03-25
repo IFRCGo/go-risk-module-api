@@ -77,12 +77,12 @@ class SeasonalViewSet(viewsets.ViewSet):
         region = self.request.query_params.get('region')
         #hazard_type = self.request.query_params.get('hazard_type')
         if iso3 is not None:
-            hazard_info = ThinkHazardInformationSerializer(
+            """hazard_info = ThinkHazardInformationSerializer(
                 ThinkHazardInformation.objects.filter(
                     country__iso3__icontains=iso3,
                 ),
                 many=True
-            ).data
+            ).data"""
             inform = InformRiskSerializer(
                 InformRisk.objects.filter(
                     country__iso3__icontains=iso3,
@@ -127,12 +127,12 @@ class SeasonalViewSet(viewsets.ViewSet):
             ).data
 
         elif region:
-            hazard_info = ThinkHazardInformationSerializer(
+            """hazard_info = ThinkHazardInformationSerializer(
                 ThinkHazardInformation.objects.filter(
                     country__region__name=region,
                 ),
                 many=True
-            ).data
+            ).data"""
             inform = InformRiskSerializer(
                 InformRisk.objects.filter(
                     country__region__name=region,
@@ -177,7 +177,7 @@ class SeasonalViewSet(viewsets.ViewSet):
             ).data
 
         else:
-            hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
+            # hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
             inform = InformRiskSerializer(InformRisk.objects.select_related('country'), many=True).data
             inform_seasonal = InformRiskSeasonalSerializer(InformRiskSeasonal.objects.select_related('country'), many=True).data
             idmc = IdmcSerializer(Idmc.objects.all(), many=True).data
@@ -191,7 +191,7 @@ class SeasonalViewSet(viewsets.ViewSet):
                 'inform_seasonal': inform_seasonal,
                 'idmc': idmc,
                 'idmc_return_period': idmc_return_period_data,
-                'hazard_info': hazard_info,
+                # 'hazard_info': hazard_info,
                 'gar_return_period_data': gar_return_period_data,
                 'ipc_displacement_data': ipc_displacement_data,
                 'raster_displacement_data': raster_displacement_data,
