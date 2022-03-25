@@ -52,6 +52,12 @@ class Pdc(models.Model):
         ACTIVE = 'A', 'Active',
         EXPIRED = 'E', 'Expired',
 
+    class Severity(models.TextChoices):
+        WARNING = 'warning', 'Warning',
+        WATCH = 'watch', 'Watch'
+        ADVISORY = 'advisory', 'Advisory'
+        INFORMATION = 'information', 'Information'
+
     created_at = models.DateTimeField(auto_now_add=True)
     # Adding following as to keep track of pdc create and update date
     pdc_created_at = models.DateTimeField(verbose_name=_('pdc created at'), null=True, blank=True)
@@ -61,6 +67,12 @@ class Pdc(models.Model):
     hazard_type = models.CharField(
         max_length=100, verbose_name=_('hazard type'),
         choices=HazardType.choices, blank=True
+    )
+    severity = models.CharField(
+        verbose_name=_('severity'),
+        max_length=100,
+        choices=Severity.choices,
+        blank=True, null=True,
     )
     latitude = models.FloatField(
         null=True, blank=True,

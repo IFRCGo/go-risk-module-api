@@ -23,6 +23,11 @@ def create_pdc_polygon():
 
 
 @shared_task
+def create_pdc_intensity():
+    call_command('create_pdc_intensity',)
+
+
+@shared_task
 def check_pdc_status():
     call_command('check_pdc_status',)
 

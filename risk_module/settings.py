@@ -227,6 +227,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "imminent.tasks.create_pdc_polygon",
         "schedule": crontab(minute=0, hour='*/6')  # This task to execute daily in 6  interval
     },
+    "create_pdc_intensity": {
+        "task": "imminent.tasks.create_pdc_intensity",
+        "schedule": crontab(minute=0, hour='*/7')  # This task to execute daily in 7  interval
+    },
     "check_pdc_status": {
         "task": "imminent.tasks.check_pdc_status",
         "schedule": crontab(minute=0, hour=1)  # This task to execute daily in 1 AM(UTC)

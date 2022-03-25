@@ -29,7 +29,8 @@ class OddrinSerializer(serializers.ModelSerializer):
 
 
 class PdcSerializer(serializers.ModelSerializer):
-    status_display = serializers.CharField(source='get_status_display')
+    status_display = serializers.CharField(source='get_status_display', read_only=True)
+    severity_display = serializers.CharField(source='get_severity_display', read_only=True)
 
     class Meta:
         model = Pdc
