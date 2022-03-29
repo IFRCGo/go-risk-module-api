@@ -284,43 +284,48 @@ class GarHazardDisplacement(models.Model):
     )
     ten_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('Ten years'),
     )
     twenty_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('Twenty years'),
     )
     twenty_five_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('Twenty five years'),
     )
     fifty_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('Fifty years'),
     )
     hundred_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('Hundred years'),
     )
     two_hundred_fifty_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('Two Hundred Fifty years'),
     )
     five_hundred_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('Five Hundred years'),
     )
     one_thousand_years = models.JSONField(
         blank=True, null=True,
-        default=None,
+        default=dict,
         verbose_name=_('One Thousand years')
+    )
+    one_thousand_five_hundred_years = models.JSONField(
+        blank=True, null=True,
+        default=dict,
+        verbose_name=_('One Thousand Five hundred years')
     )
 
 
