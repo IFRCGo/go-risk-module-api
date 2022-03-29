@@ -35,6 +35,26 @@ def create_gar_data(file):
         ss_return_period_100_years = parse_empty_cell_value(worksheet.cell(row=i, column=13).value)
         ss_return_period_250_years = parse_empty_cell_value(worksheet.cell(row=i, column=14).value)
         ss_return_period_500_years = parse_empty_cell_value(worksheet.cell(row=i, column=15).value)
+        if ss_return_period_20_years:
+            ss_return_period_20_years = ss_return_period_20_years * 1000000
+        if ss_return_period_50_years:
+            ss_return_period_50_years = ss_return_period_50_years * 1000000
+        if ss_return_period_100_years:
+            ss_return_period_100_years = ss_return_period_100_years * 1000000
+        if ss_return_period_250_years:
+            ss_return_period_250_years = ss_return_period_250_years * 1000000
+        if ss_return_period_500_years:
+            ss_return_period_500_years = ss_return_period_500_years * 1000000
+        if wd_return_period_20_years:
+            qd_return_period_20_years = wd_return_period_20_years * 1000000
+        if wd_return_period_50_years:
+            wd_return_period_50_years = wd_return_period_50_years * 1000000
+        if wd_return_period_100_years:
+            wd_return_period_100_years = wd_return_period_100_years * 1000000
+        if wd_return_period_250_years:
+            wd_return_period_250_years = wd_return_period_250_years * 1000000
+        if wd_return_period_500_years:
+            wd_return_period_500_years = wd_return_period_500_years * 1000000
         ss_return_period_20_years = {
             'economic_loss': ss_return_period_20_years
         }

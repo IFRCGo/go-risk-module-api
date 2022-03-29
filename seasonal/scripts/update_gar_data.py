@@ -58,7 +58,7 @@ def update_gar_data(file):
                 hazard_type=hazard_type,
             )
             if gar_hazard.exists():
-                pass
+                continue
                 """gar_hazard = gar_hazard.update(
                     ten_years=models.Func(
                         models.F('ten_years'),
