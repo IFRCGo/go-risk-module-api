@@ -238,6 +238,10 @@ CELERY_BEAT_SCHEDULE = {
     "create_hazard_information": {
         "task": "seasonal.tasks.import_think_hazard_informations",
         "schedule": crontab(0, 0, day_of_month='2')  # This task execute at second day of every month
+    },
+    "check_not_provided_country": {
+        "task": "imminent.tasks.check_not_provided_country",
+        "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
     }
 }
 

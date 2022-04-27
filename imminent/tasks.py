@@ -35,3 +35,8 @@ def check_pdc_status():
 @shared_task
 def import_earthquake_data():
     call_command('import_earthquake_data',)
+
+
+@shared_task
+def check_not_provided_country():
+    call_command('check_country_not_provided',)

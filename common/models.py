@@ -44,6 +44,12 @@ class Country(models.Model):
         null=True, blank=True,
         on_delete=models.SET_NULL
     )
+    bbox = models.JSONField(
+        default=dict,
+        null=True,
+        blank=True,
+        verbose_name=_('bbox'),
+    )
 
     def __str__(self):
         return f'{self.name} - {self.iso3}'
