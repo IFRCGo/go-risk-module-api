@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = 'Create global displacement from ipc for food_insecurity'
 
     def handle(self, *args, **options):
-        queryset = IpcMonthly.objects.filter(phase_population__isnull=False)
+        queryset = IpcMonthly.objects.filter(analysis_date__gte='2022-01-01',phase_population__isnull=False).distinct()
         queryset = queryset.values('country', 'analysis_date').annotate(
             total_displacement=models.Sum('phase_population')
         ).values(

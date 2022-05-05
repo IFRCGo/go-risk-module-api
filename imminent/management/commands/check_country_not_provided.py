@@ -22,7 +22,7 @@ class Command(BaseCommand):
         # Get pdc whose country is null
         pdcdisplacment_queryset = PdcDisplacement.objects.filter(
             country__isnull=True,
-            pdc__status=Pdc.Status.Active
+            pdc__status=Pdc.Status.ACTIVE
         )
         countries_queryset = Country.objects.all()
         for displacement in pdcdisplacment_queryset:

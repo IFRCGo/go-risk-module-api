@@ -19,7 +19,8 @@ class Command(BaseCommand):
             current_period_start_date__isnull=False,
             current_period_end_date__isnull=False,
             projected_period_start_date__isnull=False,
-            projected_period_end_date__isnull=False
+            projected_period_end_date__isnull=False,
+            analysis_date__gte='2022-01-01',
         )
         for data in queryset:
             country = data.country.id
