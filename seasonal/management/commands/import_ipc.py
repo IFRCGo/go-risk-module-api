@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for i in range(1, 9):
-            ipc_url = f"http://mapipcissprd.us-east-1.elasticbeanstalk.com/api/public/population-tracking-tool/data/2017,2021/?page={i}&limit=200000&condition=A"
+            ipc_url = f"https://map.ipcinfo.org/api/public/population-tracking-tool/data/2017,2022/?page={i}&limit=2000000000000&condition=A"
             response = requests.get(ipc_url)
             if response.status_code != 200:
                 error_log = f'Error querying ipc data at {ipc_url}'
@@ -31,7 +31,6 @@ class Command(BaseCommand):
                 # Check whether is the country is present in local country
                 if Country.objects.filter(name=data['country']).exists():
                     country = Country.objects.get(name=data['country'])
-                    projected_period = data['analysis_period'].split('-')
                     if 'current_period_dates' in data:
                         current_period_dates = data['current_period_dates'].split('-')
                         if len(current_period_dates) == 2:
@@ -42,8 +41,22 @@ class Command(BaseCommand):
                     else:
                         current_period_start_date = None
                         current_period_end_date = None
-                    projected_period_start_date = projected_period[0].strip()
-                    projected_period_end_date = projected_period[1].strip()
+                    if 'projected_period_dates' in data:
+                        projected_period = data['projected_period_dates'].split('-')
+                        if len(projected_period) == 2:
+                            projected_period_start_date = projected_period[0].strip()
+                            projected_period_end_date = projected_period[1].strip()
+                        else:
+                            projected_period_start_date = None
+                            projected_period_end_date = None
+                    if 'second_projected_period_dates' in data:
+                        second_projected_period = data['second_projected_period_dates'].split('-')
+                        if len(second_projected_period) == 2:
+                            second_projected_period_start_date = second_projected_period[0].strip()
+                            second_projected_period_end_date = second_projected_period[1].strip()
+                        else:
+                            second_projected_period_start_date = None
+                            second_projected_period_end_date = None
                     if 'phase6_P_population' in data:
                         projected_phase_population = data['phase6_P_population']
                     else:
@@ -59,6 +72,8 @@ class Command(BaseCommand):
                         'current_period_end_date': self.parse_date(current_period_end_date),
                         'projected_period_start_date': self.parse_date(projected_period_start_date),
                         'projected_period_end_date': self.parse_date(projected_period_end_date),
-                        'hazard_type': HazardType.FOOD_INSECURITY
+                        'hazard_type': HazardType.FOOD_INSECURITY,
+                        'second_projected_period_start_date': self.parse_date(second_projected_period_start_date),
+                        'second_projected_period_end_date': self.parse_date(second_projected_period_end_date)
                     }
                     Ipc.objects.create(**data)

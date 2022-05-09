@@ -30,7 +30,6 @@ class Command(BaseCommand):
             for data in ipc_data:
                 # Check whether is the country is present in local country
                 analysis_date = self.parse_date(data['analysis_date'])
-                count = 0
                 if Country.objects.filter(name=data['country']).exists() and analysis_date >= '2022-01-01':
                     country = Country.objects.get(name=data['country'])
                     projected_period = data['analysis_period'].split('-')
@@ -64,5 +63,3 @@ class Command(BaseCommand):
                         'hazard_type': HazardType.FOOD_INSECURITY
                     }
                     Ipc.objects.create(**data)
-                    count += 1
-            print(count, "****")

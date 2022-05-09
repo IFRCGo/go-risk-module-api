@@ -28,7 +28,8 @@ from seasonal.views import (
     DisplacementViewSet,
     GarHazardViewSet,
     GlobalDisplacementViewSet,
-    ThinkHazardInformationViewSet
+    ThinkHazardInformationViewSet,
+    generate_data,
 )
 from imminent.views import (
     ImminentViewSet,
@@ -58,6 +59,7 @@ router.register(r'pdc-displacement', PdcDisplacementViewSet, basename='pdc displ
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
     path('admin/', admin.site.urls),
+    path(r'api/v1/export', generate_data)
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

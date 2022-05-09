@@ -343,6 +343,8 @@ class Ipc(models.Model):
     current_period_end_date = models.DateField(verbose_name=_('current period end date'), blank=True, null=True)
     projected_period_start_date = models.DateField(verbose_name=_('projected period start date'), blank=True, null=True)
     projected_period_end_date = models.DateField(verbose_name=_('projected period end date'), blank=True, null=True)
+    second_projected_period_start_date = models.DateField(verbose_name=_('second projected period start date'), blank=True, null=True)
+    second_projected_period_end_date = models.DateField(verbose_name=_('second projected period end date'), blank=True, null=True)
     hazard_type = models.CharField(max_length=100, verbose_name=_('hazard type'), choices=HazardType.choices, blank=True)
     is_projected = models.BooleanField(verbose_name=_('is projected'), default=False)
 

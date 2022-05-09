@@ -15,13 +15,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Create a separate monthly ipc for the object
-        queryset = Ipc.objects.filter(
-            current_period_start_date__isnull=False,
-            current_period_end_date__isnull=False,
-            projected_period_start_date__isnull=False,
-            projected_period_end_date__isnull=False,
-            analysis_date__gte='2022-01-01',
-        )
+        queryset = Ipc.objects.all()
         for data in queryset:
             country = data.country.id
             hazard_type = data.hazard_type
@@ -33,33 +27,57 @@ class Command(BaseCommand):
             projected_period_end_date = data.projected_period_end_date
             current_period_start_date = data.current_period_start_date
             current_period_end_date = data.current_period_end_date
-            date_range_current = pd.date_range(current_period_start_date, current_period_end_date, freq='MS')
-            for range in date_range_current:
-                year = int(range.strftime('%Y'))
-                month = int(range.strftime('%m'))
-                data = {
-                    'country': Country.objects.get(id=country),
-                    'hazard_type': hazard_type,
-                    'phase_population': phase_population,
-                    'year': year,
-                    'month': month,
-                    'estimation_type': EstimationType.CURRENT,
-                    'analysis_date': analysis_date,
-                    'census_population': census_population
-                }
-                IpcMonthly.objects.create(**data)
-            date_range_projected = pd.date_range(projected_period_start_date, projected_period_end_date, freq='MS')
-            for range in date_range_projected:
-                year = int(range.strftime('%Y'))
-                month = int(range.strftime('%m'))
-                data = {
-                    'country': Country.objects.get(id=country),
-                    'hazard_type': hazard_type,
-                    'phase_population': projected_population,
-                    'year': year,
-                    'month': month,
-                    'estimation_type': EstimationType.FIRST_PROJECTION,
-                    'analysis_date': analysis_date,
-                    'census_population': census_population
-                }
-                IpcMonthly.objects.create(**data)
+            second_projection_period_start_date = data.second_projected_period_start_date
+            second_projection_period_end_date = data.second_projected_period_end_date
+            # current
+            if current_period_start_date and current_period_end_date:
+                date_range_current = pd.date_range(current_period_start_date, current_period_end_date, freq='MS')
+                for range in date_range_current:
+                    year = int(range.strftime('%Y'))
+                    month = int(range.strftime('%m'))
+                    data = {
+                        'country': Country.objects.get(id=country),
+                        'hazard_type': hazard_type,
+                        'phase_population': phase_population,
+                        'year': year,
+                        'month': month,
+                        'estimation_type': EstimationType.CURRENT,
+                        'analysis_date': analysis_date,
+                        'census_population': census_population
+                    }
+                    IpcMonthly.objects.create(**data)
+            # first_projection
+            if projected_period_start_date and projected_period_end_date:
+                date_range_projected = pd.date_range(projected_period_start_date, projected_period_end_date, freq='MS')
+                for range in date_range_projected:
+                    year = int(range.strftime('%Y'))
+                    month = int(range.strftime('%m'))
+                    data = {
+                        'country': Country.objects.get(id=country),
+                        'hazard_type': hazard_type,
+                        'phase_population': projected_population,
+                        'year': year,
+                        'month': month,
+                        'estimation_type': EstimationType.FIRST_PROJECTION,
+                        'analysis_date': analysis_date,
+                        'census_population': census_population
+                    }
+                    IpcMonthly.objects.create(**data)
+
+            # second_projection
+            if second_projection_period_start_date and second_projection_period_end_date:
+                date_range_projected = pd.date_range(second_projection_period_start_date, second_projection_period_end_date, freq='MS')
+                for range in date_range_projected:
+                    year = int(range.strftime('%Y'))
+                    month = int(range.strftime('%m'))
+                    data = {
+                        'country': Country.objects.get(id=country),
+                        'hazard_type': hazard_type,
+                        'phase_population': projected_population,
+                        'year': year,
+                        'month': month,
+                        'estimation_type': EstimationType.SECOND_PROJECTION,
+                        'analysis_date': analysis_date,
+                        'census_population': census_population
+                    }
+                    IpcMonthly.objects.create(**data)
