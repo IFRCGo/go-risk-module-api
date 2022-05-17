@@ -329,6 +329,45 @@ class GarHazardDisplacement(models.Model):
     )
 
 
+class GarProbabilistic(models.Model):
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE,
+        verbose_name=_('country'), null=True, blank=True
+    )
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+    absolute_loss_in_million = models.FloatField(
+        verbose_name=_('Absolute loss in Million'),
+        null=True, blank=True
+    )
+    capital_stock_percentage = models.FloatField(
+        verbose_name=_('Capital stock percentage'),
+        null=True, blank=True
+
+    )
+    gfcf = models.FloatField(
+        verbose_name=_('GFCF'),
+        null=True, blank=True
+    )
+    social_exp = models.FloatField(
+        verbose_name=_('Social Exp'),
+        null=True, blank=True
+    )
+    total_revenue = models.FloatField(
+        verbose_name=_('Total Revenue'),
+        null=True, blank=True
+    )
+    gross_saving = models.FloatField(
+        verbose_name=_('Gross Saving'),
+        null=True, blank=True
+    )
+
+    def __str__(self):
+        return f'{self.country.name} - {self.hazard_type}'
+
+
 class Ipc(models.Model):
     title = models.CharField(max_length=255, verbose_name=_('title'), null=True, blank=True)
     analysis_date = models.DateField(verbose_name=_('analysis date'), blank=True, null=True)

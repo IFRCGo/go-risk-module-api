@@ -8,7 +8,8 @@ from seasonal.models import (
     InformRisk,
     InformRiskSeasonal,
     DisplacementData,
-    GarHazardDisplacement
+    GarHazardDisplacement,
+    GarProbabilistic,
 )
 from common.serializers import CountrySerializer
 
@@ -84,4 +85,13 @@ class GarHazardDisplacementSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GarHazardDisplacement
+        fields = '__all__'
+
+
+class GarProbabilisticSerializer(serializers.ModelSerializer):
+    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+    country_details = CountrySerializer(source='country', read_only=True)
+
+    class Meta:
+        model = GarProbabilistic
         fields = '__all__'

@@ -14,7 +14,8 @@ from seasonal.models import (
     DisplacementData,
     GarHazardDisplacement,
     ThinkHazardInformation,
-    GlobalDisplacement
+    GlobalDisplacement,
+    GarProbabilistic,
 )
 from seasonal.serializers import (
     IdmcSerializer,
@@ -25,6 +26,7 @@ from seasonal.serializers import (
     GarHazardDisplacementSerializer,
     ThinkHazardInformationSerializer,
     GlobalDisplacementSerializer,
+    GarProbabilisticSerializer
 )
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
@@ -132,6 +134,12 @@ class SeasonalViewSet(viewsets.ViewSet):
                 ).select_related('country'),
                 many=True
             ).data
+            gar_loss = GarProbabilisticSerializer(
+                GarProbabilistic.objects.filter(
+                    country__iso3__icontains=iso3
+                ).select_related('country'),
+                many=True
+            ).data
 
         elif region:
             """hazard_info = ThinkHazardInformationSerializer(
@@ -182,6 +190,12 @@ class SeasonalViewSet(viewsets.ViewSet):
                 ).select_related('country'),
                 many=True
             ).data
+            gar_loss = GarProbabilisticSerializer(
+                GarProbabilistic.objects.filter(
+                    country__region__name=region,
+                ).select_related('country'),
+                many=True
+            ).data
 
         else:
             # hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
@@ -192,6 +206,7 @@ class SeasonalViewSet(viewsets.ViewSet):
             return_period_data = GarHazardDisplacementSerializer(GarHazardDisplacement.objects.select_related('country'), many=True).data
             ipc_displacement_data = GlobalDisplacementSerializer(GlobalDisplacement.objects.select_related('country'), many=True).data
             raster_displacement_data = DisplacementDataSerializer(DisplacementData.objects.select_related('country'), many=True).data
+            gar_loss = GarProbabilisticSerializer(GarProbabilistic.objects.select_related('country'), many=True).data
         return response.Response(
             {
                 'inform': inform,
@@ -202,6 +217,7 @@ class SeasonalViewSet(viewsets.ViewSet):
                 'return_period_data': return_period_data,
                 'ipc_displacement_data': ipc_displacement_data,
                 'raster_displacement_data': raster_displacement_data,
+                'gar_loss': gar_loss,
             }
         )
 
@@ -209,39 +225,53 @@ class SeasonalViewSet(viewsets.ViewSet):
 def generate_data(request):
     exposure_queryset = DisplacementData.objects.all()
     displacement = Idmc.objects.all()
+    inform_data = InformRiskSeasonal.objects.all()
     all_data = []
     for exposure in exposure_queryset:
         for disp in displacement:
-            if exposure.hazard_type == disp.hazard_type and exposure.country == disp.country:
-                data = dict(
-                    country=exposure.country.name,
-                    hazard_type=exposure.hazard_type,
-                    displacement_january=disp.january,
-                    exposure_january=exposure.january,
-                    displacement_february=disp.february,
-                    exposure_february=exposure.february,
-                    displacement_march=disp.march,
-                    exposure_march=exposure.march,
-                    displacement_april=disp.april,
-                    exposure_april=exposure.april,
-                    displacement_may=disp.may,
-                    exposure_may=exposure.may,
-                    displacement_june=disp.june,
-                    exposure_june=exposure.june,
-                    displacement_july=disp.july,
-                    exposure_july=exposure.july,
-                    displacement_august=disp.august,
-                    exposure_august=exposure.august,
-                    displacement_september=disp.september,
-                    exposure_september=exposure.september,
-                    displacement_october=disp.october,
-                    exposure_october=exposure.october,
-                    displacement_november=disp.november,
-                    exposure_november=exposure.november,
-                    displacement_december=disp.december,
-                    exposure_december=exposure.december
-                )
-                all_data.append(data)
+            for inform in inform_data:
+                if exposure.hazard_type == disp.hazard_type == inform.hazard_type and exposure.country == disp.country == inform.country:
+                    data = dict(
+                        country=exposure.country.name,
+                        hazard_type=exposure.hazard_type,
+                        displacement_january=disp.january,
+                        exposure_january=exposure.january,
+                        inform_january=inform.january,
+                        displacement_february=disp.february,
+                        exposure_february=exposure.february,
+                        inform_february=inform.february,
+                        displacement_march=disp.march,
+                        exposure_march=exposure.march,
+                        inform_march=inform.march,
+                        displacement_april=disp.april,
+                        exposure_april=exposure.april,
+                        inform_april=inform.april,
+                        displacement_may=disp.may,
+                        exposure_may=exposure.may,
+                        inform_may=inform.may,
+                        displacement_june=disp.june,
+                        exposure_june=exposure.june,
+                        inform_june=inform.june,
+                        displacement_july=disp.july,
+                        exposure_july=exposure.july,
+                        inform_july=inform.july,
+                        displacement_august=disp.august,
+                        exposure_august=exposure.august,
+                        inform_august=inform.august,
+                        displacement_september=disp.september,
+                        exposure_september=exposure.september,
+                        inform_september=inform.september,
+                        displacement_october=disp.october,
+                        exposure_october=exposure.october,
+                        inform_october=inform.october,
+                        displacement_november=disp.november,
+                        exposure_november=exposure.november,
+                        inform_november=inform.november,
+                        displacement_december=disp.december,
+                        exposure_december=exposure.december,
+                        inform_december=inform.december,
+                    )
+                    all_data.append(data)
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
@@ -251,7 +281,7 @@ def generate_data(request):
     workbook = Workbook()
 
     worksheet = workbook.active
-    worksheet.title = 'Customer'
+    worksheet.title = 'Displacement Exposure Inform Score'
 
     header_font = Font(name='Calibri', bold=True)
 
@@ -260,28 +290,40 @@ def generate_data(request):
         ('hazard_type', 20),
         ('displacement_january', 20),
         ('exposure_january', 20),
+        ('inform_january', 20),
         ('displacement_february', 20),
-        ('exposure_february',20),
-        ('displacement_march',20),
-        ('exposure_march',20),
-        ('displacement_april',20),
-        ('exposure_april',20),
-        ('displacement_may',20),
-        ('exposure_may',20),
-        ('displacement_june',20),
-        ('exposure_june',20),
-        ('displacement_july',20),
-        ('exposure_july',20),
-        ('displacement_august',20),
-        ('exposure_august',20),
-        ('displacement_september',20),
-        ('exposure_september',20),
-        ('displacement_october',20),
-        ('exposure_october',20),
-        ('displacement_november',20),
-        ('exposure_november',20),
-        ('displacement_december',20),
-        ('exposure_december',20),
+        ('exposure_february', 20),
+        ('inform_february', 20),
+        ('displacement_march', 20),
+        ('exposure_march', 20),
+        ('inform_march', 20),
+        ('displacement_april', 20),
+        ('exposure_april', 20),
+        ('inform_april', 20),
+        ('displacement_may', 20),
+        ('exposure_may', 20),
+        ('inform_may', 20),
+        ('displacement_june', 20),
+        ('exposure_june', 20),
+        ('inform_june', 20),
+        ('displacement_july', 20),
+        ('exposure_july', 20),
+        ('inform_july', 20),
+        ('displacement_august', 20),
+        ('exposure_august', 20),
+        ('inform_august', 20),
+        ('displacement_september', 20),
+        ('exposure_september', 20),
+        ('inform_september', 20),
+        ('displacement_october', 20),
+        ('exposure_october', 20),
+        ('inform_october', 20),
+        ('displacement_november', 20),
+        ('exposure_november', 20),
+        ('inform_november', 20),
+        ('displacement_december', 20),
+        ('exposure_december', 20),
+        ('inform_december', 20),
     ]
 
     row_num = 1
@@ -294,16 +336,48 @@ def generate_data(request):
         column_dimensions = worksheet.column_dimensions[column_letter]
         column_dimensions.width = column_width
 
-    for customer in all_data:
+    for event in all_data:
         row_num += 1
 
         row = [
-            customer['country'],
-            customer['hazard_type'],
-            customer['displacement_january'],
-            customer['exposure_january'],
-            customer['displacement_february'],
-            customer['exposure_february']
+            event['country'],
+            event['hazard_type'],
+            event['displacement_january'],
+            event['exposure_january'],
+            event['inform_january'],
+            event['displacement_february'],
+            event['exposure_february'],
+            event['inform_february'],
+            event['displacement_march'],
+            event['exposure_march'],
+            event['inform_march'],
+            event['displacement_april'],
+            event['exposure_april'],
+            event['inform_april'],
+            event['displacement_may'],
+            event['exposure_may'],
+            event['inform_may'],
+            event['displacement_june'],
+            event['exposure_june'],
+            event['inform_june'],
+            event['displacement_july'],
+            event['exposure_july'],
+            event['inform_july'],
+            event['displacement_august'],
+            event['exposure_august'],
+            event['inform_august'],
+            event['displacement_september'],
+            event['exposure_september'],
+            event['inform_september'],
+            event['displacement_october'],
+            event['exposure_october'],
+            event['inform_october'],
+            event['displacement_november'],
+            event['exposure_november'],
+            event['inform_november'],
+            event['displacement_december'],
+            event['exposure_december'],
+            event['inform_december'],
         ]
 
         for col_num, cell_value in enumerate(row, 1):

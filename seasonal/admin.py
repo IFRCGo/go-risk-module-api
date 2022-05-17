@@ -8,6 +8,7 @@ from seasonal.models import (
     DisplacementData,
     GarHazardDisplacement,
     GarHazard,
+    GarProbabilistic,
     Ipc,
     IpcMonthly,
     GlobalDisplacement,
@@ -48,6 +49,11 @@ class GarHazardAdmin(admin.ModelAdmin):
 
 @admin.register(GarHazardDisplacement)
 class GarHazardDisplacementAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(GarProbabilistic)
+class GarProbabilisticAdmin(admin.ModelAdmin):
     pass
 
 
