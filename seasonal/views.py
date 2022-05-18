@@ -16,6 +16,9 @@ from seasonal.models import (
     ThinkHazardInformation,
     GlobalDisplacement,
     GarProbabilistic,
+    PossibleEarlyActions,
+    PublishReport,
+    PublishReportProgram
 )
 from seasonal.serializers import (
     IdmcSerializer,
@@ -26,7 +29,13 @@ from seasonal.serializers import (
     GarHazardDisplacementSerializer,
     ThinkHazardInformationSerializer,
     GlobalDisplacementSerializer,
-    GarProbabilisticSerializer
+    GarProbabilisticSerializer,
+    PossibleEarlyActionsSerializer,
+    PublishReportSerializer
+)
+from seasonal.filter_set import (
+    PossibleEarlyActionsFilterSet,
+    PublishReportFilterSet,
 )
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
@@ -385,3 +394,15 @@ def generate_data(request):
             cell.value = cell_value
     workbook.save(response)
     return response
+
+
+class EarlyActionViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PossibleEarlyActions.objects.select_related('country')
+    filterset_class = PossibleEarlyActionsFilterSet
+    serializer_class = PossibleEarlyActionsSerializer
+
+
+class PublishReportViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PublishReport.objects.all()
+    filterset_class = PublishReportFilterSet
+    serializer_class = PublishReportSerializer

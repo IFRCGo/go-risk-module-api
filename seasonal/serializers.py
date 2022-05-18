@@ -10,6 +10,9 @@ from seasonal.models import (
     DisplacementData,
     GarHazardDisplacement,
     GarProbabilistic,
+    PossibleEarlyActions,
+    PublishReport,
+    PublishReportProgram,
 )
 from common.serializers import CountrySerializer
 
@@ -94,4 +97,29 @@ class GarProbabilisticSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = GarProbabilistic
+        fields = '__all__'
+
+
+class PossibleEarlyActionsSerializer(serializers.ModelSerializer):
+    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+    country_details = CountrySerializer(source='country', read_only=True)
+
+    class Meta:
+        model = PossibleEarlyActions
+        fields = '__all__'
+
+
+class PublishReportProgramSerializer(serializers.ModelSerializer):
+    country_details = CountrySerializer(source='country', read_only=True)
+
+    class Meta:
+        model = PublishReportProgram
+        fields = '__all__'
+
+
+class PublishReportSerializer(serializers.ModelSerializer):
+    program_display = PublishReportProgramSerializer(read_only=True, source='program')
+
+    class Meta:
+        model = PublishReport
         fields = '__all__'

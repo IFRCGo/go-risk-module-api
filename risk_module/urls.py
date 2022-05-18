@@ -29,6 +29,8 @@ from seasonal.views import (
     GarHazardViewSet,
     GlobalDisplacementViewSet,
     ThinkHazardInformationViewSet,
+    EarlyActionViewSet,
+    PublishReportViewSet,
     generate_data,
 )
 from imminent.views import (
@@ -55,6 +57,8 @@ router.register(r'exposure-data', DisplacementViewSet, basename='global exposure
 router.register(r'hazard_info', ThinkHazardInformationViewSet, basename='hazard info')
 router.register(r'gar-return-period', GarHazardViewSet, basename='gar return period')
 router.register(r'pdc-displacement', PdcDisplacementViewSet, basename='pdc displacement')
+router.register(r'early-actions', EarlyActionViewSet, basename='early actions')
+router.register(r'publish-report', PublishReportViewSet, basename='publish report')
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),

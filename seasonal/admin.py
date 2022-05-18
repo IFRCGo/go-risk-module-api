@@ -14,6 +14,9 @@ from seasonal.models import (
     GlobalDisplacement,
     ThinkHazardCountry,
     ThinkHazardInformation,
+    PossibleEarlyActions,
+    PublishReport,
+    PublishReportProgram
 )
 
 
@@ -79,4 +82,19 @@ class ThinkHazardCountry(admin.ModelAdmin):
 
 @admin.register(ThinkHazardInformation)
 class ThinkHazardInformation(admin.ModelAdmin):
+    pass
+
+
+@admin.register(PossibleEarlyActions)
+class PossibleEarlyActionsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(PublishReportProgram)
+class PublishReportProgramAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(PublishReport)
+class PublishReportAdmin(admin.ModelAdmin):
     pass
