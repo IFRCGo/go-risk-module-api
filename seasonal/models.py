@@ -499,12 +499,24 @@ class PossibleEarlyActions(models.Model):
         verbose_name=_('Implementation Date'),
         null=True, blank=True
     )
+    implementation_date_raw = models.CharField(
+        max_length=255, verbose_name=_('Implementation Date Raw'),
+        null=True, blank=True
+    )
     timeframe = models.IntegerField(
         verbose_name=_('Timeframe'),
         null=True, blank=True
     )
+    timeframe_raw = models.CharField(
+        max_length=255, verbose_name=_('Timeframe Raw'),
+        null=True, blank=True
+    )
     effective_time = models.IntegerField(
         verbose_name=_('Effective Time'),
+        null=True, blank=True
+    )
+    effective_time_raw = models.CharField(
+        max_length=255, verbose_name=_('Effective Time Raw'),
         null=True, blank=True
     )
     number_of_people_covered = models.IntegerField(

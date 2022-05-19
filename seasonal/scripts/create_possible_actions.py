@@ -77,6 +77,9 @@ def create_possible_actions(file):
         organization = worksheet.cell(row=i, column=8).value
         budget = parse_budget_cost(worksheet.cell(row=i, column=9).value)
         cost = parse_budget_cost(worksheet.cell(row=i, column=10).value)
+        implementation_date_raw = worksheet.cell(row=i, column=11).value
+        timeframe_raw = worksheet.cell(row=i, column=12).value
+        effective_time_raw = worksheet.cell(row=i, column=13).value
         number_of_people_covered = parse_number_of_people_covered(worksheet.cell(row=i, column=14).value)
         number_of_people_at_risk = parse_number_of_people_at_risk(worksheet.cell(row=i, column=15).value)
         scalability = worksheet.cell(row=i, column=16).value
@@ -110,5 +113,8 @@ def create_possible_actions(file):
                     'resource': resource,
                     'link_to_resources': link_to_resources,
                     'exist_in_hub': exist_in_hub,
+                    'implementation_date_raw': implementation_date_raw,
+                    'timeframe_raw': timeframe_raw,
+                    'effective_time_raw': effective_time_raw,
                 }
                 PossibleEarlyActions.objects.create(**data)

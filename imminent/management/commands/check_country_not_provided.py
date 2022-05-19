@@ -19,6 +19,9 @@ class Command(BaseCommand):
     help = 'Check latitude and longitude in bbox'
 
     def handle(self, *args, **kwargs):
+        """
+        TODO: Add threshold for the country intersection?
+        """
         # Get pdc whose country is null
         pdcdisplacment_queryset = PdcDisplacement.objects.filter(
             country__isnull=True,

@@ -221,7 +221,7 @@ class SeasonalViewSet(viewsets.ViewSet):
                 'inform': inform,
                 'inform_seasonal': inform_seasonal,
                 'idmc': idmc,
-                #'idmc_return_period': idmc_return_period_data,
+                # 'idmc_return_period': idmc_return_period_data,
                 # 'hazard_info': hazard_info,
                 'return_period_data': return_period_data,
                 'ipc_displacement_data': ipc_displacement_data,
