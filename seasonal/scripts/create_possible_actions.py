@@ -13,6 +13,19 @@ def get_maximum_rows(*, sheet_object):
     return rows
 
 
+def get_merge_lookup(sheet, cell):
+    """
+    Used to extract cell value from merged_cells
+    """
+    idx = cell.coordinate
+    for range_ in sheet.merged_cells.ranges:
+        merged_cells = list(openpyxl.utils.rows_from_range(str(range_)))
+        for row in merged_cells:
+            if idx in row:
+                return sheet[merged_cells[0][0]].value
+    return sheet[idx].value
+
+
 def parse_date(date):
     try:
         date = datetime.datetime.strptime(date, '%Y-%m-%d')
@@ -54,6 +67,12 @@ def parse_hazard_type(hazard_type):
     return hazard_type_dict.get(hazard_type)
 
 
+def parse_country(country):
+    if country:
+        new_country = country.split(',')
+        return new_country
+
+
 def parse_exist_in_hub(value):
     if value == 'NO':
         return False
@@ -68,7 +87,9 @@ def create_possible_actions(file):
     # Iterate through loop to read the cell values
     for i in range(3, max_rows + 1):
         hazard_type = parse_hazard_type(worksheet.cell(row=i, column=1).value)
-        country = worksheet.cell(row=i, column=4).value
+        country_list = worksheet.cell(row=i, column=4).value
+        if country_list:
+            countries = parse_country(country_list)
         early_actions = worksheet.cell(row=i, column=2).value
         hazard_name = worksheet.cell(row=i, column=3).value
         location = worksheet.cell(row=i, column=5).value
@@ -87,34 +108,35 @@ def create_possible_actions(file):
         resources_used = worksheet.cell(row=i, column=18).value
         impact_action = worksheet.cell(row=i, column=19).value
         evidence_of_sucess = worksheet.cell(row=i, column=20).value
-        resource = worksheet.cell(row=i, column=21).value
-        link_to_resources = worksheet.cell(row=i, column=22).value
+        resource = get_merge_lookup(worksheet, worksheet.cell(row=i, column=21))
+        link_to_resources = get_merge_lookup(worksheet, worksheet.cell(row=i, column=22))
         exist_in_hub = parse_exist_in_hub(worksheet.cell(row=i, column=23).value)
-        if country:
-            if Country.objects.filter(name__icontains=country).exists() and hazard_type:
-                data = {
-                    'country': Country.objects.filter(name__icontains=country).first(),
-                    'hazard_type': hazard_type,
-                    'early_actions': early_actions,
-                    'hazard_name': hazard_name,
-                    'location': location,
-                    'sector': sector,
-                    'intended_purpose': intended_purpose,
-                    'organization': organization,
-                    'budget': budget,
-                    'cost': cost,
-                    'number_of_people_covered': number_of_people_covered,
-                    'number_of_people_at_risk': number_of_people_at_risk,
-                    'scalability': scalability,
-                    'cross_cutting': cross_cutting,
-                    'resources_used': resources_used,
-                    'impact_action': impact_action,
-                    'evidence_of_sucess': evidence_of_sucess,
-                    'resource': resource,
-                    'link_to_resources': link_to_resources,
-                    'exist_in_hub': exist_in_hub,
-                    'implementation_date_raw': implementation_date_raw,
-                    'timeframe_raw': timeframe_raw,
-                    'effective_time_raw': effective_time_raw,
-                }
-                PossibleEarlyActions.objects.create(**data)
+        for country in countries:
+            if country:
+                if Country.objects.filter(name__icontains=country).exists() and hazard_type:
+                    data = {
+                        'country': Country.objects.filter(name__icontains=country).first(),
+                        'hazard_type': hazard_type,
+                        'early_actions': early_actions,
+                        'hazard_name': hazard_name,
+                        'location': location,
+                        'sector': sector,
+                        'intended_purpose': intended_purpose,
+                        'organization': organization,
+                        'budget': budget,
+                        'cost': cost,
+                        'number_of_people_covered': number_of_people_covered,
+                        'number_of_people_at_risk': number_of_people_at_risk,
+                        'scalability': scalability,
+                        'cross_cutting': cross_cutting,
+                        'resources_used': resources_used,
+                        'impact_action': impact_action,
+                        'evidence_of_sucess': evidence_of_sucess,
+                        'resource': resource,
+                        'link_to_resources': link_to_resources,
+                        'exist_in_hub': exist_in_hub,
+                        'implementation_date_raw': implementation_date_raw,
+                        'timeframe_raw': timeframe_raw,
+                        'effective_time_raw': effective_time_raw,
+                    }
+                    PossibleEarlyActions.objects.create(**data)

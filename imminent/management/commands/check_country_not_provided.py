@@ -1,14 +1,19 @@
-import logging
+from functools import partial
 
+import pyproj
+from shapely.ops import transform
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
+import logging
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 from common.models import Country
 from imminent.models import Pdc, PdcDisplacement
 
 logger = logging.getLogger(__name__)
+proj_wgs84 = pyproj.Proj('+proj=longlat +datum=WGS84')
 
 
 class Command(BaseCommand):
@@ -17,6 +22,16 @@ class Command(BaseCommand):
     country bbox
     """
     help = 'Check latitude and longitude in bbox'
+
+    def geodesic_point_buffer(self, lat, lon, km):
+        # Azimuthal equidistant projection
+        aeqd_proj = '+proj=aeqd +lat_0={lat} +lon_0={lon} +x_0=0 +y_0=0'
+        project = partial(
+            pyproj.transform,
+            pyproj.Proj(aeqd_proj.format(lat=lat, lon=lon)),
+            proj_wgs84)
+        buf = Point(0, 0).buffer(km * 1000)  # distance in metres
+        return transform(project, buf).exterior.coords[:]
 
     def handle(self, *args, **kwargs):
         """
@@ -40,3 +55,10 @@ class Command(BaseCommand):
                     if point.within(polygon):
                         displacement.country = country
                         displacement.save(update_fields=['country'])
+                    else:
+                        buffer_polygon = Polygon(
+                            self.geodesic_point_buffer(latitude, longitude, settings.BUFFER_DISTANCE_IN_KM)
+                        )
+                        if buffer_polygon.intersects(polygon):
+                            displacement.country = country
+                            displacement.save(update_fields=['country'])

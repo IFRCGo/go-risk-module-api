@@ -50,6 +50,12 @@ class Country(models.Model):
         blank=True,
         verbose_name=_('bbox'),
     )
+    centroid = models.JSONField(
+        default=dict,
+        null=True,
+        blank=True,
+        verbose_name=_('centroid'),
+    )
 
     def __str__(self):
         return f'{self.name} - {self.iso3}'
