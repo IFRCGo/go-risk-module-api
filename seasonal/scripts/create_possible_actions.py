@@ -80,6 +80,11 @@ def parse_exist_in_hub(value):
         return True
 
 
+def parse_evidence_of_sucess(text):
+    if text:
+        return text.replace('\\', ' ')
+
+
 def create_possible_actions(file):
     workbook = openpyxl.load_workbook(file)
     worksheet = workbook.get_sheet_by_name('Possible early actions')
@@ -107,7 +112,7 @@ def create_possible_actions(file):
         cross_cutting = worksheet.cell(row=i, column=17).value
         resources_used = worksheet.cell(row=i, column=18).value
         impact_action = worksheet.cell(row=i, column=19).value
-        evidence_of_sucess = worksheet.cell(row=i, column=20).value
+        evidence_of_sucess = parse_evidence_of_sucess(worksheet.cell(row=i, column=20).value)
         resource = get_merge_lookup(worksheet, worksheet.cell(row=i, column=21))
         link_to_resources = get_merge_lookup(worksheet, worksheet.cell(row=i, column=22))
         exist_in_hub = parse_exist_in_hub(worksheet.cell(row=i, column=23).value)

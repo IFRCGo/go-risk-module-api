@@ -14,7 +14,11 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # get all the uuids and use them to query to the
         # arch-gis server of pdc
-        uuids = Pdc.objects.filter(status=Pdc.Status.ACTIVE, hazard_type=HazardType.CYCLONE).values_list('uuid', flat=True)
+        # filtering only cyclone since they only have track of disaster path
+        uuids = Pdc.objects.filter(
+            status=Pdc.Status.ACTIVE,
+            hazard_type=HazardType.CYCLONE
+        ).values_list('uuid', flat=True)
         username = os.environ.get('PDC_USERNAME')
         password = os.environ.get('PDC_PASSWORD')
         for uuid in uuids:
@@ -34,7 +38,6 @@ class Command(BaseCommand):
                 'Authorization': f'Bearer {access_token}',
             })
             arch_gis_url = f'https://partners.pdc.org/arcgis/rest/services/partners/pdc_active_hazards_partners/MapServer/9/query?where=uuid%3D%27{uuid}%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=forecast_date_time%2Cwind_speed_mph%2Cseverity%2Cstorm_name%2Ctrack_heading&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&having=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&historicMoment=&returnDistinctValues=false&resultOffset=&resultRecordCount=&queryByDistance=&returnExtentOnly=false&datumTransformation=&parameterValues=&rangeValues=&quantizationParameters=&featureEncoding=esriDefault&f=geojson'
-            arch_response = session.get(url=arch_gis_url)
             arch_response = session.get(url=arch_gis_url)
             response_data = arch_response.json()
             update_data = []

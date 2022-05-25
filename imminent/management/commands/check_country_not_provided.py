@@ -58,7 +58,7 @@ class Command(BaseCommand):
                     else:
                         buffer_polygon = Polygon(
                             self.geodesic_point_buffer(latitude, longitude, settings.BUFFER_DISTANCE_IN_KM)
-                        )
+                        )  # passing buffer distance for now
                         if buffer_polygon.intersects(polygon):
                             displacement.country = country
                             displacement.save(update_fields=['country'])
