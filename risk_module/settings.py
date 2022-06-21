@@ -247,6 +247,6 @@ CELERY_BEAT_SCHEDULE = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-# NOTE: This is experimental distance in km
-# Can be changed
-BUFFER_DISTANCE_IN_KM = 50
+
+
+
