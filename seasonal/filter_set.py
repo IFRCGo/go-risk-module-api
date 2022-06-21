@@ -4,7 +4,8 @@ import django_filters
 from common.models import HazardType
 from seasonal.models import (
     PossibleEarlyActions,
-    PublishReport
+    PublishReport,
+    PossibleEarlyActionsSectors
 )
 
 
@@ -21,6 +22,10 @@ class PossibleEarlyActionsFilterSet(django_filters.FilterSet):
         choices=HazardType.choices,
         lookup_expr='in',
         widget=django_filters.widgets.CSVWidget,
+    )
+    sectors = django_filters.CharFilter(
+        field_name='sectors__name',
+        lookup_expr='icontains',
     )
 
     class Meta:

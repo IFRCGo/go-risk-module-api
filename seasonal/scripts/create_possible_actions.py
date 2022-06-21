@@ -2,7 +2,10 @@ import openpyxl
 import datetime
 
 from common.models import HazardType, Country
-from seasonal.models import PossibleEarlyActions
+from seasonal.models import (
+    PossibleEarlyActions,
+    PossibleEarlyActionsSectors,
+)
 
 
 def get_maximum_rows(*, sheet_object):
@@ -116,6 +119,14 @@ def create_possible_actions(file):
         resource = get_merge_lookup(worksheet, worksheet.cell(row=i, column=21))
         link_to_resources = get_merge_lookup(worksheet, worksheet.cell(row=i, column=22))
         exist_in_hub = parse_exist_in_hub(worksheet.cell(row=i, column=23).value)
+        sector_list = sector.split(',')
+        sector_append_list = []
+        for sec in sector_list:
+            sector = PossibleEarlyActionsSectors.objects.create(
+                name=sec.strip().lower(),
+            )
+            sector_append_list.append(sector)
+
         for country in countries:
             if country:
                 if Country.objects.filter(name__icontains=country).exists() and hazard_type:
@@ -125,7 +136,6 @@ def create_possible_actions(file):
                         'early_actions': early_actions,
                         'hazard_name': hazard_name,
                         'location': location,
-                        'sector': sector,
                         'intended_purpose': intended_purpose,
                         'organization': organization,
                         'budget': budget,
@@ -144,4 +154,5 @@ def create_possible_actions(file):
                         'timeframe_raw': timeframe_raw,
                         'effective_time_raw': effective_time_raw,
                     }
-                    PossibleEarlyActions.objects.create(**data)
+                    possible_actions = PossibleEarlyActions.objects.create(**data)
+                    possible_actions.sectors.add(*sector_append_list)

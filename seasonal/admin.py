@@ -15,6 +15,7 @@ from seasonal.models import (
     ThinkHazardCountry,
     ThinkHazardInformation,
     PossibleEarlyActions,
+    PossibleEarlyActionsSectors,
     PublishReport,
     PublishReportProgram
 )
@@ -87,6 +88,11 @@ class ThinkHazardInformation(admin.ModelAdmin):
 
 @admin.register(PossibleEarlyActions)
 class PossibleEarlyActionsAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(PossibleEarlyActionsSectors)
+class PossibleEarlyActionsSectorsAdmin(admin.ModelAdmin):
     pass
 
 

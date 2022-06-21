@@ -1,5 +1,6 @@
 from rest_framework import viewsets, response
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.decorators import action
 
 from datetime import datetime
 from datetime import timedelta
@@ -18,7 +19,8 @@ from seasonal.models import (
     GarProbabilistic,
     PossibleEarlyActions,
     PublishReport,
-    PublishReportProgram
+    PublishReportProgram,
+    PossibleEarlyActionsSectors
 )
 from seasonal.serializers import (
     IdmcSerializer,
@@ -400,6 +402,22 @@ class EarlyActionViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PossibleEarlyActions.objects.select_related('country')
     filterset_class = PossibleEarlyActionsFilterSet
     serializer_class = PossibleEarlyActionsSerializer
+
+    @action(
+        detail=False,
+        url_path='options'
+    )
+    def get_options(self, request, **kwargs):
+        options = {
+            'sectors': [
+                {
+                    'id': sector.id,
+                    'name': sector.name,
+                } for sector in PossibleEarlyActionsSectors.objects.all().distinct('name')
+            ],
+        }
+
+        return response.Response(options)
 
 
 class PublishReportViewSet(viewsets.ReadOnlyModelViewSet):

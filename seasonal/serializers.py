@@ -13,6 +13,7 @@ from seasonal.models import (
     PossibleEarlyActions,
     PublishReport,
     PublishReportProgram,
+    PossibleEarlyActionsSectors
 )
 from common.serializers import CountrySerializer
 
@@ -100,9 +101,16 @@ class GarProbabilisticSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PossibelEarlyActionsSectorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PossibleEarlyActionsSectors
+        fields = '__all__'
+
+
 class PossibleEarlyActionsSerializer(serializers.ModelSerializer):
     hazard_type_display = serializers.CharField(source='get_hazard_type_display')
     country_details = CountrySerializer(source='country', read_only=True)
+    sectors_details = PossibelEarlyActionsSectorSerializer(source='sectors', many=True, required=False)
 
     class Meta:
         model = PossibleEarlyActions

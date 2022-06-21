@@ -454,6 +454,13 @@ class ThinkHazardInformation(models.Model):
         return f'{self.hazard_type} {self.country.name}'
 
 
+class PossibleEarlyActionsSectors(models.Model):
+    name = models.CharField(
+        max_length=255,
+        verbose_name=_('name')
+    )
+
+
 class PossibleEarlyActions(models.Model):
     country = models.ForeignKey(
         Country, on_delete=models.CASCADE,
@@ -475,9 +482,10 @@ class PossibleEarlyActions(models.Model):
         verbose_name=_('Location Description'),
         null=True, blank=True
     )
-    sector = models.CharField(
-        verbose_name=_('Sector'), max_length=255,
-        blank=True, null=True
+    sectors = models.ManyToManyField(
+        PossibleEarlyActionsSectors,
+        verbose_name=_('Sectors'),
+        blank=True
     )
     intended_purpose = models.TextField(
         verbose_name=_('Intended Purpose'),
