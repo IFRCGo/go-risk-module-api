@@ -16,7 +16,7 @@ class Command(BaseCommand):
     help = 'Import RMD Publish Data'
 
     def handle(self, *args, **options):
-        rmd_url = 'https://rmd-api-test-appservice.azurewebsites.net/publishreport'
+        rmd_url = 'https://rmd-api-prod-appservice.azurewebsites.net/publishreport'
         response = requests.get(rmd_url)
         if response.status_code != 200:
             error_log = f'Error querying ipc data at {rmd_url}'
@@ -49,6 +49,10 @@ class Command(BaseCommand):
                     'description': program_data['description'],
                     'email': program_data['email'],
                     'attachment_name': program_data['attachmentName'],
-                    'attachment': program_data['attachment']
+                    'attachment': program_data['attachment'],
+                    'publish_report_id': program_data['id']
                 }
-                PublishReport.objects.create(**report_data)
+                report = PublishReport.objects.create(**report_data)
+                if report.attachment_name:
+                    report.attachment_url = f'https://rmd-api.ifrc.org/publishreport/download/{report.publish_report_id}'
+                    report.save(update_fields=['attachment_url'])

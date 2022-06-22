@@ -642,6 +642,11 @@ class PublishReport(models.Model):
         verbose_name=_('Program Name'),
         on_delete=models.CASCADE
     )
+    publish_report_id = models.CharField(
+        verbose_name=_('Publish Report'),
+        max_length=255,
+        null=True, blank=True
+    )
     report_name = models.CharField(
         verbose_name=_('Report Name'),
         max_length=255,
@@ -664,6 +669,11 @@ class PublishReport(models.Model):
         verbose_name=_('Attachment'),
         null=True, blank=True,
         max_length=255
+    )
+    attachment_url = models.CharField(
+        verbose_name=_('Attachment URL'),
+        max_length=255,
+        null=True, blank=True
     )
 
     def __str__(self):

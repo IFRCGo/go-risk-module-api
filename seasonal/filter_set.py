@@ -21,7 +21,6 @@ class PossibleEarlyActionsFilterSet(django_filters.FilterSet):
         choices=HazardType.choices,
         widget=django_filters.widgets.CSVWidget,
     )
-    print(hazard_type)
     sectors = django_filters.CharFilter(
         field_name='sectors__name',
         lookup_expr='icontains',

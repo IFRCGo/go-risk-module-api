@@ -72,9 +72,9 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'risk_module.urls'
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 50,
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
 }
 
 
@@ -247,6 +247,6 @@ CELERY_BEAT_SCHEDULE = {
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-
-
-
+# NOTE: This is experimental distance in km
+# Can be changed
+BUFFER_DISTANCE_IN_KM = 50
