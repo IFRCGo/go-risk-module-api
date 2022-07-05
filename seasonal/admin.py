@@ -63,12 +63,12 @@ class GarProbabilisticAdmin(admin.ModelAdmin):
 
 @admin.register(Ipc)
 class IpcAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ('country__name', 'analysis_date')
 
 
 @admin.register(IpcMonthly)
 class IpcMonthly(admin.ModelAdmin):
-    pass
+    search_fields = ('country__name', 'analysis_date')
 
 
 @admin.register(GlobalDisplacement)
