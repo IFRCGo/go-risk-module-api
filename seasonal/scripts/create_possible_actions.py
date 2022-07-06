@@ -63,8 +63,8 @@ def parse_number_of_people_covered(people):
 def parse_hazard_type(hazard_type):
     hazard_type_dict = {
         'Flood': HazardType.FLOOD,
-        'Cyclone and Typhoon': HazardType.CYCLONE,
-        'Tropical Storm': HazardType.WIND,
+        'Cyclone and Typhoon': HazardType.WIND,
+        'Tropical Storm': HazardType.STORM,
         'Drought': HazardType.DROUGHT
     }
     return hazard_type_dict.get(hazard_type)
