@@ -95,7 +95,7 @@ class SeasonalViewSet(viewsets.ViewSet):
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get('iso3')
         region = self.request.query_params.get('region')
-        #hazard_type = self.request.query_params.get('hazard_type')
+        # hazard_type = self.request.query_params.get('hazard_type')
         if iso3 is not None:
             """hazard_info = ThinkHazardInformationSerializer(
                 ThinkHazardInformation.objects.filter(

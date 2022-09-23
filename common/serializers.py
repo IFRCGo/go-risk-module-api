@@ -16,4 +16,11 @@ class CountrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Country
-        fields = '__all__'
+        fields = (
+            'id',
+            'name',
+            'iso',
+            'iso3',
+            'region',
+            'region_details'
+        )
