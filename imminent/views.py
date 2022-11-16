@@ -51,65 +51,67 @@ class ImminentViewSet(viewsets.ViewSet):
         seven_days_before = today + timedelta(days=-7)
         iso3 = self.request.query_params.get('iso3')
         region = self.request.query_params.get('region')
-        pagination = LimitOffsetPagination()
         if iso3:
             oddrin_data = OddrinSerializer(
                 Oddrin.objects.filter(
                     iso3__icontains=iso3
                 ), many=True
             ).data
-            country_queryset = PdcDisplacement.objects.filter(
-                models.Q(
-                    country__iso3__icontains=iso3,
-                    pdc__status=Pdc.Status.ACTIVE,
-                    pdc__pdc_updated_at__gte=seven_days_before,
-                ) | models.Q(
-                    country__iso3__icontains=iso3,
-                    pdc__status=Pdc.Status.ACTIVE,
-                    pdc__pdc_updated_at__isnull=True,
-                    pdc__pdc_created_at__gte=seven_days_before,
-                )
-            ).order_by('-pdc__created_at').select_related('country')
-            qs = pagination.paginate_queryset(country_queryset, request)
-            pdc_data = PdcDisplacementSerializer(qs, many=True).data
+            pdc_data = PdcDisplacementSerializer(
+                PdcDisplacement.objects.filter(
+                    models.Q(
+                        country__iso3__icontains=iso3,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__pdc_updated_at__gte=seven_days_before,
+                    ) | models.Q(
+                        country__iso3__icontains=iso3,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__pdc_updated_at__isnull=True,
+                        pdc__pdc_created_at__gte=seven_days_before,
+                    )
+                ).order_by('-pdc__created_at').select_related('country'),
+                many=True
+            ).data
 
         elif region:
             oddrin_data = OddrinSerializer(
                 Oddrin.objects.all(), many=True
             ).data
-            region_queryset = PdcDisplacement.objects.filter(
-                models.Q(
-                    country__region__name=region,
-                    pdc__status=Pdc.Status.ACTIVE,
-                    pdc__pdc_updated_at__gte=seven_days_before,
-                ) | models.Q(
-                    pdc__status=Pdc.Status.ACTIVE,
-                    country__isnull=True,
-                    pdc__pdc_updated_at__gte=seven_days_before,
-                ) |
-                models.Q(
-                    country__region__name=region,
-                    pdc__status=Pdc.Status.ACTIVE,
-                    pdc__pdc_created_at__gte=seven_days_before,
-                ) | models.Q(
-                    pdc__status=Pdc.Status.ACTIVE,
-                    country__isnull=True,
-                    pdc__pdc_updated_at__isnull=True,
-                    pdc__pdc_created_at__gte=seven_days_before,
-                )
-            ).order_by('-pdc__created_at').select_related('country')
-            qs = pagination.paginate_queryset(region_queryset, request)
-            pdc_data = PdcDisplacementSerializer(qs, many=True).data
+            pdc_data = PdcDisplacementSerializer(
+                PdcDisplacement.objects.filter(
+                    models.Q(
+                        country__region__name=region,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__pdc_updated_at__gte=seven_days_before,
+                    ) | models.Q(
+                        pdc__status=Pdc.Status.ACTIVE,
+                        country__isnull=True,
+                        pdc__pdc_updated_at__gte=seven_days_before,
+                    ) |
+                    models.Q(
+                        country__region__name=region,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__pdc_created_at__gte=seven_days_before,
+                    ) | models.Q(
+                        pdc__status=Pdc.Status.ACTIVE,
+                        country__isnull=True,
+                        pdc__pdc_updated_at__isnull=True,
+                        pdc__pdc_created_at__gte=seven_days_before,
+                    )
+                ).order_by('-pdc__created_at').select_related('country'),
+                many=True
+            ).data
 
         else:
             oddrin_data = OddrinSerializer(
                 Oddrin.objects.all(), many=True
             ).data
-            pdc_queryset = PdcDisplacement.objects.all().select_related('country')
-            qs = pagination.paginate_queryset(pdc_queryset, request)
-            pdc_data = PdcDisplacementSerializer(qs, many=True).data
+            pdc_data = PdcDisplacementSerializer(
+                PdcDisplacement.objects.all().select_related('country'),
+                many=True
+            ).data
 
-        return pagination.get_paginated_response(
+        return response.Response(
             {
                 'pdc_data': pdc_data,
                 'oddrin_data': oddrin_data,
