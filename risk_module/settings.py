@@ -249,4 +249,4 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # NOTE: This is experimental distance in km
 # Can be changed
-BUFFER_DISTANCE_IN_KM = 50
+BUFFER_DISTANCE_IN_KM = 500
