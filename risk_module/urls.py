@@ -31,6 +31,7 @@ from seasonal.views import (
     ThinkHazardInformationViewSet,
     EarlyActionViewSet,
     PublishReportViewSet,
+    RiskScoreViewSet,
     generate_data,
 )
 from imminent.views import (
@@ -38,6 +39,7 @@ from imminent.views import (
     OddrinViewSet,
     PdcDisplacementViewSet,
     EarthquakeViewSet,
+    AdamViewSet,
 )
 
 from rest_framework import routers
@@ -59,6 +61,8 @@ router.register(r'gar-return-period', GarHazardViewSet, basename='gar return per
 router.register(r'pdc-displacement', PdcDisplacementViewSet, basename='pdc displacement')
 router.register(r'early-actions', EarlyActionViewSet, basename='early actions')
 router.register(r'publish-report', PublishReportViewSet, basename='publish report')
+router.register(r'risk-score', RiskScoreViewSet, basename='risk score')
+router.register(r'adam-exposure', AdamViewSet, basename='adam exposure')
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),

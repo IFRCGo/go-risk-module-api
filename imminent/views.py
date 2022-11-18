@@ -11,13 +11,18 @@ from imminent.models import (
     PdcDisplacement,
     Pdc,
     Earthquake,
+    Adam,
 )
 from imminent.serializers import (
     OddrinSerializer,
     PdcDisplacementSerializer,
-    EarthquakeSerializer
+    EarthquakeSerializer,
+    AdamSerializer,
 )
-from imminent.filter_set import EarthquakeFilterSet
+from imminent.filter_set import (
+    EarthquakeFilterSet,
+    AdamFilterSet,
+)
 
 
 class EarthquakeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -117,3 +122,9 @@ class ImminentViewSet(viewsets.ViewSet):
                 'oddrin_data': oddrin_data,
             }
         )
+
+
+class AdamViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Adam.objects.select_related('country')
+    serializer_class = AdamSerializer
+    filteset_class = AdamFilterSet

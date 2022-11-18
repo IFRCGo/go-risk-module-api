@@ -1,6 +1,7 @@
 import django_filters
 
-from imminent.models import Earthquake
+from imminent.models import Earthquake, Adam
+from common.models import HazardType
 
 
 class EarthquakeFilterSet(django_filters.FilterSet):
@@ -10,4 +11,15 @@ class EarthquakeFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Earthquake
+        fields = ()
+
+
+class AdamFilterSet(django_filters.FilterSet):
+    hazard_type = django_filters.MultipleChoiceFilter(
+        choices=HazardType.choices,
+        widget=django_filters.widgets.CSVWidget,
+    )
+
+    class Meta:
+        model = Adam
         fields = ()

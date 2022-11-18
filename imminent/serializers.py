@@ -4,7 +4,8 @@ from imminent.models import (
     Oddrin,
     PdcDisplacement,
     Pdc,
-    Earthquake
+    Earthquake,
+    Adam
 )
 
 from common.serializers import CountrySerializer
@@ -52,4 +53,12 @@ class EarthquakeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Earthquake
+        fields = '__all__'
+
+
+class AdamSerializer(serializers.ModelSerializer):
+    country_details = CountrySerializer(source='country', read_only=True)
+
+    class Meta:
+        model = Adam
         fields = '__all__'

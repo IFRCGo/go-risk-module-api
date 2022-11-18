@@ -17,7 +17,8 @@ from seasonal.models import (
     PossibleEarlyActions,
     PossibleEarlyActionsSectors,
     PublishReport,
-    PublishReportProgram
+    PublishReportProgram,
+    RiskScore
 )
 
 
@@ -103,4 +104,9 @@ class PublishReportProgramAdmin(admin.ModelAdmin):
 
 @admin.register(PublishReport)
 class PublishReportAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(RiskScore)
+class RiskScore(admin.ModelAdmin):
     pass
