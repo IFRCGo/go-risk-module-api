@@ -31,4 +31,4 @@ class EarthquakeAdmin(admin.ModelAdmin):
 
 @admin.register(Adam)
 class AdamAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['country__iso3', 'country__name']

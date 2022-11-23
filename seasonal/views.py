@@ -41,6 +41,7 @@ from seasonal.serializers import (
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
     PublishReportFilterSet,
+    RiskScoreFilterSet,
 )
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
@@ -381,3 +382,4 @@ class PublishReportViewSet(viewsets.ReadOnlyModelViewSet):
 class RiskScoreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RiskScore.objects.select_related('country')
     serializer_class = RiskScoreSerializer
+    filterset_class = RiskScoreFilterSet

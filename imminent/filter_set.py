@@ -1,7 +1,7 @@
 import django_filters
 
 from imminent.models import Earthquake, Adam
-from common.models import HazardType
+from common.models import HazardType, Country
 
 
 class EarthquakeFilterSet(django_filters.FilterSet):
@@ -18,6 +18,13 @@ class AdamFilterSet(django_filters.FilterSet):
     hazard_type = django_filters.MultipleChoiceFilter(
         choices=HazardType.choices,
         widget=django_filters.widgets.CSVWidget,
+    )
+    country = django_filters.ModelMultipleChoiceFilter(
+        queryset=Country.objects.all(),
+    )
+    iso3 = django_filters.CharFilter(
+        field_name='country__iso3',
+        lookup_expr='icontains'
     )
 
     class Meta:

@@ -127,4 +127,4 @@ class ImminentViewSet(viewsets.ViewSet):
 class AdamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Adam.objects.select_related('country')
     serializer_class = AdamSerializer
-    filteset_class = AdamFilterSet
+    filterset_class = AdamFilterSet

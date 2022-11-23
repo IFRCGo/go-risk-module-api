@@ -730,4 +730,4 @@ class RiskScore(models.Model):
     )
 
     def __str__(self):
-        return f'{self.country.name} - {self.hazard_type}'
+        return f'{self.country.name} - {self.hazard_type} - {self.yearly_sum}'

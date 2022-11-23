@@ -109,4 +109,4 @@ class PublishReportAdmin(admin.ModelAdmin):
 
 @admin.register(RiskScore)
 class RiskScore(admin.ModelAdmin):
-    pass
+    search_fields = ('country__name', 'country__iso3')
