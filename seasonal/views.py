@@ -1,3 +1,5 @@
+import pandas as pd
+
 from rest_framework import viewsets, response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
@@ -8,6 +10,7 @@ from openpyxl import Workbook
 from django.http import HttpResponse
 from common.models import HazardType
 from django.db import models
+
 from seasonal.models import (
     Idmc,
     InformRisk,
@@ -383,3 +386,99 @@ class RiskScoreViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = RiskScore.objects.select_related('country')
     serializer_class = RiskScoreSerializer
     filterset_class = RiskScoreFilterSet
+
+
+class InformScoreViewSet(viewsets.ViewSet):
+
+    def list(self, request, *args, **kwargs):
+        def map_hazard_type(hazard_type):
+            if hazard_type == 'DR':
+                return HazardType.DROUGHT
+            elif hazard_type == 'FL':
+                return HazardType.FLOOD
+            elif hazard_type == 'TC':
+                return HazardType.CYCLONE
+            elif hazard_type == 'FI':
+                hazard_type = HazardType.FOOD_INSECURITY
+            elif hazard_type == 'EQ':
+                hazard_type = HazardType.EARTHQUAKE
+            return
+
+        hazard_type = request.query_params.getlist('hazard_type')
+        hazard_type_list = [token for line in hazard_type for token in line.split(',')]
+        new_hazard_list = []
+        for hazard_type in hazard_type_list:
+            new_hazard_list.append(map_hazard_type(hazard_type))
+        region = request.query_params.get('region')
+        inform_risk_score_queryset = InformRiskSeasonal.objects.all()
+        if hazard_type:
+            inform_risk_score_queryset = inform_risk_score_queryset.filter(
+                hazard_type__in=new_hazard_list,
+            )
+        if region:
+            inform_risk_score_queryset = inform_risk_score_queryset.filter(
+                country__region=region,
+            )
+
+        inform_score_dataframe = pd.DataFrame(
+            list(
+                inform_risk_score_queryset.values(
+                    "country__name",
+                    "country__iso3",
+                    "hazard_type",
+                    "january",
+                    "february",
+                    "march",
+                    "april",
+                    "may",
+                    "june",
+                    "july",
+                    "august",
+                    "september",
+                    "october",
+                    "november",
+                    "december",
+                )
+            )
+        )
+
+        RISK_SCORE_CONSTANT = 10
+        inform_score_dataframe.rename({"country__iso3": "iso3", "country__name": "name"}, axis=1, inplace=True)
+        country_dataframe = pd.DataFrame(inform_score_dataframe[['iso3', 'hazard_type', 'name']])
+        inform_score_dataframe = inform_score_dataframe.groupby(['iso3']).sum('january')
+        inform_score_dataframe['january'] = inform_score_dataframe['january'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['february'] = inform_score_dataframe['february'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['march'] = inform_score_dataframe['march'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['april'] = inform_score_dataframe['april'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['may'] = inform_score_dataframe['may'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['june'] = inform_score_dataframe['june'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['july'] = inform_score_dataframe['july'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['august'] = inform_score_dataframe['august'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['september'] = inform_score_dataframe['september'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['october'] = inform_score_dataframe['october'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['november'] = inform_score_dataframe['november'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        inform_score_dataframe['december'] = inform_score_dataframe['december'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
+        df = pd.merge(country_dataframe, inform_score_dataframe, how="left", on="iso3")
+        return response.Response(
+            [
+                {
+                    'country': {
+                        'name': row['name'],
+                        'iso3': row['iso3'],
+                    },
+                    'hazard_type': row['hazard_type'],
+                    'january_inform_score': row['january'],
+                    'february_inform_score': row['february'],
+                    'march_inform_score': row['march'],
+                    'april_inform_score': row['april'],
+                    'may_inform_score': row['may'],
+                    'june_inform_score': row['june'],
+                    'july_inform_score': row['july'],
+                    'august_inform_score': row['august'],
+                    'september_inform_score': row['september'],
+                    'october_inform_score': row['october'],
+                    'november_inform_score': row['november'],
+                    'december_inform_score': row['december']
+                } for index, row in df.iterrows()
+            ]
+        )

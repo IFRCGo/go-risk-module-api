@@ -32,6 +32,7 @@ from seasonal.views import (
     EarlyActionViewSet,
     PublishReportViewSet,
     RiskScoreViewSet,
+    InformScoreViewSet,
     generate_data,
 )
 from imminent.views import (
@@ -63,6 +64,7 @@ router.register(r'early-actions', EarlyActionViewSet, basename='early actions')
 router.register(r'publish-report', PublishReportViewSet, basename='publish report')
 router.register(r'risk-score', RiskScoreViewSet, basename='risk score')
 router.register(r'adam-exposure', AdamViewSet, basename='adam exposure')
+router.register(r'inform-score', InformScoreViewSet, basename='infom score')
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
