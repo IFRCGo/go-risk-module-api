@@ -402,6 +402,12 @@ class InformScoreViewSet(viewsets.ViewSet):
                 hazard_type = HazardType.FOOD_INSECURITY
             elif hazard_type == 'EQ':
                 hazard_type = HazardType.EARTHQUAKE
+            elif hazard_type == 'CD':
+                hazard_type = HazardType.WIND
+            elif hazard_type == 'TS':
+                hazard_type = HazardType.TSUNAMI
+            elif hazard_type == 'SS':
+                hazard_type = HazardType.STORM
             return
 
         hazard_type = request.query_params.getlist('hazard_type')
@@ -411,13 +417,13 @@ class InformScoreViewSet(viewsets.ViewSet):
             new_hazard_list.append(map_hazard_type(hazard_type))
         region = request.query_params.get('region')
         inform_risk_score_queryset = InformRiskSeasonal.objects.all()
-        if hazard_type:
-            inform_risk_score_queryset = inform_risk_score_queryset.filter(
-                hazard_type__in=new_hazard_list,
-            )
         if region:
             inform_risk_score_queryset = inform_risk_score_queryset.filter(
                 country__region=region,
+            )
+        if hazard_type:
+            inform_risk_score_queryset = inform_risk_score_queryset.filter(
+                hazard_type__in=new_hazard_list,
             )
 
         inform_score_dataframe = pd.DataFrame(
