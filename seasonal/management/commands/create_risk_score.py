@@ -91,18 +91,18 @@ class Command(BaseCommand):
         df32region = pd.merge(df32, regional_dataframe, how="inner", on="ISO3")
         df4 = pd.merge(df32region, population_dataframe, how="inner", on="ISO3")
 
-        df4["Risk-Rel-JAN"] = df4.january * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-FEB"] = df4.february * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-MAR"] = df4.march * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-APR"] = df4.april * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-MAY"] = df4.may * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-JUN"] = df4.june * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-JUL"] = df4.july * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-AUG"] = df4.august * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-SEP"] = df4.september * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-OCT"] = df4.october * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-NOV"] = df4.november * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
-        df4["Risk-Rel-DEC"] = df4.december * df4.Vulnerability * df4.LCC / df4.Population_in_thousands
+        df4["Risk-Rel-JAN"] = df4.january * df4.Vulnerability
+        df4["Risk-Rel-FEB"] = df4.february * df4.Vulnerability
+        df4["Risk-Rel-MAR"] = df4.march * df4.Vulnerability
+        df4["Risk-Rel-APR"] = df4.april * df4.Vulnerability
+        df4["Risk-Rel-MAY"] = df4.may * df4.Vulnerability
+        df4["Risk-Rel-JUN"] = df4.june * df4.Vulnerability
+        df4["Risk-Rel-JUL"] = df4.july * df4.Vulnerability
+        df4["Risk-Rel-AUG"] = df4.august * df4.Vulnerability
+        df4["Risk-Rel-SEP"] = df4.september * df4.Vulnerability
+        df4["Risk-Rel-OCT"] = df4.october * df4.Vulnerability
+        df4["Risk-Rel-NOV"] = df4.november * df4.Vulnerability
+        df4["Risk-Rel-DEC"] = df4.december * df4.Vulnerability
 
         filtered_df = df4[df4['hazard_type'].notnull()]
         for index, row in filtered_df.iterrows():
@@ -138,6 +138,8 @@ class Command(BaseCommand):
                 'november': row['Risk-Rel-NOV'],
                 'december': row['Risk-Rel-DEC'],
                 'yearly_sum': yearly_sum,
-                'hazard_type': self.map_hazard_type(row['hazard_type'])
+                'hazard_type': self.map_hazard_type(row['hazard_type']),
+                'lcc': row['LCC'],
+                'population_in_thousands': row['Population_in_thousands']
             }
             RiskScore.objects.create(**risk_score_data)

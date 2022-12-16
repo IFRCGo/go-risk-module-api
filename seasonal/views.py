@@ -450,21 +450,24 @@ class InformScoreViewSet(viewsets.ViewSet):
 
         RISK_SCORE_CONSTANT = 10
         inform_score_dataframe.rename({"country__iso3": "iso3", "country__name": "name"}, axis=1, inplace=True)
-        country_dataframe = pd.DataFrame(inform_score_dataframe[['iso3', 'hazard_type', 'name']])
-        inform_score_dataframe = inform_score_dataframe.groupby(['iso3']).sum('january')
-        inform_score_dataframe['january'] = inform_score_dataframe['january'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['february'] = inform_score_dataframe['february'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['march'] = inform_score_dataframe['march'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['april'] = inform_score_dataframe['april'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['may'] = inform_score_dataframe['may'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['june'] = inform_score_dataframe['june'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['july'] = inform_score_dataframe['july'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['august'] = inform_score_dataframe['august'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['september'] = inform_score_dataframe['september'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['october'] = inform_score_dataframe['october'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['november'] = inform_score_dataframe['november'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        inform_score_dataframe['december'] = inform_score_dataframe['december'].apply(lambda x: x * RISK_SCORE_CONSTANT / inform_score_dataframe.select_dtypes(exclude=['object']).unstack().max())
-        df = pd.merge(country_dataframe, inform_score_dataframe, how="left", on="iso3")
+        frame = pd.DataFrame([])
+        for x, y in inform_score_dataframe.groupby(['iso3']):
+            for col in ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']:
+                y[col] = y[col].sum()
+            frame = pd.concat([frame, y], axis=0, ignore_index=True)
+        frame = frame.rename({"hazard_type_x": "hazard_type", "name_x": "name"})
+        frame['january'] = frame['january'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['february'] = frame['february'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['march'] = frame['march'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['april'] = frame['april'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['may'] = frame['may'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['june'] = frame['june'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['july'] = frame['july'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['august'] = frame['august'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['september'] = frame['september'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['october'] = frame['october'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['november'] = frame['november'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['december'] = frame['december'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
         return response.Response(
             [
                 {
@@ -485,6 +488,6 @@ class InformScoreViewSet(viewsets.ViewSet):
                     'october_inform_score': row['october'],
                     'november_inform_score': row['november'],
                     'december_inform_score': row['december']
-                } for index, row in df.iterrows()
+                } for index, row in frame.iterrows()
             ]
         )

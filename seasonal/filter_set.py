@@ -5,7 +5,7 @@ from common.models import HazardType
 from seasonal.models import (
     PossibleEarlyActions,
     PublishReport,
-    RiskScore
+    RiskScore,
 )
 
 
