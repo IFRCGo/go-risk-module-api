@@ -468,6 +468,8 @@ class InformScoreViewSet(viewsets.ViewSet):
         frame['october'] = frame['october'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
         frame['november'] = frame['november'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
         frame['december'] = frame['december'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['hazard_type'] = ','.join(list(frame['hazard_type'].unique()))
+        frame = frame.drop_duplicates(['name'], keep='first')
         return response.Response(
             [
                 {
@@ -475,19 +477,19 @@ class InformScoreViewSet(viewsets.ViewSet):
                         'name': row['name'],
                         'iso3': row['iso3'],
                     },
-                    'hazard_type': row['hazard_type'],
-                    'january_inform_score': row['january'],
-                    'february_inform_score': row['february'],
-                    'march_inform_score': row['march'],
-                    'april_inform_score': row['april'],
-                    'may_inform_score': row['may'],
-                    'june_inform_score': row['june'],
-                    'july_inform_score': row['july'],
-                    'august_inform_score': row['august'],
-                    'september_inform_score': row['september'],
-                    'october_inform_score': row['october'],
-                    'november_inform_score': row['november'],
-                    'december_inform_score': row['december']
+                    'hazard_type': row['hazard_type'].split(','),
+                    'january': row['january'],
+                    'february': row['february'],
+                    'march': row['march'],
+                    'april': row['april'],
+                    'may': row['may'],
+                    'june': row['june'],
+                    'july': row['july'],
+                    'august': row['august'],
+                    'september': row['september'],
+                    'october': row['october'],
+                    'november': row['november'],
+                    'december': row['december']
                 } for index, row in frame.iterrows()
             ]
         )
