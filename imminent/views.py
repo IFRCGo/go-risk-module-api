@@ -53,7 +53,7 @@ class ImminentViewSet(viewsets.ViewSet):
 
     def list(self, request, *args, **kwargs):
         today = datetime.now().date()
-        seven_days_before = today + timedelta(days=-7)
+        five_days_before = today + timedelta(days=-5)
         iso3 = self.request.query_params.get('iso3')
         region = self.request.query_params.get('region')
         if iso3:
@@ -67,12 +67,12 @@ class ImminentViewSet(viewsets.ViewSet):
                     models.Q(
                         country__iso3__icontains=iso3,
                         pdc__status=Pdc.Status.ACTIVE,
-                        pdc__pdc_updated_at__gte=seven_days_before,
+                        pdc__pdc_updated_at__gte=five_days_before,
                     ) | models.Q(
                         country__iso3__icontains=iso3,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__pdc_updated_at__isnull=True,
-                        pdc__pdc_created_at__gte=seven_days_before,
+                        pdc__pdc_created_at__gte=five_days_before,
                     )
                 ).order_by('-pdc__created_at').select_related('country'),
                 many=True
@@ -87,21 +87,21 @@ class ImminentViewSet(viewsets.ViewSet):
                     models.Q(
                         country__region__name=region,
                         pdc__status=Pdc.Status.ACTIVE,
-                        pdc__pdc_updated_at__gte=seven_days_before,
+                        pdc__pdc_updated_at__gte=five_days_before,
                     ) | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
-                        pdc__pdc_updated_at__gte=seven_days_before,
+                        pdc__pdc_updated_at__gte=five_days_before,
                     ) |
                     models.Q(
                         country__region__name=region,
                         pdc__status=Pdc.Status.ACTIVE,
-                        pdc__pdc_created_at__gte=seven_days_before,
+                        pdc__pdc_created_at__gte=five_days_before,
                     ) | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
                         pdc__pdc_updated_at__isnull=True,
-                        pdc__pdc_created_at__gte=seven_days_before,
+                        pdc__pdc_created_at__gte=five_days_before,
                     )
                 ).order_by('-pdc__created_at').select_related('country'),
                 many=True
