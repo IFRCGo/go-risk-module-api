@@ -5,6 +5,7 @@ from common.models import HazardType
 from seasonal.models import (
     PossibleEarlyActions,
     PublishReport,
+    RiskScore,
 )
 
 
@@ -43,4 +44,19 @@ class PublishReportFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = PublishReport
+        fields = ()
+
+
+class RiskScoreFilterSet(django_filters.FilterSet):
+    iso3 = django_filters.CharFilter(
+        lookup_expr='icontains',
+        field_name='country__iso3'
+    )
+    region = django_filters.NumberFilter(
+        lookup_expr='icontains',
+        field_name='country__region__name'
+    )
+
+    class Meta:
+        model = RiskScore
         fields = ()

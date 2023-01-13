@@ -678,3 +678,63 @@ class PublishReport(models.Model):
 
     def __str__(self):
         return f'{self.report_name} - {self.program.program_name} - {self.program.country.name}'
+
+
+class RiskScore(models.Model):
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE,
+        verbose_name=_('country'), null=True, blank=True
+    )
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+    january = models.FloatField(
+        verbose_name=_('january'), null=True, blank=True
+    )
+    february = models.FloatField(
+        verbose_name=_('february'), null=True, blank=True
+    )
+    march = models.FloatField(
+        verbose_name=_('march'), null=True, blank=True
+    )
+    april = models.FloatField(
+        verbose_name=_('april'), null=True, blank=True
+    )
+    may = models.FloatField(
+        verbose_name=_('may'), null=True, blank=True
+    )
+    june = models.FloatField(
+        verbose_name=_('june'), null=True, blank=True
+    )
+    july = models.FloatField(
+        verbose_name=_('july'), null=True, blank=True
+    )
+    august = models.FloatField(
+        verbose_name=_('august'), null=True, blank=True
+    )
+    september = models.FloatField(
+        verbose_name=_('september'), null=True, blank=True
+    )
+    october = models.FloatField(
+        verbose_name=_('october'), null=True, blank=True
+    )
+    november = models.FloatField(
+        verbose_name=_('november'), null=True, blank=True
+    )
+    december = models.FloatField(
+        verbose_name=_('december'), null=True, blank=True
+    )
+    yearly_sum = models.FloatField(
+        verbose_name=_('yearly_sum'), null=True, blank=True
+    )
+    lcc = models.FloatField(
+        verbose_name=_('llc'), null=True, blank=True
+    )
+    population_in_thousands = models.FloatField(
+        verbose_name=_('population_in_thousands'),
+        null=True, blank=True
+    )
+
+    def __str__(self):
+        return f'{self.country.name} - {self.hazard_type} - {self.yearly_sum}'

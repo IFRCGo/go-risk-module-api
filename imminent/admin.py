@@ -4,7 +4,8 @@ from imminent.models import (
     Oddrin,
     Pdc,
     PdcDisplacement,
-    Earthquake
+    Earthquake,
+    Adam
 )
 
 
@@ -23,7 +24,11 @@ class PdcDisplacementdAdmin(admin.ModelAdmin):
     pass
 
 
-
 @admin.register(Earthquake)
 class EarthquakeAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(Adam)
+class AdamAdmin(admin.ModelAdmin):
+    search_fields = ['country__iso3', 'country__name']

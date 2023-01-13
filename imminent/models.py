@@ -209,3 +209,33 @@ class Earthquake(models.Model):
 
     def __str__(self):
         return f'{self.event_title} - {self.magnitude}'
+
+
+class Adam(models.Model):
+    title = models.CharField(
+        verbose_name=_('Title'),
+        max_length=255
+    )
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('Hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+    country = models.ForeignKey(
+        Country, on_delete=models.CASCADE,
+        verbose_name=_('Country'), null=True, blank=True
+    )
+    event_id = models.CharField(
+        verbose_name=_('Event id'),
+        max_length=255,
+        null=True, blank=True
+    )
+    publish_date = models.DateTimeField(
+        verbose_name=_('Publish_date'),
+    )
+    geojson = models.JSONField(
+        verbose_name=_('GeJson'),
+        null=True, blank=True
+    )
+
+    def __str__(self):
+        return f'{self.title} {self.hazard_type}'

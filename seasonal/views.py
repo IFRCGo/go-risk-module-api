@@ -1,3 +1,5 @@
+import pandas as pd
+
 from rest_framework import viewsets, response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
@@ -7,6 +9,8 @@ from datetime import timedelta
 from openpyxl import Workbook
 from django.http import HttpResponse
 from common.models import HazardType
+from django.db import models
+
 from seasonal.models import (
     Idmc,
     InformRisk,
@@ -20,7 +24,8 @@ from seasonal.models import (
     PossibleEarlyActions,
     PublishReport,
     PublishReportProgram,
-    PossibleEarlyActionsSectors
+    PossibleEarlyActionsSectors,
+    RiskScore
 )
 from seasonal.serializers import (
     IdmcSerializer,
@@ -33,11 +38,13 @@ from seasonal.serializers import (
     GlobalDisplacementSerializer,
     GarProbabilisticSerializer,
     PossibleEarlyActionsSerializer,
-    PublishReportSerializer
+    PublishReportSerializer,
+    RiskScoreSerializer,
 )
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
     PublishReportFilterSet,
+    RiskScoreFilterSet,
 )
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
@@ -234,107 +241,80 @@ class SeasonalViewSet(viewsets.ViewSet):
 
 
 def generate_data(request):
-    exposure_queryset = DisplacementData.objects.all()
-    displacement = Idmc.objects.all()
-    inform_data = InformRiskSeasonal.objects.all()
+    exposure_queryset = DisplacementData.objects.filter(
+        models.Q(hazard_type=HazardType.FLOOD) | models.Q(hazard_type=HazardType.CYCLONE)
+    )
+    ipc_displacement = GlobalDisplacement.objects.filter(
+        hazard_type=HazardType.FOOD_INSECURITY
+    )
     all_data = []
     for exposure in exposure_queryset:
-        for disp in displacement:
-            for inform in inform_data:
-                if exposure.hazard_type == disp.hazard_type == inform.hazard_type and exposure.country == disp.country == inform.country:
-                    data = dict(
-                        country=exposure.country.name,
-                        hazard_type=exposure.hazard_type,
-                        displacement_january=disp.january,
-                        exposure_january=exposure.january,
-                        inform_january=inform.january,
-                        displacement_february=disp.february,
-                        exposure_february=exposure.february,
-                        inform_february=inform.february,
-                        displacement_march=disp.march,
-                        exposure_march=exposure.march,
-                        inform_march=inform.march,
-                        displacement_april=disp.april,
-                        exposure_april=exposure.april,
-                        inform_april=inform.april,
-                        displacement_may=disp.may,
-                        exposure_may=exposure.may,
-                        inform_may=inform.may,
-                        displacement_june=disp.june,
-                        exposure_june=exposure.june,
-                        inform_june=inform.june,
-                        displacement_july=disp.july,
-                        exposure_july=exposure.july,
-                        inform_july=inform.july,
-                        displacement_august=disp.august,
-                        exposure_august=exposure.august,
-                        inform_august=inform.august,
-                        displacement_september=disp.september,
-                        exposure_september=exposure.september,
-                        inform_september=inform.september,
-                        displacement_october=disp.october,
-                        exposure_october=exposure.october,
-                        inform_october=inform.october,
-                        displacement_november=disp.november,
-                        exposure_november=exposure.november,
-                        inform_november=inform.november,
-                        displacement_december=disp.december,
-                        exposure_december=exposure.december,
-                        inform_december=inform.december,
-                    )
-                    all_data.append(data)
+        data = dict(
+            country=exposure.country.name,
+            hazard_type=exposure.hazard_type,
+            exposure_january=exposure.january,
+            exposure_february=exposure.february,
+            exposure_march=exposure.march,
+            exposure_april=exposure.april,
+            exposure_may=exposure.may,
+            exposure_june=exposure.june,
+            exposure_july=exposure.july,
+            exposure_august=exposure.august,
+            exposure_september=exposure.september,
+            exposure_october=exposure.october,
+            exposure_november=exposure.november,
+            exposure_december=exposure.december,
+            year='',
+        )
+        all_data.append(data)
+    for ipc_data in ipc_displacement:
+        new_data = dict(
+            country=ipc_data.country.name,
+            hazard_type=ipc_data.hazard_type,
+            exposure_january=ipc_data.total_displacement if ipc_data.month == 1 else '',
+            exposure_february=ipc_data.total_displacement if ipc_data.month == 2 else '',
+            exposure_march=ipc_data.total_displacement if ipc_data.month == 3 else '',
+            exposure_april=ipc_data.total_displacement if ipc_data.month == 4 else '',
+            exposure_may=ipc_data.total_displacement if ipc_data.month == 5 else '',
+            exposure_june=ipc_data.total_displacement if ipc_data.month == 6 else '',
+            exposure_july=ipc_data.total_displacement if ipc_data.month == 7 else '',
+            exposure_august=ipc_data.total_displacement if ipc_data.month == 8 else '',
+            exposure_september=ipc_data.total_displacement if ipc_data.month == 9 else '',
+            exposure_october=ipc_data.total_displacement if ipc_data.month == 10 else '',
+            exposure_november=ipc_data.total_displacement if ipc_data.month == 11 else '',
+            exposure_december=ipc_data.total_displacement if ipc_data.month == 12 else '',
+            year=ipc_data.year
+        )
+        all_data.append(new_data)
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     )
-    response['Content-Disposition'] = 'attachment; filename={date}-summary.xlsx'.format(
+    response['Content-Disposition'] = 'attachment; filename={date}-exposure-summary.xlsx'.format(
         date=datetime.now().strftime('%Y-%m-%d'),
     )
     workbook = Workbook()
 
     worksheet = workbook.active
-    worksheet.title = 'Displacement Exposure Inform Score'
+    worksheet.title = 'Exposure Data'
 
     header_font = Font(name='Calibri', bold=True)
 
     columns = [
         ('country', 20),
         ('hazard_type', 20),
-        ('displacement_january', 20),
         ('exposure_january', 20),
-        ('inform_january', 20),
-        ('displacement_february', 20),
         ('exposure_february', 20),
-        ('inform_february', 20),
-        ('displacement_march', 20),
         ('exposure_march', 20),
-        ('inform_march', 20),
-        ('displacement_april', 20),
         ('exposure_april', 20),
-        ('inform_april', 20),
-        ('displacement_may', 20),
         ('exposure_may', 20),
-        ('inform_may', 20),
-        ('displacement_june', 20),
         ('exposure_june', 20),
-        ('inform_june', 20),
-        ('displacement_july', 20),
         ('exposure_july', 20),
-        ('inform_july', 20),
-        ('displacement_august', 20),
         ('exposure_august', 20),
-        ('inform_august', 20),
-        ('displacement_september', 20),
         ('exposure_september', 20),
-        ('inform_september', 20),
-        ('displacement_october', 20),
         ('exposure_october', 20),
-        ('inform_october', 20),
-        ('displacement_november', 20),
         ('exposure_november', 20),
-        ('inform_november', 20),
-        ('displacement_december', 20),
         ('exposure_december', 20),
-        ('inform_december', 20),
+        ('year', 20),
     ]
 
     row_num = 1
@@ -349,46 +329,22 @@ def generate_data(request):
 
     for event in all_data:
         row_num += 1
-
         row = [
             event['country'],
             event['hazard_type'],
-            event['displacement_january'],
             event['exposure_january'],
-            event['inform_january'],
-            event['displacement_february'],
             event['exposure_february'],
-            event['inform_february'],
-            event['displacement_march'],
             event['exposure_march'],
-            event['inform_march'],
-            event['displacement_april'],
             event['exposure_april'],
-            event['inform_april'],
-            event['displacement_may'],
             event['exposure_may'],
-            event['inform_may'],
-            event['displacement_june'],
             event['exposure_june'],
-            event['inform_june'],
-            event['displacement_july'],
             event['exposure_july'],
-            event['inform_july'],
-            event['displacement_august'],
             event['exposure_august'],
-            event['inform_august'],
-            event['displacement_september'],
             event['exposure_september'],
-            event['inform_september'],
-            event['displacement_october'],
             event['exposure_october'],
-            event['inform_october'],
-            event['displacement_november'],
             event['exposure_november'],
-            event['inform_november'],
-            event['displacement_december'],
             event['exposure_december'],
-            event['inform_december'],
+            event['year'],
         ]
 
         for col_num, cell_value in enumerate(row, 1):
@@ -424,3 +380,116 @@ class PublishReportViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PublishReport.objects.all()
     filterset_class = PublishReportFilterSet
     serializer_class = PublishReportSerializer
+
+
+class RiskScoreViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = RiskScore.objects.select_related('country')
+    serializer_class = RiskScoreSerializer
+    filterset_class = RiskScoreFilterSet
+
+
+class InformScoreViewSet(viewsets.ViewSet):
+
+    def list(self, request, *args, **kwargs):
+        def map_hazard_type(hazard_type):
+            if hazard_type == 'DR':
+                return HazardType.DROUGHT
+            elif hazard_type == 'FL':
+                return HazardType.FLOOD
+            elif hazard_type == 'TC':
+                return HazardType.CYCLONE
+            elif hazard_type == 'FI':
+                hazard_type = HazardType.FOOD_INSECURITY
+            elif hazard_type == 'EQ':
+                hazard_type = HazardType.EARTHQUAKE
+            elif hazard_type == 'CD':
+                hazard_type = HazardType.WIND
+            elif hazard_type == 'TS':
+                hazard_type = HazardType.TSUNAMI
+            elif hazard_type == 'SS':
+                hazard_type = HazardType.STORM
+            return
+
+        hazard_type = request.query_params.getlist('hazard_type')
+        hazard_type_list = [token for line in hazard_type for token in line.split(',')]
+        new_hazard_list = []
+        for hazard_type in hazard_type_list:
+            new_hazard_list.append(map_hazard_type(hazard_type))
+        region = request.query_params.get('region')
+        inform_risk_score_queryset = InformRiskSeasonal.objects.all()
+        if region:
+            inform_risk_score_queryset = inform_risk_score_queryset.filter(
+                country__region=region,
+            )
+        if hazard_type:
+            inform_risk_score_queryset = inform_risk_score_queryset.filter(
+                hazard_type__in=new_hazard_list,
+            )
+
+        inform_score_dataframe = pd.DataFrame(
+            list(
+                inform_risk_score_queryset.values(
+                    "country__name",
+                    "country__iso3",
+                    "hazard_type",
+                    "january",
+                    "february",
+                    "march",
+                    "april",
+                    "may",
+                    "june",
+                    "july",
+                    "august",
+                    "september",
+                    "october",
+                    "november",
+                    "december",
+                )
+            )
+        )
+
+        RISK_SCORE_CONSTANT = 10
+        inform_score_dataframe.rename({"country__iso3": "iso3", "country__name": "name"}, axis=1, inplace=True)
+        frame = pd.DataFrame([])
+        for x, y in inform_score_dataframe.groupby(['iso3']):
+            for col in ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december']:
+                y[col] = y[col].sum()
+            frame = pd.concat([frame, y], axis=0, ignore_index=True)
+        frame = frame.rename({"hazard_type_x": "hazard_type", "name_x": "name"})
+        frame['january'] = frame['january'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['february'] = frame['february'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['march'] = frame['march'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['april'] = frame['april'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['may'] = frame['may'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['june'] = frame['june'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['july'] = frame['july'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['august'] = frame['august'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['september'] = frame['september'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['october'] = frame['october'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['november'] = frame['november'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['december'] = frame['december'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
+        frame['hazard_type'] = ','.join(list(frame['hazard_type'].unique()))
+        frame = frame.drop_duplicates(['name'], keep='first')
+        return response.Response(
+            [
+                {
+                    'country': {
+                        'name': row['name'],
+                        'iso3': row['iso3'],
+                    },
+                    'hazard_type': row['hazard_type'].split(','),
+                    'january': row['january'],
+                    'february': row['february'],
+                    'march': row['march'],
+                    'april': row['april'],
+                    'may': row['may'],
+                    'june': row['june'],
+                    'july': row['july'],
+                    'august': row['august'],
+                    'september': row['september'],
+                    'october': row['october'],
+                    'november': row['november'],
+                    'december': row['december']
+                } for index, row in frame.iterrows()
+            ]
+        )

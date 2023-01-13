@@ -13,7 +13,8 @@ from seasonal.models import (
     PossibleEarlyActions,
     PublishReport,
     PublishReportProgram,
-    PossibleEarlyActionsSectors
+    PossibleEarlyActionsSectors,
+    RiskScore,
 )
 from common.serializers import CountrySerializer
 
@@ -130,4 +131,13 @@ class PublishReportSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PublishReport
+        fields = '__all__'
+
+
+class RiskScoreSerializer(serializers.ModelSerializer):
+    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+    country_details = CountrySerializer(source='country', read_only=True)
+
+    class Meta:
+        model = RiskScore
         fields = '__all__'
