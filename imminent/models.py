@@ -214,7 +214,8 @@ class Earthquake(models.Model):
 class Adam(models.Model):
     title = models.CharField(
         verbose_name=_('Title'),
-        max_length=255
+        max_length=255,
+        null=True, blank=True,
     )
     hazard_type = models.CharField(
         max_length=100, verbose_name=_('Hazard type'),
@@ -236,6 +237,17 @@ class Adam(models.Model):
         verbose_name=_('GeJson'),
         null=True, blank=True
     )
+    event_details = models.JSONField(
+        verbose_name=_('Event Details'),
+        null=True, blank=True
+    )
 
     def __str__(self):
         return f'{self.title} {self.hazard_type}'
+
+
+# class MeteoSwissFile(models.Model):
+#     file = models.FileField(
+#         blank=True, null=True,
+#         verbose_name=_('Meteo File'),
+#     )

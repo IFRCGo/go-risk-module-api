@@ -32,6 +32,7 @@ class Command(BaseCommand):
         url = 'https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/feed'
         response = http.request('GET', url)
         data = response.data
+        print(data)
         values = json.loads(data)
         for data in values:
             if data['eventType'] in ['Earthquake', 'Flood', 'Tropical Storm']:
