@@ -2,6 +2,7 @@ from datetime import timedelta, datetime
 
 from rest_framework import viewsets, response
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.decorators import action
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import models
@@ -18,10 +19,12 @@ from imminent.serializers import (
     PdcDisplacementSerializer,
     EarthquakeSerializer,
     AdamSerializer,
+    PdcSerializer,
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
     AdamFilterSet,
+    PdcFilterSet,
 )
 
 
@@ -128,3 +131,51 @@ class AdamViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Adam.objects.select_related('country')
     serializer_class = AdamSerializer
     filterset_class = AdamFilterSet
+
+
+class PdcViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = PdcSerializer
+    filterset_class = PdcFilterSet
+
+    def get_queryset(self):
+        today = datetime.now().date()
+        five_days_before = today + timedelta(days=-5)
+        queryset = Pdc.objects.filter(
+            models.Q(
+                status=Pdc.Status.ACTIVE,
+                pdc_updated_at__gte=five_days_before,
+            ) | models.Q(
+                status=Pdc.Status.ACTIVE,
+                pdcdisplacement__country__isnull=True,
+                pdc_updated_at__gte=five_days_before,
+            ) |
+            models.Q(
+                status=Pdc.Status.ACTIVE,
+                pdc_created_at__gte=five_days_before,
+            ) | models.Q(
+                status=Pdc.Status.ACTIVE,
+                pdcdisplacement__country__isnull=True,
+                pdc_updated_at__isnull=True,
+                pdc_created_at__gte=five_days_before,
+            )
+        ).order_by('-created_at').distinct()
+        return queryset
+
+    @action(detail=True, url_path='exposure')
+    def get_displacement(self, request, pk):
+        object = self.get_object()
+        displacement_data = PdcDisplacement.objects.filter(
+            pdc=object.id
+        ).order_by('-pdc__pdc_updated_at')
+        population_exposure = None
+        capital_exposure = None
+        if displacement_data.exists():
+            population_exposure = displacement_data[0].population_exposure or None
+            capital_exposure = displacement_data[0].capital_exposure or None
+        data = {
+            "footprint_geojson": object.footprint_geojson or None,
+            "storm_position_geojson": object.storm_position_geojson or None,
+            "population_exposure": population_exposure,
+            "capital_exposure": capital_exposure,
+        }
+        return response.Response(data)

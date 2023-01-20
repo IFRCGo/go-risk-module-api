@@ -1,10 +1,14 @@
 import django_filters
 
-from imminent.models import Earthquake, Adam
+from imminent.models import (
+    Earthquake,
+    Adam,
+    Pdc
+)
 from common.models import (
     HazardType,
     Country,
-    Region
+    Region,
 )
 
 
@@ -38,4 +42,21 @@ class AdamFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Adam
+        fields = ()
+
+
+class PdcFilterSet(django_filters.FilterSet):
+    iso3 = django_filters.CharFilter(
+        field_name='pdcdisplacement__country__iso3',
+        lookup_expr='icontains',
+        label='iso3'
+    )
+    region = django_filters.ModelMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='pdcdisplacement__country__region',
+        label='region'
+    )
+
+    class Meta:
+        model = Pdc
         fields = ()
