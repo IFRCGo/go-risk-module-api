@@ -35,7 +35,10 @@ class PdcSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pdc
-        fields = '__all__'
+        exclude = [
+            'footprint_geojson',
+            'storm_position_geojson',
+        ]
 
 
 class PdcDisplacementSerializer(serializers.ModelSerializer):
