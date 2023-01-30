@@ -241,6 +241,10 @@ class Adam(models.Model):
         verbose_name=_('Event Details'),
         null=True, blank=True
     )
+    storm_position_geojson = models.JSONField(
+        verbose_name=_('Storm Position'),
+        null=True, blank=True
+    )
 
     def __str__(self):
         return f'{self.title} {self.hazard_type}'
