@@ -169,9 +169,15 @@ class ImminentViewSet(viewsets.ViewSet):
 
 
 class AdamViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Adam.objects.select_related('country')
     serializer_class = AdamSerializer
     filterset_class = AdamFilterSet
+
+    def get_queryset(self):
+        today = datetime.now().date()
+        five_days_before = today + timedelta(days=-5)
+        return Adam.objects.filter(
+            publish_date__gte=five_days_before
+        )
 
 
 class PdcViewSet(viewsets.ReadOnlyModelViewSet):
