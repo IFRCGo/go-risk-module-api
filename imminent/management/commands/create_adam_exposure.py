@@ -22,8 +22,13 @@ class Command(BaseCommand):
         data = response.data
         eathquake_values = json.loads(data)
         for earthquake_event in eathquake_values['features']:
+            geojson = {
+                "type": "Feature",
+                "geometry": earthquake_event['geometry'],
+                "properties": {},
+            }
             data = {
-                "geojson": earthquake_event['geometry'],
+                "geojson": geojson,
                 "event_details": earthquake_event['properties'],
             }
             props = earthquake_event['properties']
@@ -42,8 +47,13 @@ class Command(BaseCommand):
         data = response.data
         flood_values = json.loads(data)
         for flood_event in flood_values['features']:
+            geojson = {
+                "type": "Feature",
+                "geometry": flood_event['geometry'],
+                "properties": {},
+            }
             data = {
-                "geojson": flood_event['geometry'],
+                "geojson": geojson,
                 "event_details": flood_event['properties'],
             }
             props = flood_event['properties']

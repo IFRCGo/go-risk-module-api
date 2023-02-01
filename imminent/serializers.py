@@ -61,6 +61,7 @@ class EarthquakeSerializer(serializers.ModelSerializer):
 
 class AdamSerializer(serializers.ModelSerializer):
     country_details = CountrySerializer(source='country', read_only=True)
+    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
 
     class Meta:
         model = Adam

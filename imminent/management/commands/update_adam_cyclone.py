@@ -9,10 +9,7 @@ from imminent.models import Adam
 
 
 class Command(BaseCommand):
-    help = 'Import ADAM Exposure Data'
-
-    def parse_datetime(self, date):
-        return datetime.strptime(date, '%Y-%m-%dT%HH:MM::SS').strftime('%Y-%m-%d')
+    help = 'Import ADAM Cyclone Geojson'
 
     def handle(self, *args, **kwargs):
         http = urllib3.PoolManager()

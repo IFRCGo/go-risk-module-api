@@ -239,8 +239,12 @@ CELERY_BEAT_SCHEDULE = {
         "task": "seasonal.tasks.import_think_hazard_informations",
         "schedule": crontab(0, 0, day_of_month='2')  # This task execute at second day of every month
     },
-    "check_not_provided_country": {
-        "task": "imminent.tasks.check_not_provided_country",
+    "create_adam_exposure": {
+        "task": "imminent.tasks.create_adam_exposure",
+        "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
+    },
+    "update_adam_cyclone": {
+        "task": "imminent.tasks.update_adam_cyclone",
         "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
     }
 }
@@ -250,3 +254,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 # NOTE: This is experimental distance in km
 # Can be changed
 BUFFER_DISTANCE_IN_KM = 50
+
+# AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+# AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+# ENDPOINT_URL = os.environ['ENDPOINT_URL']

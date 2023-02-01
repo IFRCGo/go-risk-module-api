@@ -40,3 +40,13 @@ def import_earthquake_data():
 @shared_task
 def check_not_provided_country():
     call_command('check_country_not_provided',)
+
+
+@shared_task
+def create_adam_exposure():
+    call_command('create_adam_exposure',)
+
+
+@shared_task
+def update_adam_cyclone():
+    call_command('update_adam_cyclone',)
