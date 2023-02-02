@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import models
 
+from common.models import HazardType
 from imminent.models import (
     Oddrin,
     PdcDisplacement,
@@ -187,23 +188,27 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         today = datetime.now().date()
         five_days_before = today + timedelta(days=-5)
+        two_days_before = today + timedelta(days=-2)
         queryset = Pdc.objects.filter(
             models.Q(
                 status=Pdc.Status.ACTIVE,
                 pdc_updated_at__gte=five_days_before,
+                hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
             ) | models.Q(
                 status=Pdc.Status.ACTIVE,
                 pdcdisplacement__country__isnull=True,
                 pdc_updated_at__gte=five_days_before,
+                hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
             ) |
             models.Q(
                 status=Pdc.Status.ACTIVE,
-                pdc_created_at__gte=five_days_before,
+                pdc_updated_at__gte=two_days_before,
+                hazard_type=HazardType.EARTHQUAKE,
             ) | models.Q(
                 status=Pdc.Status.ACTIVE,
                 pdcdisplacement__country__isnull=True,
-                pdc_updated_at__isnull=True,
-                pdc_created_at__gte=five_days_before,
+                pdc_updated_at__gte=two_days_before,
+                hazard_type=HazardType.EARTHQUAKE,
             )
         ).order_by('-created_at').distinct()
         return queryset
