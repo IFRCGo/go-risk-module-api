@@ -45,7 +45,11 @@ def fetch_inform_seasonal(file):
 
         if Country.objects.filter(iso3=iso3.lower()).exists() and hazard_type in hazard_list:
             data = {
-                'country': Country.objects.filter(iso3=iso3.lower()).first(),
+                'country': Country.objects.filter(
+                    iso3=iso3.lower(),
+                    independent=True,
+                    is_deprecated=False,
+                ).first(),
                 'hazard_type': hazard_type,
                 'january': january,
                 'february': february,

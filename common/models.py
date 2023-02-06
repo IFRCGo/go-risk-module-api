@@ -56,6 +56,14 @@ class Country(models.Model):
         blank=True,
         verbose_name=_('centroid'),
     )
+    independent = models.BooleanField(
+        default=None, null=True,
+        help_text=_('Is this an independent country?')
+    )
+    is_deprecated = models.BooleanField(
+        default=False,
+        help_text=_('Is this an active, valid country?')
+    )
 
     def __str__(self):
         return f'{self.name} - {self.iso3}'

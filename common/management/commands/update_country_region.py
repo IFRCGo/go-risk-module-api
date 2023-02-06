@@ -19,7 +19,7 @@ class Command(BaseCommand):
                 iso3 = data['iso3']
                 if iso3:
                     if Country.objects.filter(iso3=iso3.lower()).exists():
-                        country = Country.objects.filter(iso3=iso3.lower()).first()
+                        country = Country.objects.filter(iso3=iso3.lower()).last()
                         region = Region.objects.filter(name=region)
                         if region.exists():
                             region = region.first()

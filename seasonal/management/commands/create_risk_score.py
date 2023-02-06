@@ -34,7 +34,10 @@ class Command(BaseCommand):
         # lets import the data from the inform seasonal data
         inform_score_dataframe = pd.DataFrame(
             list(
-                InformRiskSeasonal.objects.values(
+                InformRiskSeasonal.objects.filter(
+                    country__independent=True,
+                    country__is_deprecated=False
+                ).values(
                     "country__name",
                     "country__iso3",
                     "hazard_type",
@@ -81,7 +84,8 @@ class Command(BaseCommand):
         # for population dataframe add `iso3`
         # provided csv lacks iso3
         #  Loading go region grouping
-        regional_dataframe = pd.DataFrame(list(Country.objects.values("iso3", "name", "region__name")))
+        regional_dataframe = pd.DataFrame(list(Country.objects.filter(
+            independent=True, is_deprecated=False).values("iso3", "name", "region__name")))
         regional_dataframe.rename({"iso3": "ISO3", "region__name": "Region"}, axis=1, inplace=True)
         regional_dataframe["ISO3"] = regional_dataframe["ISO3"].str.upper()
         df1["ISO3"] = df1["ISO3"].str.upper()
@@ -124,7 +128,11 @@ class Command(BaseCommand):
                 ]
             )
             risk_score_data = {
-                'country': Country.objects.filter(iso3__icontains=row['ISO3']).first(),
+                'country': Country.objects.filter(
+                    iso3__icontains=row['ISO3'],
+                    independent=True,
+                    is_deprecated=False,
+                ).first(),
                 'january': row['Risk-Rel-JAN'],
                 'february': row['Risk-Rel-FEB'],
                 'march': row['Risk-Rel-MAR'],
