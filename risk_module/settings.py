@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 from celery.schedules import crontab
 
+from risk_module import sentry
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -250,3 +252,27 @@ CORS_ORIGIN_ALLOW_ALL = True
 # NOTE: This is experimental distance in km
 # Can be changed
 BUFFER_DISTANCE_IN_KM = 50
+
+# Sentry Config
+SENTRY_DSN = os.environ['SENTRY_DSN']
+SENTRY_SAMPLE_RATE = os.environ['SENTRY_SAMPLE_RATE']
+RISK_ENVIRONMENT = os.environ['RISK_ENVIRONMENT']
+RISK_API_FQDN = os.environ['RISK_API_FQDN']
+
+SENTRY_CONFIG = {
+    'dsn': SENTRY_DSN,
+    'send_default_pii': True,
+    'traces_sample_rate': SENTRY_SAMPLE_RATE,
+    'release': sentry.fetch_git_sha(BASE_DIR),
+    'environment': RISK_ENVIRONMENT,
+    'debug': DEBUG,
+    'tags': {
+        'site': RISK_API_FQDN,
+    },
+}
+if SENTRY_DSN:
+    sentry.init_sentry(
+        app_type='API',
+        **SENTRY_CONFIG,
+    )
+
