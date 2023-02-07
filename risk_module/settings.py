@@ -11,27 +11,51 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 import os
+import environ
 from pathlib import Path
 from celery.schedules import crontab
+
+from risk_module import sentry
+
+
+env = environ.Env(
+    DJANGO_DEBUG=(bool, False),
+    DJANGO_SECRET_KEY=str,
+    DJANGO_ALLOWED_HOSTS=(list, ['*']),
+    # Database
+    DATABASE_NAME=str,
+    DATABASE_USER=str,
+    DATABASE_PASSWORD=str,
+    DATABASE_PORT=(int, 5432),
+    DATABASE_HOST=str,
+    TIME_ZONE=(str, 'UTC'),
+
+    USE_AWS_FOR_MEDIA=(bool, False),
+    S3_AWS_ACCESS_KEY_ID=str,
+    S3_AWS_SECRET_ACCESS_KEY=str,
+    S3_STORAGE_BUCKET_NAME=str,
+    S3_REGION_NAME=str,
+
+    CELERY_REDIS_URL=str,
+
+    SENTRY_DSN=(str, None),
+    SENTRY_SAMPLE_RATE=(float, 0.2),
+    RISK_ENVIRONMENT=(str, 'local'),
+    RISK_API_FQDN=(str, 'localhost'),
+
+)
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('DJANGO_SECRET_KEY')
+
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env('DJANGO_SECRET_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
-    'DJANGO_SECRET_KEY',
-    'django-insecure-6=h&-fnse4%ul(sxri7zgkscx$0r58wro(3m)-trw558!$bwen'
-)
-
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
-
-ALLOWED_HOSTS = [os.environ.get('DJANGO_ALLOWED_HOST', 'localhost')]
+ALLOWED_HOSTS = ['server', *env('DJANGO_ALLOWED_HOSTS')]
 
 
 # Application definition
@@ -103,11 +127,11 @@ WSGI_APPLICATION = 'risk_module.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ['DATABASE_NAME'],
-        'USER': os.environ['DATABASE_USER'],
-        'PASSWORD': os.environ['DATABASE_PASSWORD'],
-        'PORT': os.environ['DATABASE_PORT'],
-        'HOST': os.environ['DATABASE_HOST'],
+        'NAME': env('DATABASE_NAME'),
+        'USER': env('DATABASE_USER'),
+        'PASSWORD': env('DATABASE_PASSWORD'),
+        'PORT': env('DATABASE_PORT'),
+        'HOST': env('DATABASE_HOST'),
     }
 }
 
@@ -165,7 +189,7 @@ LOGGING = {
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = os.environ.get('TIME_ZONE', 'UTC')
+TIME_ZONE = env('TIME_ZONE')
 
 USE_I18N = True
 
@@ -178,11 +202,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 
-if os.environ.get('USE_AWS_FOR_MEDIA', 'false').lower() == 'true':
-    AWS_S3_ACCESS_KEY_ID = os.environ['S3_AWS_ACCESS_KEY_ID']
-    AWS_S3_SECRET_ACCESS_KEY = os.environ['S3_AWS_SECRET_ACCESS_KEY']
-    AWS_STORAGE_BUCKET_NAME = os.environ['S3_STORAGE_BUCKET_NAME']
-    AWS_S3_REGION_NAME = os.environ['S3_REGION_NAME']
+if env('USE_AWS_FOR_MEDIA'):
+    AWS_S3_ACCESS_KEY_ID = env('S3_AWS_ACCESS_KEY_ID')
+    AWS_S3_SECRET_ACCESS_KEY = env('S3_AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('S3_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = env('S3_REGION_NAME')
 
     AWS_S3_FILE_OVERWRITE = False
     AWS_DEFAULT_ACL = 'private'
@@ -200,7 +224,7 @@ STATIC_URL = "/staticfiles/"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CELERY_REDIS_URL = os.environ.get('CELERY_REDIS_URL', 'redis://redis:6379/0')
+CELERY_REDIS_URL = env('CELERY_REDIS_URL')
 CELERY_BROKER_URL = CELERY_REDIS_URL
 CELERY_RESULT_BACKEND = CELERY_REDIS_URL
 CELERY_TIMEZONE = TIME_ZONE
@@ -258,3 +282,26 @@ BUFFER_DISTANCE_IN_KM = 50
 # AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 # AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
 # ENDPOINT_URL = os.environ['ENDPOINT_URL']
+# Sentry Config
+SENTRY_DSN = env('SENTRY_DSN')
+SENTRY_SAMPLE_RATE = env('SENTRY_SAMPLE_RATE')
+RISK_ENVIRONMENT = env('RISK_ENVIRONMENT')
+RISK_API_FQDN = env('RISK_API_FQDN')
+
+SENTRY_CONFIG = {
+    'dsn': SENTRY_DSN,
+    'send_default_pii': True,
+    'traces_sample_rate': SENTRY_SAMPLE_RATE,
+    'release': sentry.fetch_git_sha(BASE_DIR),
+    'environment': RISK_ENVIRONMENT,
+    'debug': DEBUG,
+    'tags': {
+        'site': RISK_API_FQDN,
+    },
+}
+if SENTRY_DSN:
+    sentry.init_sentry(
+        app_type='API',
+        **SENTRY_CONFIG,
+    )
+

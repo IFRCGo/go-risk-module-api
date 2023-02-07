@@ -47,6 +47,7 @@ from imminent.views import (
 
 from rest_framework import routers
 
+
 router = routers.DefaultRouter()
 
 router.register(r'earthquake', EarthquakeViewSet, basename='earthquake')
@@ -73,7 +74,7 @@ router.register(r'inform-score', InformScoreViewSet, basename='infom score')
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
     path('admin/', admin.site.urls),
-    path(r'api/v1/export', generate_data)
+    path(r'api/v1/export', generate_data),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
