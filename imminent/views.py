@@ -146,27 +146,27 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         today = datetime.now().date()
-        five_days_before = today + timedelta(days=-5)
-        two_days_before = today + timedelta(days=-2)
+        seven_days_before = today + timedelta(days=-7)
+        three_days_before = today + timedelta(days=-3)
         queryset = Pdc.objects.filter(
             models.Q(
                 status=Pdc.Status.ACTIVE,
-                pdc_updated_at__gte=five_days_before,
+                start_date__gte=seven_days_before,
                 hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
             ) | models.Q(
                 status=Pdc.Status.ACTIVE,
                 pdcdisplacement__country__isnull=True,
-                pdc_updated_at__gte=five_days_before,
+                start_date__gte=seven_days_before,
                 hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
             ) |
             models.Q(
                 status=Pdc.Status.ACTIVE,
-                pdc_updated_at__gte=two_days_before,
+                start_date__gte=three_days_before,
                 hazard_type=HazardType.EARTHQUAKE,
             ) | models.Q(
                 status=Pdc.Status.ACTIVE,
                 pdcdisplacement__country__isnull=True,
-                pdc_updated_at__gte=two_days_before,
+                start_date__gte=three_days_before,
                 hazard_type=HazardType.EARTHQUAKE,
             )
         ).order_by('-created_at').distinct()
