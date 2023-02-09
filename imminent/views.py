@@ -23,6 +23,7 @@ from imminent.filter_set import (
     EarthquakeFilterSet,
     AdamFilterSet,
 )
+from common.models import HazardType
 
 
 class EarthquakeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -53,7 +54,8 @@ class ImminentViewSet(viewsets.ViewSet):
 
     def list(self, request, *args, **kwargs):
         today = datetime.now().date()
-        five_days_before = today + timedelta(days=-5)
+        seven_days_before = today + timedelta(days=-7)
+        three_days_before = today + timedelta(days=-3)
         iso3 = self.request.query_params.get('iso3')
         region = self.request.query_params.get('region')
         if iso3:
@@ -67,12 +69,25 @@ class ImminentViewSet(viewsets.ViewSet):
                     models.Q(
                         country__iso3__icontains=iso3,
                         pdc__status=Pdc.Status.ACTIVE,
-                        pdc__pdc_updated_at__gte=five_days_before,
+                        pdc__start_date__gte=seven_days_before,
+                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
                     ) | models.Q(
                         country__iso3__icontains=iso3,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__pdc_updated_at__isnull=True,
-                        pdc__pdc_created_at__gte=five_days_before,
+                        pdc__start_date__gte=seven_days_before,
+                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
+                    ) | models.Q(
+                        country__iso3__icontains=iso3,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__start_date__gte=three_days_before,
+                        pdc__hazard_type=HazardType.EARTHQUAKE,
+                    ) | models.Q(
+                        country__iso3__icontains=iso3,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__pdc_updated_at__isnull=True,
+                        pdc__start_date__gte=three_days_before,
+                        pdc__hazard_type=HazardType.EARTHQUAKE,
                     )
                 ).order_by('-pdc__created_at').select_related('country'),
                 many=True
@@ -87,21 +102,47 @@ class ImminentViewSet(viewsets.ViewSet):
                     models.Q(
                         country__region__name=region,
                         pdc__status=Pdc.Status.ACTIVE,
-                        pdc__pdc_updated_at__gte=five_days_before,
+                        pdc__start_date__gte=seven_days_before,
+                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
                     ) | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
-                        pdc__pdc_updated_at__gte=five_days_before,
+                        pdc__start_date__gte=seven_days_before,
+                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
                     ) |
                     models.Q(
                         country__region__name=region,
                         pdc__status=Pdc.Status.ACTIVE,
-                        pdc__pdc_created_at__gte=five_days_before,
+                        pdc__start_date__gte=seven_days_before,
+                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
                     ) | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
                         pdc__pdc_updated_at__isnull=True,
-                        pdc__pdc_created_at__gte=five_days_before,
+                        pdc__start_date__gte=seven_days_before,
+                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
+                    ) | models.Q(
+                        country__region__name=region,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__start_date__gte=three_days_before,
+                        pdc__hazard_type=HazardType.EARTHQUAKE,
+                    ) | models.Q(
+                        pdc__status=Pdc.Status.ACTIVE,
+                        country__isnull=True,
+                        pdc__start_date__gte=three_days_before,
+                        pdc__hazard_type=HazardType.EARTHQUAKE,
+                    ) |
+                    models.Q(
+                        country__region__name=region,
+                        pdc__status=Pdc.Status.ACTIVE,
+                        pdc__start_date__gte=three_days_before,
+                        pdc__hazard_type=HazardType.EARTHQUAKE,
+                    ) | models.Q(
+                        pdc__status=Pdc.Status.ACTIVE,
+                        country__isnull=True,
+                        pdc__pdc_updated_at__isnull=True,
+                        pdc__start_date__gte=three_days_before,
+                        pdc__hazard_type=HazardType.EARTHQUAKE,
                     )
                 ).order_by('-pdc__created_at').select_related('country'),
                 many=True
