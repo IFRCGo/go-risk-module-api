@@ -193,12 +193,12 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
             models.Q(
                 status=Pdc.Status.ACTIVE,
                 start_date__gte=seven_days_before,
-                hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
+                hazard_type=HazardType.FLOOD,
             ) | models.Q(
                 status=Pdc.Status.ACTIVE,
                 pdcdisplacement__country__isnull=True,
                 start_date__gte=seven_days_before,
-                hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
+                hazard_type=HazardType.FLOOD,
             ) |
             models.Q(
                 status=Pdc.Status.ACTIVE,
@@ -209,6 +209,16 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
                 pdcdisplacement__country__isnull=True,
                 start_date__gte=three_days_before,
                 hazard_type=HazardType.EARTHQUAKE,
+            ) |
+            models.Q(
+                status=Pdc.Status.ACTIVE,
+                end_date__lte=today,
+                hazard_type=HazardType.CYCLONE
+            ) | models.Q(
+                status=Pdc.Status.ACTIVE,
+                pdcdisplacement__country__isnull=True,
+                end_date__lte=today,
+                hazard_type=HazardType.CYCLONE
             )
         ).order_by('-created_at').distinct()
         return queryset
