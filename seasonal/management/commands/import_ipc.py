@@ -29,8 +29,8 @@ class Command(BaseCommand):
             ipc_data = response.json()
             for data in ipc_data:
                 # Check whether is the country is present in local country
-                if Country.objects.filter(name=data['country']).exists():
-                    country = Country.objects.get(name=data['country'])
+                if Country.objects.filter(iso=data['code'].lower(), independent=True, is_deprecated=False).exists():
+                    country = Country.objects.filter(iso=data['code'].lower(), independent=True, is_deprecated=False).first()
                     if 'current_period_dates' in data:
                         current_period_dates = data['current_period_dates'].split('-')
                         if len(current_period_dates) == 2:
