@@ -27,7 +27,6 @@ from imminent.filter_set import (
     AdamFilterSet,
     PdcFilterSet,
 )
-from common.models import HazardType
 
 
 class EarthquakeViewSet(viewsets.ReadOnlyModelViewSet):
@@ -175,9 +174,31 @@ class AdamViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         today = datetime.now().date()
-        five_days_before = today + timedelta(days=-5)
+        seven_days_before = today + timedelta(days=-7)
+        three_days_before = today + timedelta(days=-3)
         return Adam.objects.filter(
-            publish_date__gte=five_days_before
+            models.Q(
+                publish_date__gte=seven_days_before,
+                hazard_type=HazardType.FLOOD,
+            ) | models.Q(
+                publish_date__gte=seven_days_before,
+                hazard_type=HazardType.FLOOD,
+                country__isnull=True
+            ) | models.Q(
+                publish_date__gte=seven_days_before,
+                hazard_type=HazardType.CYCLONE,
+            ) | models.Q(
+                publish_date__gte=seven_days_before,
+                hazard_type=HazardType.CYCLONE,
+                country__isnull=True
+            ) | models.Q(
+                publish_date__gte=three_days_before,
+                hazard_type=HazardType.EARTHQUAKE,
+            ) | models.Q(
+                publish_date__gte=three_days_before,
+                hazard_type=HazardType.EARTHQUAKE,
+                country__isnull=True
+            )
         )
 
 

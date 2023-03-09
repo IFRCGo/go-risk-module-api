@@ -17,12 +17,12 @@ class OddrinAdmin(admin.ModelAdmin):
 
 @admin.register(Pdc)
 class PdcdAdmin(admin.ModelAdmin):
-    pass
+    search_fields = ['hazard_name']
 
 
 @admin.register(PdcDisplacement)
 class PdcDisplacementdAdmin(admin.ModelAdmin):
-    pass
+    autocomplete_fields = ['pdc']
 
 
 @admin.register(Earthquake)
