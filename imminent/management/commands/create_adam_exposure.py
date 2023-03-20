@@ -67,7 +67,7 @@ class Command(BaseCommand):
                 })
             Adam.objects.create(**data)
 
-        cyclone_url = f'https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/cyclones/'
+        cyclone_url = 'https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/cyclones/'
         response = http.request('GET', cyclone_url)
         data = response.data
         cyclone_values = json.loads(data)
@@ -77,12 +77,17 @@ class Command(BaseCommand):
                 "event_details": cyclone_event['properties'],
             }
             props = cyclone_event['properties']
-            data.update(
-                {
-                    "country": Country.objects.filter(iso3=props['iso3'].lower()).first(),
-                    "title": props['title'],
-                    "hazard_type": HazardType.CYCLONE,
-                    "publish_date": props['published_at'],
-                    "event_id": props['event_id'],
-                })
-            Adam.objects.create(**data)
+            # check for countries here
+            # using only iso3 here isn't suitable for extracting the population exposure
+            countries_props = cyclone_event['properties']['countries'].split(',')
+            for country in countries_props:
+                data.update(
+                    {
+                        "country": Country.objects.filter(name__icontains=country.strip()).first(),
+                        "title": props['title'],
+                        "hazard_type": HazardType.CYCLONE,
+                        "publish_date": props['published_at'],
+                        "event_id": props['event_id'],
+                    }
+                )
+                Adam.objects.create(**data)
