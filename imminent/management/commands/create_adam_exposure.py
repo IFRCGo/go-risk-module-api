@@ -17,7 +17,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         http = urllib3.PoolManager()
 
-        earthquake_url = f'https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/earthquakes/'
+        earthquake_url = 'https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/earthquakes/'
         response = http.request('GET', earthquake_url)
         data = response.data
         eathquake_values = json.loads(data)
@@ -27,6 +27,14 @@ class Command(BaseCommand):
                 "geometry": earthquake_event['geometry'],
                 "properties": {},
             }
+            mag = earthquake_event['properties'].get('mag')
+            if mag:
+                if mag < 6.2:
+                    earthquake_event['properties']['alert_level'] = 'Green'
+                elif mag > 6 and mag <= 6.5:
+                    earthquake_event['properties']['alert_level'] = 'Orange'
+                elif mag > 6.5:
+                    earthquake_event['properties']['alert_level'] = 'Red'
             data = {
                 "geojson": geojson,
                 "event_details": earthquake_event['properties'],
@@ -42,7 +50,7 @@ class Command(BaseCommand):
                 })
             Adam.objects.create(**data)
 
-        flood_url = f'https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/floods/'
+        flood_url = 'https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/floods/'
         response = http.request('GET', flood_url)
         data = response.data
         flood_values = json.loads(data)
