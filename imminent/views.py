@@ -240,6 +240,16 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
                 pdcdisplacement__country__isnull=True,
                 end_date__lte=today,
                 hazard_type=HazardType.CYCLONE
+            ) |
+            models.Q(
+                status=Pdc.Status.ACTIVE,
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.WILDFIRE,
+            ) | models.Q(
+                status=Pdc.Status.ACTIVE,
+                pdcdisplacement__country__isnull=True,
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.WILDFIRE,
             )
         ).order_by('-created_at').distinct()
         return queryset

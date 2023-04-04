@@ -12,6 +12,7 @@ class HazardType(models.TextChoices):
     DROUGHT = 'DR', 'Drought'
     TSUNAMI = 'TS', 'Tsunami'
     WIND = 'CD', 'Cyclonic Wind'
+    WILDFIRE = 'WF', 'WildFire'
 
 
 class Region(models.Model):

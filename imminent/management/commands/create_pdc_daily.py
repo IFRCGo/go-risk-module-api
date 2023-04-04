@@ -162,3 +162,26 @@ class Command(BaseCommand):
                         'pdc_updated_at': self.parse_timestamp(data['last_Update']),
                     }
                     Pdc.objects.get_or_create(**data)
+                elif hazard_type == 'WILDFIRE':
+                    hazard_type = HazardType.WILDFIRE
+                    pdc_updated_at = self.parse_timestamp(data['last_Update'])
+                    if Pdc.objects.filter(uuid=data['uuid'], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
+                        continue
+                    else:
+                        print(data)
+                        data = {
+                            'hazard_id': data['hazard_ID'],
+                            'hazard_name': data['hazard_Name'],
+                            'latitude': data['latitude'],
+                            'longitude': data['longitude'],
+                            'description': data['description'],
+                            'hazard_type': hazard_type,
+                            'uuid': data['uuid'],
+                            'start_date': self.parse_timestamp(data['start_Date']),
+                            'end_date': self.parse_timestamp(data['end_Date']),
+                            'status': Pdc.Status.ACTIVE,
+                            'pdc_created_at': self.parse_timestamp(data['create_Date']),
+                            'pdc_updated_at': self.parse_timestamp(data['last_Update']),
+                            'severity': self.parse_severity(data['severity_ID'])
+                        }
+                        Pdc.objects.get_or_create(**data)
