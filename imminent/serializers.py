@@ -5,7 +5,8 @@ from imminent.models import (
     PdcDisplacement,
     Pdc,
     Earthquake,
-    Adam
+    Adam,
+    GDACS
 )
 
 from common.serializers import CountrySerializer
@@ -65,4 +66,13 @@ class AdamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Adam
+        fields = '__all__'
+
+
+class GDACSSeralizer(serializers.ModelSerializer):
+    country_details = CountrySerializer(source='country', read_only=True)
+    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+
+    class Meta:
+        model = GDACS
         fields = '__all__'

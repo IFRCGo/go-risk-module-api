@@ -259,3 +259,45 @@ class Adam(models.Model):
 #         blank=True, null=True,
 #         verbose_name=_('Meteo File'),
 #     )
+
+
+class GDACS(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    # Adding following as to keep track of pdc create and update date
+    start_date = models.DateTimeField(verbose_name=_('start_date'), null=True, blank=True)
+    end_date = models.DateTimeField(verbose_name=_('end_date'), null=True, blank=True)
+    hazard_id = models.CharField(verbose_name=_('hazard id'), max_length=255)
+    hazard_name = models.CharField(verbose_name=_('hazard name'), max_length=255)
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+    alert_level = models.CharField(
+        verbose_name=_('alert level'),
+        null=True, blank=True,
+        max_length=255
+    )
+    country = models.ForeignKey(
+        Country, verbose_name=_('country'),
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+    )
+    event_details = models.JSONField(
+        verbose_name=_('Event Details'),
+        null=True, blank=True
+    )
+    footprint_geojson = models.JSONField(
+        verbose_name=_('GeJson'),
+        null=True, blank=True
+    )
+    event_details = models.JSONField(
+        verbose_name=_('Event Details'),
+        null=True, blank=True
+    )
+    population_exposure = models.JSONField(
+        verbose_name=_('Population Exposure'),
+        null=True, blank=True
+    )
+
+    def __str__(self):
+        return f'{self.hazard_name} {self.hazard_type}'

@@ -3,7 +3,8 @@ import django_filters
 from imminent.models import (
     Earthquake,
     Adam,
-    Pdc
+    Pdc,
+    GDACS,
 )
 from common.models import (
     HazardType,
@@ -59,4 +60,21 @@ class PdcFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = Pdc
+        fields = ()
+
+
+class GDACSFilterSet(django_filters.FilterSet):
+    iso3 = django_filters.CharFilter(
+        field_name='country__iso3',
+        lookup_expr='icontains',
+        label='iso3'
+    )
+    region = django_filters.ModelMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='country__region',
+        label='region'
+    )
+
+    class Meta:
+        model = GDACS
         fields = ()

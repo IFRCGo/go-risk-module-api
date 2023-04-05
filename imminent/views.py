@@ -14,6 +14,7 @@ from imminent.models import (
     Pdc,
     Earthquake,
     Adam,
+    GDACS,
 )
 from imminent.serializers import (
     OddrinSerializer,
@@ -21,11 +22,13 @@ from imminent.serializers import (
     EarthquakeSerializer,
     AdamSerializer,
     PdcSerializer,
+    GDACSSeralizer,
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
     AdamFilterSet,
     PdcFilterSet,
+    GDACSFilterSet,
 )
 
 
@@ -272,3 +275,52 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
             "capital_exposure": capital_exposure,
         }
         return response.Response(data)
+
+
+class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = GDACSSeralizer
+    filterset_class = GDACSFilterSet
+
+    def get_queryset(self):
+        today = datetime.now().date()
+        seven_days_before = today + timedelta(days=-7)
+        three_days_before = today + timedelta(days=-3)
+        queryset = GDACS.objects.filter(
+            models.Q(
+                start_date__gte=seven_days_before,
+                hazard_type=HazardType.FLOOD,
+            ) | models.Q(
+                country__isnull=True,
+                start_date__gte=seven_days_before,
+                hazard_type=HazardType.FLOOD,
+            ) | models.Q(
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.EARTHQUAKE,
+            ) | models.Q(
+                country__isnull=True,
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.EARTHQUAKE,
+            ) | models.Q(
+                start_date__gte=seven_days_before,
+                hazard_type=HazardType.CYCLONE,
+            ) | models.Q(
+                country__isnull=True,
+                start_date__gte=seven_days_before,
+                hazard_type=HazardType.CYCLONE,
+            ) | models.Q(
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.DROUGHT,
+            ) | models.Q(
+                country__isnull=True,
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.DROUGHT,
+            ) | models.Q(
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.WILDFIRE,
+            ) | models.Q(
+                country__isnull=True,
+                start_date__gte=three_days_before,
+                hazard_type=HazardType.FLOOD,
+            )
+        ).order_by('-created_at').distinct()
+        return queryset

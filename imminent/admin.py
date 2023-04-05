@@ -6,7 +6,8 @@ from imminent.models import (
     PdcDisplacement,
     Earthquake,
     Adam,
-    # MeteoSwissFile
+    # MeteoSwissFile,
+    GDACS,
 )
 
 
@@ -38,3 +39,8 @@ class AdamAdmin(admin.ModelAdmin):
 # @admin.register(MeteoSwissFile)
 # class MeteoSwissFileAdmin(admin.ModelAdmin):
 #     pass
+
+
+@admin.register(GDACS)
+class GDACSAdmin(admin.ModelAdmin):
+    search_fields = ['country__iso3', 'country__name']

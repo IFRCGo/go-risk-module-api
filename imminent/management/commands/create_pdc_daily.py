@@ -182,6 +182,5 @@ class Command(BaseCommand):
                             'status': Pdc.Status.ACTIVE,
                             'pdc_created_at': self.parse_timestamp(data['create_Date']),
                             'pdc_updated_at': self.parse_timestamp(data['last_Update']),
-                            'severity': self.parse_severity(data['severity_ID'])
                         }
                         Pdc.objects.get_or_create(**data)
