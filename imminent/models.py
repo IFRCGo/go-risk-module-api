@@ -290,10 +290,6 @@ class GDACS(models.Model):
         verbose_name=_('GeJson'),
         null=True, blank=True
     )
-    event_details = models.JSONField(
-        verbose_name=_('Event Details'),
-        null=True, blank=True
-    )
     population_exposure = models.JSONField(
         verbose_name=_('Population Exposure'),
         null=True, blank=True

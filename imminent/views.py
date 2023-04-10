@@ -324,3 +324,12 @@ class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
             )
         ).order_by('-created_at').distinct()
         return queryset
+
+    @action(detail=True, url_path='exposure')
+    def get_displacement(self, request, pk):
+        object = self.get_object()
+        data = {
+            "footprint_geojson": object.footprint_geojson or None,
+            "capital_exposure": object.population_exposure or None,
+        }
+        return response.Response(data)

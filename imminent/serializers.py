@@ -75,4 +75,7 @@ class GDACSSeralizer(serializers.ModelSerializer):
 
     class Meta:
         model = GDACS
-        fields = '__all__'
+        exclude = [
+            'footprint_geojson',
+            'population_exposure',
+        ]
