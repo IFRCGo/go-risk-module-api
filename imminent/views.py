@@ -236,12 +236,12 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
             ) |
             models.Q(
                 status=Pdc.Status.ACTIVE,
-                end_date__lte=today,
+                end_date__gte=today,
                 hazard_type=HazardType.CYCLONE
             ) | models.Q(
                 status=Pdc.Status.ACTIVE,
                 pdcdisplacement__country__isnull=True,
-                end_date__lte=today,
+                end_date__gte=today,
                 hazard_type=HazardType.CYCLONE
             ) |
             models.Q(
