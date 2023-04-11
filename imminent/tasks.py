@@ -50,3 +50,8 @@ def create_adam_exposure():
 @shared_task
 def update_adam_cyclone():
     call_command('update_adam_cyclone',)
+
+
+@shared_task
+def import_gdacs_data():
+    call_command('import_gdacs_data',)

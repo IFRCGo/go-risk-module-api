@@ -34,7 +34,7 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
       DATABASE_HOST: ${DATABASE_HOST:-db}
       DATABASE_PORT: ${DATABASE_PORT:-5432}
-      CELERY_REDIS_URL: ${CELERY_REDIS_URL:-redis://redis:6379/0},
+      CELERY_REDIS_URL: ${CELERY_REDIS_URL:-redis://redis:6379/0}
     command: bash -c "/code/scripts/run_develop.sh"
     volumes:
       - .:/code

@@ -47,8 +47,6 @@ class PdcDisplacementViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PdcDisplacementSerializer
 
     def get_queryset(self):
-        today = datetime.now().date()
-        yesterday = today + timedelta(days=-1)
         return PdcDisplacement.objects.filter(
             pdc__status=Pdc.Status.ACTIVE,
         ).select_related('country')

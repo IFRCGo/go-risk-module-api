@@ -270,6 +270,10 @@ CELERY_BEAT_SCHEDULE = {
     "update_adam_cyclone": {
         "task": "imminent.tasks.update_adam_cyclone",
         "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
+    },
+    "import_gdacs_data": {
+        "task": "imminent.tasks.import_gdacs_data",
+        "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
     }
 }
 
