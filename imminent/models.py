@@ -294,6 +294,14 @@ class GDACS(models.Model):
         verbose_name=_('Population Exposure'),
         null=True, blank=True
     )
+    latitude = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('latitude')
+    )
+    longitude = models.FloatField(
+        null=True, blank=True,
+        verbose_name=_('longitude')
+    )
 
     def __str__(self):
         return f'{self.hazard_name} {self.hazard_type}'
