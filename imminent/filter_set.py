@@ -5,6 +5,7 @@ from imminent.models import (
     Adam,
     Pdc,
     GDACS,
+    MeteoSwiss,
 )
 from common.models import (
     HazardType,
@@ -77,4 +78,21 @@ class GDACSFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = GDACS
+        fields = ()
+
+
+class MeteoSwissFilterSet(django_filters.FilterSet):
+    iso3 = django_filters.CharFilter(
+        field_name='country__iso3',
+        lookup_expr='icontains',
+        label='iso3'
+    )
+    region = django_filters.ModelMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='country__region',
+        label='region'
+    )
+
+    class Meta:
+        model = MeteoSwiss
         fields = ()

@@ -44,6 +44,7 @@ from imminent.views import (
     AdamViewSet,
     PdcViewSet,
     GDACSViewSet,
+    MeteoSwissViewSet,
 )
 
 from rest_framework import routers
@@ -72,6 +73,7 @@ router.register(r'risk-score', RiskScoreViewSet, basename='risk score')
 router.register(r'adam-exposure', AdamViewSet, basename='adam exposure')
 router.register(r'inform-score', InformScoreViewSet, basename='infom score')
 router.register(r'gdacs', GDACSViewSet, basename='gdacs')
+router.register(r'meteoswiss', MeteoSwissViewSet, basename='meteoswiss')
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),

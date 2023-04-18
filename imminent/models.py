@@ -305,3 +305,32 @@ class GDACS(models.Model):
 
     def __str__(self):
         return f'{self.hazard_name} {self.hazard_type}'
+
+
+class MeteoSwiss(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    country = models.ForeignKey(
+        Country, verbose_name=_('country'),
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+    )
+    event_details = models.JSONField(
+        verbose_name=_('Event Details'),
+        null=True, blank=True
+    )
+    footprint_geojson = models.JSONField(
+        verbose_name=_('GeJson'),
+        null=True, blank=True
+    )
+    hazard_name = models.CharField(verbose_name=_('hazard name'), max_length=255)
+    folder_id = models.CharField(verbose_name=_('folder id'), max_length=255)
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+    initialization_date = models.DateField(verbose_name=_('initialization date'))
+    event_date = models.DateField(verbose_name=_('event date'),)
+    impact_type = models.CharField(verbose_name=_('impact type'), max_length=255)
+
+    def __str__(self):
+        return f'{self.hazard_name} - {self.hazard_type}'

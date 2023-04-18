@@ -8,6 +8,7 @@ from imminent.models import (
     Adam,
     # MeteoSwissFile,
     GDACS,
+    MeteoSwiss
 )
 
 
@@ -43,4 +44,9 @@ class AdamAdmin(admin.ModelAdmin):
 
 @admin.register(GDACS)
 class GDACSAdmin(admin.ModelAdmin):
+    search_fields = ['country__iso3', 'country__name']
+
+
+@admin.register(MeteoSwiss)
+class MeteoSwissAdmin(admin.ModelAdmin):
     search_fields = ['country__iso3', 'country__name']

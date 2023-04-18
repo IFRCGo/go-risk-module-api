@@ -6,7 +6,8 @@ from imminent.models import (
     Pdc,
     Earthquake,
     Adam,
-    GDACS
+    GDACS,
+    MeteoSwiss,
 )
 
 from common.serializers import CountrySerializer
@@ -79,3 +80,12 @@ class GDACSSeralizer(serializers.ModelSerializer):
             'footprint_geojson',
             'population_exposure',
         ]
+
+
+class MeteoSwissSerializer(serializers.ModelSerializer):
+    country_details = CountrySerializer(source='country', read_only=True)
+    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+
+    class Meta:
+        model = MeteoSwiss
+        fields = '__all__'

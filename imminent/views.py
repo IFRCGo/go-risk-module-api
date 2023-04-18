@@ -15,6 +15,7 @@ from imminent.models import (
     Earthquake,
     Adam,
     GDACS,
+    MeteoSwiss
 )
 from imminent.serializers import (
     OddrinSerializer,
@@ -23,12 +24,14 @@ from imminent.serializers import (
     AdamSerializer,
     PdcSerializer,
     GDACSSeralizer,
+    MeteoSwissSerializer,
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
     AdamFilterSet,
     PdcFilterSet,
     GDACSFilterSet,
+    MeteoSwissFilterSet,
 )
 
 
@@ -331,3 +334,11 @@ class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
             "capital_exposure": object.population_exposure or None,
         }
         return response.Response(data)
+
+
+class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = MeteoSwissSerializer
+    filterset_class = MeteoSwissFilterSet
+
+    def get_queryset(self):
+        return MeteoSwiss.objects.all()
