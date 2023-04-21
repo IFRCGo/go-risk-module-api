@@ -288,39 +288,39 @@ class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
         three_days_before = today + timedelta(days=-3)
         queryset = GDACS.objects.filter(
             models.Q(
-                start_date__gte=seven_days_before,
+                end_date__gte=seven_days_before,
                 hazard_type=HazardType.FLOOD,
             ) | models.Q(
                 country__isnull=True,
-                start_date__gte=seven_days_before,
+                end_date__gte=seven_days_before,
                 hazard_type=HazardType.FLOOD,
             ) | models.Q(
-                start_date__gte=three_days_before,
+                end_date__gte=three_days_before,
                 hazard_type=HazardType.EARTHQUAKE,
             ) | models.Q(
                 country__isnull=True,
-                start_date__gte=three_days_before,
+                end_date__gte=three_days_before,
                 hazard_type=HazardType.EARTHQUAKE,
             ) | models.Q(
-                start_date__gte=seven_days_before,
+                end_date__gte=seven_days_before,
                 hazard_type=HazardType.CYCLONE,
             ) | models.Q(
                 country__isnull=True,
-                start_date__gte=seven_days_before,
+                end_date__gte=seven_days_before,
                 hazard_type=HazardType.CYCLONE,
             ) | models.Q(
-                start_date__gte=three_days_before,
+                end_date__gte=three_days_before,
                 hazard_type=HazardType.DROUGHT,
             ) | models.Q(
                 country__isnull=True,
-                start_date__gte=three_days_before,
+                end_date__gte=three_days_before,
                 hazard_type=HazardType.DROUGHT,
             ) | models.Q(
-                start_date__gte=three_days_before,
+                end_date__gte=three_days_before,
                 hazard_type=HazardType.WILDFIRE,
             ) | models.Q(
                 country__isnull=True,
-                start_date__gte=three_days_before,
+                end_date__gte=three_days_before,
                 hazard_type=HazardType.FLOOD,
             )
         ).order_by('-created_at').distinct()
