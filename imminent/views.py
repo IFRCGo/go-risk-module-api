@@ -15,7 +15,7 @@ from imminent.models import (
     Earthquake,
     Adam,
     GDACS,
-    MeteoSwiss
+    MeteoSwissAgg,
 )
 from imminent.serializers import (
     OddrinSerializer,
@@ -24,14 +24,14 @@ from imminent.serializers import (
     AdamSerializer,
     PdcSerializer,
     GDACSSeralizer,
-    MeteoSwissSerializer,
+    MeteoSwissAggSerializer,
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
     AdamFilterSet,
     PdcFilterSet,
     GDACSFilterSet,
-    MeteoSwissFilterSet,
+    MeteoSwissAggFilterSet,
 )
 
 
@@ -337,8 +337,9 @@ class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = MeteoSwissSerializer
-    filterset_class = MeteoSwissFilterSet
+    serializer_class = MeteoSwissAggSerializer
+    filterset_class = MeteoSwissAggFilterSet
 
     def get_queryset(self):
-        return MeteoSwiss.objects.all()
+        return MeteoSwissAgg.objects.select_related('country')
+

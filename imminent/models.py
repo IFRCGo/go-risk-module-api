@@ -334,3 +334,24 @@ class MeteoSwiss(models.Model):
 
     def __str__(self):
         return f'{self.hazard_name} - {self.hazard_type}'
+
+
+class MeteoSwissAgg(models.Model):
+    country = models.ForeignKey(
+        Country, verbose_name=_('country'),
+        on_delete=models.CASCADE,
+    )
+    event_details = models.JSONField(
+        verbose_name=_('Event Details'),
+        null=True, blank=True
+    )
+    hazard_name = models.CharField(verbose_name=_('hazard name'), max_length=255)
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+    start_date = models.DateField(verbose_name=_('start date'))
+    end_date = models.DateField(verbose_name=_('end date'))
+
+    def __str__(self):
+        return f'{self.hazard_name} - {self.start_date} - {self.end_date}'

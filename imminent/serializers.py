@@ -8,6 +8,7 @@ from imminent.models import (
     Adam,
     GDACS,
     MeteoSwiss,
+    MeteoSwissAgg,
 )
 
 from common.serializers import CountrySerializer
@@ -82,10 +83,10 @@ class GDACSSeralizer(serializers.ModelSerializer):
         ]
 
 
-class MeteoSwissSerializer(serializers.ModelSerializer):
+class MeteoSwissAggSerializer(serializers.ModelSerializer):
     country_details = CountrySerializer(source='country', read_only=True)
     hazard_type_display = serializers.CharField(source='get_hazard_type_display')
 
     class Meta:
-        model = MeteoSwiss
+        model = MeteoSwissAgg
         fields = '__all__'
