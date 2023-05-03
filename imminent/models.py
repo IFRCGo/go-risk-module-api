@@ -356,6 +356,8 @@ class MeteoSwissAgg(models.Model):
     )
     start_date = models.DateField(verbose_name=_('start date'))
     end_date = models.DateField(verbose_name=_('end date'))
+    latitude = models.FloatField(verbose_name=_('latitude'), null=True, blank=True)
+    longitude = models.FloatField(verbose_name=_('longitude'), null=True, blank=True)
 
     def __str__(self):
         return f'{self.hazard_name} - {self.start_date} - {self.end_date}'
