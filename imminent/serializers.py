@@ -89,4 +89,7 @@ class MeteoSwissAggSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MeteoSwissAgg
-        fields = '__all__'
+        exclude = [
+            'geojson_details',
+        ]
+

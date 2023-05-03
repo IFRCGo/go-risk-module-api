@@ -343,3 +343,10 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return MeteoSwissAgg.objects.select_related('country')
 
+    @action(detail=True, url_path='exposure')
+    def get_displacement(self, request, pk):
+        object = self.get_object()
+        data = {
+            "footprint_geojson": object.geojson_details or None,
+        }
+        return response.Response(data)

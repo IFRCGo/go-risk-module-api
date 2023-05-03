@@ -345,6 +345,10 @@ class MeteoSwissAgg(models.Model):
         verbose_name=_('Event Details'),
         null=True, blank=True
     )
+    geojson_details = models.JSONField(
+        verbose_name=_('Geojson Details'),
+        null=True, blank=True
+    )
     hazard_name = models.CharField(verbose_name=_('hazard name'), max_length=255)
     hazard_type = models.CharField(
         max_length=100, verbose_name=_('hazard type'),

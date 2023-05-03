@@ -23,11 +23,25 @@ class Command(BaseCommand):
                     {
                         'id': data.id,
                         'imapct_type': data.impact_type,
-                        'footprint_geojson': data.footprint_geojson,
                         'max': data.event_details.get('max'),
                         'mean': data.event_details.get('mean'),
                         'min': data.event_details.get('min'),
-                    } for data in MeteoSwiss.objects.filter(hazard_name=models.F('hazard_name'), country=models.F('country'))
+                    } for data in MeteoSwiss.objects.filter(
+                        hazard_name=models.F('hazard_name'),
+                        country=models.F('country')
+                    )
+                ]
+            }, output_field=models.JSONField()),
+            geojson_details_dict=models.Value({
+                'geojson': [
+                    {
+                        'id': data.id,
+                        'impact_type': data.impact_type,
+                        'footprint_geojson': data.footprint_geojson,
+                    } for data in MeteoSwiss.objects.filter(
+                        hazard_name=models.F('hazard_name'),
+                        country=models.F('country')
+                    )
                 ]
             }, output_field=models.JSONField())
         )
@@ -39,6 +53,6 @@ class Command(BaseCommand):
                 'event_details': event['event_details_dict'],
                 'hazard_type': HazardType.CYCLONE,
                 'end_date': event['end_date'],
-
+                'geojson_details': event['geojson_details_dict']
             }
             MeteoSwissAgg.objects.create(**data)
