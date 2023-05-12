@@ -92,4 +92,3 @@ class MeteoSwissAggSerializer(serializers.ModelSerializer):
         exclude = [
             'geojson_details',
         ]
-

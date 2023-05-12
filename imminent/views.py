@@ -341,7 +341,11 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = MeteoSwissAggFilterSet
 
     def get_queryset(self):
-        return MeteoSwissAgg.objects.select_related('country')
+        return MeteoSwissAgg.objects.select_related('country').filter(
+            country__region__isnull=False,
+            latitude__isnull=False,
+            longitude__isnull=False)
+        
 
     @action(detail=True, url_path='exposure')
     def get_displacement(self, request, pk):
