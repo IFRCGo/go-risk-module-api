@@ -6,6 +6,7 @@ from imminent.models import (
     Pdc,
     GDACS,
     MeteoSwissAgg,
+    GWIS
 )
 from common.models import (
     HazardType,
@@ -95,4 +96,30 @@ class MeteoSwissAggFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = MeteoSwissAgg
+        fields = ()
+
+
+class GWISFilterSet(django_filters.FilterSet):
+    iso3 = django_filters.CharFilter(
+        field_name='country__iso3',
+        lookup_expr='icontains',
+        label='iso3'
+    )
+    region = django_filters.ModelMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='country__region',
+        label='region'
+    )
+    year = django_filters.CharFilter(
+        field_name='year',
+        lookup_expr='icontains',
+        label='year'
+    )
+    dsr_type = django_filters.MultipleChoiceFilter(
+        choices=GWIS.DSRTYPE.choices,
+        widget=django_filters.widgets.CSVWidget,
+    )
+
+    class Meta:
+        model = GWIS
         fields = ()

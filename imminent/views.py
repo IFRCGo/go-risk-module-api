@@ -16,6 +16,7 @@ from imminent.models import (
     Adam,
     GDACS,
     MeteoSwissAgg,
+    GWIS,
 )
 from imminent.serializers import (
     OddrinSerializer,
@@ -25,6 +26,7 @@ from imminent.serializers import (
     PdcSerializer,
     GDACSSeralizer,
     MeteoSwissAggSerializer,
+    GWISSerializer
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
@@ -32,6 +34,7 @@ from imminent.filter_set import (
     PdcFilterSet,
     GDACSFilterSet,
     MeteoSwissAggFilterSet,
+    GWISFilterSet,
 )
 
 
@@ -344,8 +347,8 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
         return MeteoSwissAgg.objects.select_related('country').filter(
             country__region__isnull=False,
             latitude__isnull=False,
-            longitude__isnull=False)
-        
+            longitude__isnull=False
+        )
 
     @action(detail=True, url_path='exposure')
     def get_displacement(self, request, pk):
@@ -354,3 +357,11 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
             "footprint_geojson": object.geojson_details or None,
         }
         return response.Response(data)
+
+
+class GWISViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = GWISSerializer
+    filterset_class = GWISFilterSet
+
+    def get_queryset(self):
+        return GWIS.objects.select_related('country')

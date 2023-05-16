@@ -9,6 +9,7 @@ from imminent.models import (
     GDACS,
     MeteoSwiss,
     MeteoSwissAgg,
+    GWIS,
 )
 
 from common.serializers import CountrySerializer
@@ -92,3 +93,12 @@ class MeteoSwissAggSerializer(serializers.ModelSerializer):
         exclude = [
             'geojson_details',
         ]
+
+
+class GWISSerializer(serializers.ModelSerializer):
+    country_details = CountrySerializer(source='country', read_only=True)
+    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+
+    class Meta:
+        model = GWIS
+        fields = '__all__'

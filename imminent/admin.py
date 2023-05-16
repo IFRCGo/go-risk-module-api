@@ -10,6 +10,7 @@ from imminent.models import (
     GDACS,
     MeteoSwiss,
     MeteoSwissAgg,
+    GWIS,
 )
 
 
@@ -56,3 +57,8 @@ class MeteoSwissAdmin(admin.ModelAdmin):
 @admin.register(MeteoSwissAgg)
 class MeteoSwissAggAdmin(admin.ModelAdmin):
     search_fields = ['country__iso3', 'country__name']
+
+
+@admin.register(GWIS)
+class GWISAdmin(admin.ModelAdmin):
+    pass

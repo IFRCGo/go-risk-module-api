@@ -349,15 +349,52 @@ class MeteoSwissAgg(models.Model):
         verbose_name=_('Geojson Details'),
         null=True, blank=True
     )
-    hazard_name = models.CharField(verbose_name=_('hazard name'), max_length=255)
+    hazard_name = models.CharField(
+        verbose_name=_('hazard name'),
+        max_length=255
+    )
     hazard_type = models.CharField(
         max_length=100, verbose_name=_('hazard type'),
         choices=HazardType.choices, blank=True
     )
     start_date = models.DateField(verbose_name=_('start date'))
     end_date = models.DateField(verbose_name=_('end date'))
-    latitude = models.FloatField(verbose_name=_('latitude'), null=True, blank=True)
-    longitude = models.FloatField(verbose_name=_('longitude'), null=True, blank=True)
+    latitude = models.FloatField(
+        verbose_name=_('latitude'),
+        null=True, blank=True
+    )
+    longitude = models.FloatField(
+        verbose_name=_('longitude'),
+        null=True, blank=True
+    )
 
     def __str__(self):
         return f'{self.hazard_name} - {self.start_date} - {self.end_date}'
+
+
+class GWIS(models.Model):
+    class DSRTYPE(models.TextChoices):
+        MONTHLY = 'monthly', 'Monthly'
+        CUMMULATIVE = 'cumulative', 'Cummulative'
+
+    country = models.ForeignKey(
+        Country, verbose_name=_('country'),
+        on_delete=models.CASCADE,
+    )
+    month = models.CharField(verbose_name=_('month'), max_length=255)
+    dsr = models.FloatField(verbose_name=_('dsr'), null=True, blank=True)
+    dsr_min = models.FloatField(verbose_name=_('dsr min'), null=True, blank=True)
+    dsr_avg = models.FloatField(verbose_name=_('dsr avg'), null=True, blank=True)
+    dsr_max = models.FloatField(verbose_name=_('dsr max'), null=True, blank=True)
+    year = models.IntegerField(verbose_name=_('year'),)
+    hazard_type = models.CharField(
+        max_length=100, verbose_name=_('hazard type'),
+        choices=HazardType.choices, blank=True
+    )
+    dsr_type = models.CharField(
+        max_length=100, verbose_name=_('dsr type'),
+        choices=DSRTYPE.choices, blank=True
+    )
+
+    def __str__(self):
+        return f'{self.country.name} - {self.year} - {self.month}'
