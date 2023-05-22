@@ -168,7 +168,6 @@ class Command(BaseCommand):
                     if Pdc.objects.filter(uuid=data['uuid'], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
                         continue
                     else:
-                        print(data)
                         data = {
                             'hazard_id': data['hazard_ID'],
                             'hazard_name': data['hazard_Name'],

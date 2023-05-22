@@ -334,7 +334,7 @@ class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
         object = self.get_object()
         data = {
             "footprint_geojson": object.footprint_geojson or None,
-            "capital_exposure": object.population_exposure or None,
+            "population_exposure": object.population_exposure or None,
         }
         return response.Response(data)
 
