@@ -23,6 +23,7 @@ services:
       - FORWARDED_ALLOW_IPS="*"
 
   server:
+    image: ghcr.io/ifrcgo/go-risk-module-api:latest
     build: .
     env_file:
       - .env
