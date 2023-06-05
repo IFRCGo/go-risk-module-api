@@ -63,7 +63,7 @@ class Command(BaseCommand):
                 data.update(
                     {
                         "population_exposure": {
-                            "Exposed Population": displacement_data[1].iloc[5]
+                            "exposed_population": displacement_data[1].iloc[5]
                             if displacement_data[1].iloc[5] != "NaN"
                             else None,
                         }
@@ -126,7 +126,7 @@ class Command(BaseCommand):
                     data.update(
                         {
                             "population_exposure": {
-                                "Exposed Population": displacement_data[1].iloc[4],
+                                "exposed_population": displacement_data[1].iloc[4],
                             }
                         }
                     )
@@ -176,8 +176,8 @@ class Command(BaseCommand):
                 data.update(
                     {
                         "population_exposure": {
-                            "Death": int(displacement_data[1].iloc[1]) if displacement_data[1].iloc[1] != "-" else None,
-                            "Displaced": int(displacement_data[1].iloc[2]) if displacement_data[1].iloc[2] != "-" else None,
+                            "death": int(displacement_data[1].iloc[1]) if displacement_data[1].iloc[1] != "-" else None,
+                            "displaced": int(displacement_data[1].iloc[2]) if displacement_data[1].iloc[2] != "-" else None,
                         }
                     }
                 )
@@ -279,7 +279,7 @@ class Command(BaseCommand):
                     data.update(
                         {
                             "population_exposure": {
-                                "People affected": displacement_data[1].iloc[4]
+                                "people_affected": displacement_data[1].iloc[4]
                                 if displacement_data[1].iloc[4] != "-" or ""
                                 else None
                             }
