@@ -53,5 +53,20 @@ def update_adam_cyclone():
 
 
 @shared_task
+def update_adam_alert_level():
+    call_command('update_adam_alert_level',)
+
+
+@shared_task
 def import_gdacs_data():
     call_command('import_gdacs_data',)
+
+
+@shared_task
+def pull_meteoswiss():
+    call_command('pull_meteoswiss',)
+
+
+@shared_task
+def meteoswiss_agg():
+    call_command('meteoroswiss_agg',)

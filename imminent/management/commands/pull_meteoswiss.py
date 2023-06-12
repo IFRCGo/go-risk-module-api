@@ -29,7 +29,6 @@ class Command(BaseCommand):
 
         bucket = s3.Bucket('ch.meteoswiss.hydrometimpact.outlook-product')
         for obj in bucket.objects.all():
-            print(obj)
             # split the folder here
             path, filename = os.path.split(obj.key)
             # check if the path already exists and

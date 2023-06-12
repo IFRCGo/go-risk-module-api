@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     def parse_timestamp(self, timestamp):
         # NOTE: all timestamp are in millisecond and with timezone `utc`
-        return timezone.make_aware(datetime.datetime.utcfromtimestamp(int(timestamp)/1000))
+        return timezone.make_aware(datetime.datetime.utcfromtimestamp(int(timestamp) / 1000))
 
     def parse_severity(self, severity):
         if severity == 'WARNING':

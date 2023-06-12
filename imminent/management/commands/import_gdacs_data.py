@@ -293,3 +293,4 @@ class Command(BaseCommand):
                         logger.error(footprint_response.content)
                     footprint_response_data = footprint_response.json()
                     data.update({"footprint_geojson": footprint_response_data})
+                    GDACS.objects.create(**data)

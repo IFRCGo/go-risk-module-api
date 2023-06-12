@@ -274,6 +274,18 @@ CELERY_BEAT_SCHEDULE = {
     "import_gdacs_data": {
         "task": "imminent.tasks.import_gdacs_data",
         "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
+    },
+    "pull_meteoswiss": {
+        "task": "imminent.tasks.pull_meteoswiss",
+        "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
+    },
+    "meteoswiss_agg": {
+        "task": "imminent.tasks.meteoswiss_agg",
+        "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
+    },
+    "update_adam_alert_level": {
+        "task": "imminent.tasks.update_adam_alert_level",
+        "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
     }
 }
 
