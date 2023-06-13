@@ -123,10 +123,11 @@ class Command(BaseCommand):
                     # for population exposre data lets read from the  table
                     tables = pd.read_html(scrape_url)
                     displacement_data = tables[0]
+                    data_dict = dict(zip(displacement_data[0], displacement_data[1]))
                     data.update(
                         {
                             "population_exposure": {
-                                "exposed_population": displacement_data[1].iloc[4],
+                                "exposed_population": data_dict['Exposed population'],
                             }
                         }
                     )
@@ -225,13 +226,14 @@ class Command(BaseCommand):
                     # for population exposre data lets read from the  table
                     tables = pd.read_html(scrape_url)
                     displacement_data = tables[0]
-                    # print(displacement_data)
-                    # print(displacement_data.iloc[0])
-                    # data.update(
-                    #     {
-                    #         'population_exposure': displacement_data[1].iloc[5] if displacement_data[1].iloc[2] != '-' or '' else None
-                    #     }
-                    # )
+                    data_dict = dict(zip(displacement_data[0], displacement_data[1]))
+                    data.update(
+                        {
+                            "population_exposure": {
+                                "impact": data_dict['Impact:'],
+                            }
+                        }
+                    )
                     footprint_url = old_data["properties"]["url"]["geometry"]
                     footprint_response = requests.get(footprint_url)
                     if response.status_code != 200:
