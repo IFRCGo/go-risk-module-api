@@ -16,6 +16,7 @@ from seasonal.models import (
     PossibleEarlyActionsSectors,
     RiskScore,
 )
+from common.models import Country
 from common.serializers import CountrySerializer
 
 
@@ -141,3 +142,41 @@ class RiskScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = RiskScore
         fields = '__all__'
+
+
+class SeasonalCountrySerializer(serializers.Serializer):
+    idmc = IdmcSerializer(many=True, allow_null=True)
+    ipc_displacement_data = GlobalDisplacementSerializer(many=True, allow_null=True)
+    raster_displacement_data = DisplacementDataSerializer(many=True, allow_null=True)
+    inform = InformRiskSerializer(many=True, allow_null=True)
+    inform_seasonal = InformRiskSeasonalSerializer(many=True, allow_null=True)
+    return_period_data = GarHazardDisplacementSerializer(many=True, allow_null=True)
+
+
+class MiniCountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Country
+        fields = ('name', 'iso3')
+
+
+class InformScoreSerializer(serializers.Serializer):
+    country = MiniCountrySerializer()
+    hazard_type = serializers.ListField(serializers.CharField())
+    january = serializers.FloatField()
+    february = serializers.FloatField()
+    march = serializers.FloatField()
+    april = serializers.FloatField()
+    may = serializers.FloatField()
+    june = serializers.FloatField()
+    july = serializers.FloatField()
+    august = serializers.FloatField()
+    september = serializers.FloatField()
+    october = serializers.FloatField()
+    november = serializers.FloatField()
+    december = serializers.FloatField()
+
+
+class SeasonalSerializer(serializers.Serializer):
+    idmc = IdmcSerializer(many=True, allow_null=True)
+    ipc_displacement_data = GlobalDisplacementSerializer(many=True, allow_null=True)
+    raster_displacement_data = DisplacementDataSerializer(many=True, allow_null=True)

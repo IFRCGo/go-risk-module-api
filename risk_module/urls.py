@@ -19,6 +19,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from seasonal.views import (
     SeasonalViewSet,
     IdmcViewSet,
@@ -81,6 +82,10 @@ urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
     path('admin/', admin.site.urls),
     path(r'api/v1/export', generate_data),
+    # Docs
+    path("docs/", SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path("api-docs/", SpectacularAPIView.as_view(), name='schema'),
+    path("api-docs/swagger-ui/", SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

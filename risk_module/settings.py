@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'corsheaders',
     'storages',
+    'drf_spectacular',
 
     # DJANGO APPS
     'django.contrib.admin',
@@ -99,6 +100,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 50,
     'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 
@@ -321,3 +323,9 @@ if SENTRY_DSN:
         **SENTRY_CONFIG,
     )
 
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'IFRC-GO RISK API',
+    'DESCRIPTION': 'IFRC-GO RISK API Documenation',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

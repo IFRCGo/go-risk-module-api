@@ -8,9 +8,10 @@ from datetime import datetime
 from datetime import timedelta
 from openpyxl import Workbook
 from django.http import HttpResponse
-from common.models import HazardType
 from django.db import models
+from drf_spectacular.utils import extend_schema
 
+from common.models import HazardType
 from seasonal.models import (
     Idmc,
     InformRisk,
@@ -40,6 +41,9 @@ from seasonal.serializers import (
     PossibleEarlyActionsSerializer,
     PublishReportSerializer,
     RiskScoreSerializer,
+    SeasonalCountrySerializer,
+    InformScoreSerializer,
+    SeasonalSerializer
 )
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
@@ -99,29 +103,20 @@ class SeasonalViewSet(viewsets.ViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('iso3', 'hazard_type')
 
+    @extend_schema(request=None, responses=SeasonalSerializer)
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get('iso3')
         region = self.request.query_params.get('region')
         # hazard_type = self.request.query_params.get('hazard_type')
         if iso3 is not None:
-            idmc = IdmcSerializer(
-                Idmc.objects.filter(
-                    iso3__icontains=iso3,
-                ),
-                many=True
-            ).data
-            ipc_displacement_data = GlobalDisplacementSerializer(
-                GlobalDisplacement.objects.filter(
-                    country__iso3__icontains=iso3
-                ).select_related('country'),
-                many=True
-            ).data
-            raster_displacement_data = DisplacementDataSerializer(
-                DisplacementData.objects.filter(
-                    country__iso3__icontains=iso3
-                ).select_related('country'),
-                many=True
-            ).data
+            idmc = Idmc.objects.filter(iso3__icontains=iso3)
+            ipc_displacement_data = GlobalDisplacement.objects.filter(
+                country__iso3__icontains=iso3
+            ).select_related('country')
+            raster_displacement_data = DisplacementData.objects.filter(
+                country__iso3__icontains=iso3
+            ).select_related('country')
+
             # hazard_info = ThinkHazardInformationSerializer(
             #     ThinkHazardInformation.objects.filter(
             #         country__iso3__icontains=iso3,
@@ -160,24 +155,13 @@ class SeasonalViewSet(viewsets.ViewSet):
             # ).data
 
         elif region:
-            idmc = IdmcSerializer(
-                Idmc.objects.filter(
-                    country__region__name=region,
-                ),
-                many=True
-            ).data
-            ipc_displacement_data = GlobalDisplacementSerializer(
-                GlobalDisplacement.objects.filter(
-                    country__region=region,
-                ).select_related('country'),
-                many=True
-            ).data
-            raster_displacement_data = DisplacementDataSerializer(
-                DisplacementData.objects.filter(
-                    country__region__name=region,
-                ).select_related('country'),
-                many=True
-            ).data
+            idmc = Idmc.objects.filter(country__region__name=region)
+            ipc_displacement_data = GlobalDisplacement.objects.filter(
+                country__region=region,
+            ).select_related('country')
+            raster_displacement_data = DisplacementData.objects.filter(
+                country__region__name=region,
+            ).select_related('country')
             # hazard_info = ThinkHazardInformationSerializer(
             #     ThinkHazardInformation.objects.filter(
             #         country__region__name=region,
@@ -216,33 +200,23 @@ class SeasonalViewSet(viewsets.ViewSet):
             # ).data
 
         else:
-            idmc = IdmcSerializer(Idmc.objects.all(), many=True).data
-            ipc_displacement_data = GlobalDisplacementSerializer(
-                GlobalDisplacement.objects.select_related('country'),
-                many=True
-            ).data
-            raster_displacement_data = DisplacementDataSerializer(
-                DisplacementData.objects.select_related('country'),
-                many=True
-            ).data
+            idmc = Idmc.objects.all()
+            ipc_displacement_data = GlobalDisplacement.objects.select_related('country')
+            raster_displacement_data = DisplacementData.objects.select_related('country')
             # hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
             # inform = InformRiskSerializer(InformRisk.objects.select_related('country'), many=True).data
             # inform_seasonal = InformRiskSeasonalSerializer(InformRiskSeasonal.objects.select_related('country'), many=True).data
             # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data
             # return_period_data = GarHazardDisplacementSerializer(GarHazardDisplacement.objects.select_related('country'), many=True).data
             # gar_loss = GarProbabilisticSerializer(GarProbabilistic.objects.select_related('country'), many=True).data
+
+        data = {
+            'idmc': idmc,
+            'ipc_displacement_data': ipc_displacement_data,
+            'raster_displacement_data': raster_displacement_data,
+        }
         return response.Response(
-            {
-                'idmc': idmc,
-                'ipc_displacement_data': ipc_displacement_data,
-                'raster_displacement_data': raster_displacement_data,
-                # 'inform': inform,
-                # 'inform_seasonal': inform_seasonal,
-                # 'idmc_return_period': idmc_return_period_data,
-                # 'hazard_info': hazard_info,
-                # 'return_period_data': return_period_data,
-                # 'gar_loss': gar_loss,
-            }
+            SeasonalSerializer(data).data
         )
 
 
@@ -250,73 +224,49 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ('iso3')
 
+    @extend_schema(request=None, responses=SeasonalCountrySerializer)
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get('iso3')
         if iso3 is not None:
-            idmc = IdmcSerializer(
-                Idmc.objects.filter(
-                    iso3__icontains=iso3,
-                ),
-                many=True
-            ).data
-            ipc_displacement_data = GlobalDisplacementSerializer(
-                GlobalDisplacement.objects.filter(
-                    country__iso3__icontains=iso3
-                ).select_related('country'),
-                many=True
-            ).data
-            raster_displacement_data = DisplacementDataSerializer(
-                DisplacementData.objects.filter(
-                    country__iso3__icontains=iso3
-                ).select_related('country'),
-                many=True
-            ).data
-            inform = InformRiskSerializer(
-                InformRisk.objects.filter(
-                    country__iso3__icontains=iso3,
-                ).select_related('country'),
-                many=True
-            ).data
-            inform_seasonal = InformRiskSeasonalSerializer(
-                InformRiskSeasonal.objects.filter(
-                    country__iso3__icontains=iso3
-                ).select_related('country'),
-                many=True
-            ).data
-            return_period_data = GarHazardDisplacementSerializer(
-                GarHazardDisplacement.objects.filter(
-                    country__iso3__icontains=iso3
-                ).select_related('country'),
-                many=True
-            ).data
-
+            idmc = Idmc.objects.filter(iso3__icontains=iso3)
+            ipc_displacement_data = GlobalDisplacement.objects.filter(
+                country__iso3__icontains=iso3
+            ).select_related('country')
+            raster_displacement_data = DisplacementData.objects.filter(
+                country__iso3__icontains=iso3
+            ).select_related('country')
+            inform = InformRisk.objects.filter(
+                country__iso3__icontains=iso3,
+            ).select_related('country')
+            inform_seasonal = InformRiskSeasonal.objects.filter(
+                country__iso3__icontains=iso3
+            ).select_related('country')
+            return_period_data = GarHazardDisplacement.objects.filter(
+                country__iso3__icontains=iso3
+            ).select_related('country')
         else:
-            idmc = IdmcSerializer(Idmc.objects.all(), many=True).data
-            ipc_displacement_data = GlobalDisplacementSerializer(
-                GlobalDisplacement.objects.select_related('country'),
-                many=True
-            ).data
-            raster_displacement_data = DisplacementDataSerializer(
-                DisplacementData.objects.select_related('country'),
-                many=True
-            ).data
-            inform = InformRiskSerializer(InformRisk.objects.select_related('country'), many=True).data
-            inform_seasonal = InformRiskSeasonalSerializer(InformRiskSeasonal.objects.select_related('country'), many=True).data
-            return_period_data = GarHazardDisplacementSerializer(GarHazardDisplacement.objects.select_related('country'), many=True).data
+            idmc = Idmc.objects.all()
+            ipc_displacement_data = GlobalDisplacement.objects.select_related('country')
+            raster_displacement_data = DisplacementData.objects.select_related('country')
+            inform = InformRisk.objects.select_related('country')
+            inform_seasonal = InformRiskSeasonal.objects.select_related('country')
+            return_period_data = GarHazardDisplacement.objects.select_related('country')
             # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data
 
+        data = {
+            'idmc': idmc,
+            'ipc_displacement_data': ipc_displacement_data,
+            'raster_displacement_data': raster_displacement_data,
+            'inform': inform,
+            'inform_seasonal': inform_seasonal,
+            'return_period_data': return_period_data,
+            # 'idmc_return_period': idmc_return_period_data,
+            # 'hazard_info': hazard_info,
+            # 'gar_loss': gar_loss,
+        }
+
         return response.Response(
-            {
-                'idmc': idmc,
-                'ipc_displacement_data': ipc_displacement_data,
-                'raster_displacement_data': raster_displacement_data,
-                'inform': inform,
-                'inform_seasonal': inform_seasonal,
-                'return_period_data': return_period_data,
-                # 'idmc_return_period': idmc_return_period_data,
-                # 'hazard_info': hazard_info,
-                # 'gar_loss': gar_loss,
-            }
+            SeasonalCountrySerializer(data).data
         )
 
 
@@ -469,7 +419,7 @@ class RiskScoreViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class InformScoreViewSet(viewsets.ViewSet):
-
+    @extend_schema(request=None, responses=InformScoreSerializer)
     def list(self, request, *args, **kwargs):
         def map_hazard_type(hazard_type):
             if hazard_type == 'DR':
@@ -550,26 +500,27 @@ class InformScoreViewSet(viewsets.ViewSet):
         frame['december'] = frame['december'].apply(lambda x: x * RISK_SCORE_CONSTANT / frame.select_dtypes(exclude=['object']).unstack().max())
         frame['hazard_type'] = ','.join(list(frame['hazard_type'].unique()))
         frame = frame.drop_duplicates(['name'], keep='first')
+        data = [
+            {
+                'country': {
+                    'name': row['name'],
+                    'iso3': row['iso3'],
+                },
+                'hazard_type': row['hazard_type'].split(','),
+                'january': row['january'],
+                'february': row['february'],
+                'march': row['march'],
+                'april': row['april'],
+                'may': row['may'],
+                'june': row['june'],
+                'july': row['july'],
+                'august': row['august'],
+                'september': row['september'],
+                'october': row['october'],
+                'november': row['november'],
+                'december': row['december']
+            } for index, row in frame.iterrows()
+        ]
         return response.Response(
-            [
-                {
-                    'country': {
-                        'name': row['name'],
-                        'iso3': row['iso3'],
-                    },
-                    'hazard_type': row['hazard_type'].split(','),
-                    'january': row['january'],
-                    'february': row['february'],
-                    'march': row['march'],
-                    'april': row['april'],
-                    'may': row['may'],
-                    'june': row['june'],
-                    'july': row['july'],
-                    'august': row['august'],
-                    'september': row['september'],
-                    'october': row['october'],
-                    'november': row['november'],
-                    'december': row['december']
-                } for index, row in frame.iterrows()
-            ]
+            InformScoreSerializer(data, many=True).data
         )
