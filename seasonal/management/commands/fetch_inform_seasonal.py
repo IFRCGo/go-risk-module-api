@@ -4,11 +4,11 @@ from seasonal.scripts.fetch_inform_seasonal import fetch_inform_seasonal
 
 
 class Command(BaseCommand):
-    help = 'Fetch idmc pmd data'
+    help = "Fetch idmc pmd data"
 
     def add_arguments(self, parser):
-        parser.add_argument('--file')
+        parser.add_argument("--file")
 
     def handle(self, **options):
-        file = options.get('file')
+        file = options.get("file")
         fetch_inform_seasonal(file)

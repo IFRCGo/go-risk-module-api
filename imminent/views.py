@@ -26,7 +26,7 @@ from imminent.serializers import (
     PdcSerializer,
     GDACSSeralizer,
     MeteoSwissAggSerializer,
-    GWISSerializer
+    GWISSerializer,
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
@@ -55,25 +55,21 @@ class PdcDisplacementViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         return PdcDisplacement.objects.filter(
             pdc__status=Pdc.Status.ACTIVE,
-        ).select_related('country')
+        ).select_related("country")
 
 
 class ImminentViewSet(viewsets.ViewSet):
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('iso3', 'hazard_type')
+    filterset_fields = ("iso3", "hazard_type")
 
     def list(self, request, *args, **kwargs):
         today = datetime.now().date()
         seven_days_before = today + timedelta(days=-7)
         three_days_before = today + timedelta(days=-3)
-        iso3 = self.request.query_params.get('iso3')
-        region = self.request.query_params.get('region')
+        iso3 = self.request.query_params.get("iso3")
+        region = self.request.query_params.get("region")
         if iso3:
-            oddrin_data = OddrinSerializer(
-                Oddrin.objects.filter(
-                    iso3__icontains=iso3
-                ), many=True
-            ).data
+            oddrin_data = OddrinSerializer(Oddrin.objects.filter(iso3__icontains=iso3), many=True).data
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
                     models.Q(
@@ -81,32 +77,35 @@ class ImminentViewSet(viewsets.ViewSet):
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__start_date__gte=seven_days_before,
                         pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
-                    ) | models.Q(
+                    )
+                    | models.Q(
                         country__iso3__icontains=iso3,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__pdc_updated_at__isnull=True,
                         pdc__start_date__gte=seven_days_before,
-                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE]
-                    ) | models.Q(
+                        pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
+                    )
+                    | models.Q(
                         country__iso3__icontains=iso3,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__start_date__gte=three_days_before,
                         pdc__hazard_type=HazardType.EARTHQUAKE,
-                    ) | models.Q(
+                    )
+                    | models.Q(
                         country__iso3__icontains=iso3,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__pdc_updated_at__isnull=True,
                         pdc__start_date__gte=three_days_before,
                         pdc__hazard_type=HazardType.EARTHQUAKE,
                     )
-                ).order_by('-pdc__created_at').select_related('country'),
-                many=True
+                )
+                .order_by("-pdc__created_at")
+                .select_related("country"),
+                many=True,
             ).data
 
         elif region:
-            oddrin_data = OddrinSerializer(
-                Oddrin.objects.all(), many=True
-            ).data
+            oddrin_data = OddrinSerializer(Oddrin.objects.all(), many=True).data
             pdc_data = PdcDisplacementSerializer(
                 PdcDisplacement.objects.filter(
                     models.Q(
@@ -114,63 +113,65 @@ class ImminentViewSet(viewsets.ViewSet):
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__start_date__gte=seven_days_before,
                         pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
-                    ) | models.Q(
+                    )
+                    | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
                         pdc__start_date__gte=seven_days_before,
                         pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
-                    ) |
-                    models.Q(
+                    )
+                    | models.Q(
                         country__region__name=region,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__start_date__gte=seven_days_before,
                         pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
-                    ) | models.Q(
+                    )
+                    | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
                         pdc__pdc_updated_at__isnull=True,
                         pdc__start_date__gte=seven_days_before,
                         pdc__hazard_type__in=[HazardType.FLOOD, HazardType.CYCLONE],
-                    ) | models.Q(
+                    )
+                    | models.Q(
                         country__region__name=region,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__start_date__gte=three_days_before,
                         pdc__hazard_type=HazardType.EARTHQUAKE,
-                    ) | models.Q(
+                    )
+                    | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
                         pdc__start_date__gte=three_days_before,
                         pdc__hazard_type=HazardType.EARTHQUAKE,
-                    ) |
-                    models.Q(
+                    )
+                    | models.Q(
                         country__region__name=region,
                         pdc__status=Pdc.Status.ACTIVE,
                         pdc__start_date__gte=three_days_before,
                         pdc__hazard_type=HazardType.EARTHQUAKE,
-                    ) | models.Q(
+                    )
+                    | models.Q(
                         pdc__status=Pdc.Status.ACTIVE,
                         country__isnull=True,
                         pdc__pdc_updated_at__isnull=True,
                         pdc__start_date__gte=three_days_before,
                         pdc__hazard_type=HazardType.EARTHQUAKE,
                     )
-                ).order_by('-pdc__created_at').select_related('country'),
-                many=True
+                )
+                .order_by("-pdc__created_at")
+                .select_related("country"),
+                many=True,
             ).data
 
         else:
-            oddrin_data = OddrinSerializer(
-                Oddrin.objects.all(), many=True
-            ).data
-            pdc_data = PdcDisplacementSerializer(
-                PdcDisplacement.objects.all().select_related('country'),
-                many=True
-            ).data
+            oddrin_data = OddrinSerializer(Oddrin.objects.all(), many=True).data
+            pdc_data = PdcDisplacementSerializer(PdcDisplacement.objects.all().select_related("country"), many=True).data
 
         return response.Response(
             {
-                'pdc_data': pdc_data,
-                'oddrin_data': oddrin_data,
+                "pdc_data": pdc_data,
+                "oddrin_data": oddrin_data,
             }
         )
 
@@ -187,25 +188,18 @@ class AdamViewSet(viewsets.ReadOnlyModelViewSet):
             models.Q(
                 publish_date__gte=seven_days_before,
                 hazard_type=HazardType.FLOOD,
-            ) | models.Q(
-                publish_date__gte=seven_days_before,
-                hazard_type=HazardType.FLOOD,
-                country__isnull=True
-            ) | models.Q(
-                publish_date__gte=seven_days_before,
-                hazard_type=HazardType.CYCLONE,
-            ) | models.Q(
-                publish_date__gte=seven_days_before,
-                hazard_type=HazardType.CYCLONE,
-                country__isnull=True
-            ) | models.Q(
-                publish_date__gte=three_days_before,
-                hazard_type=HazardType.EARTHQUAKE,
-            ) | models.Q(
-                publish_date__gte=three_days_before,
-                hazard_type=HazardType.EARTHQUAKE,
-                country__isnull=True
             )
+            | models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.FLOOD, country__isnull=True)
+            | models.Q(
+                publish_date__gte=seven_days_before,
+                hazard_type=HazardType.CYCLONE,
+            )
+            | models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.CYCLONE, country__isnull=True)
+            | models.Q(
+                publish_date__gte=three_days_before,
+                hazard_type=HazardType.EARTHQUAKE,
+            )
+            | models.Q(publish_date__gte=three_days_before, hazard_type=HazardType.EARTHQUAKE, country__isnull=True)
         )
 
 
@@ -217,56 +211,58 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
         today = datetime.now().date()
         seven_days_before = today + timedelta(days=-7)
         three_days_before = today + timedelta(days=-3)
-        queryset = Pdc.objects.filter(
-            models.Q(
-                status=Pdc.Status.ACTIVE,
-                start_date__gte=seven_days_before,
-                hazard_type=HazardType.FLOOD,
-            ) | models.Q(
-                status=Pdc.Status.ACTIVE,
-                pdcdisplacement__country__isnull=True,
-                start_date__gte=seven_days_before,
-                hazard_type=HazardType.FLOOD,
-            ) |
-            models.Q(
-                status=Pdc.Status.ACTIVE,
-                start_date__gte=three_days_before,
-                hazard_type=HazardType.EARTHQUAKE,
-            ) | models.Q(
-                status=Pdc.Status.ACTIVE,
-                pdcdisplacement__country__isnull=True,
-                start_date__gte=three_days_before,
-                hazard_type=HazardType.EARTHQUAKE,
-            ) |
-            models.Q(
-                status=Pdc.Status.ACTIVE,
-                end_date__gte=today,
-                hazard_type=HazardType.CYCLONE
-            ) | models.Q(
-                status=Pdc.Status.ACTIVE,
-                pdcdisplacement__country__isnull=True,
-                end_date__gte=today,
-                hazard_type=HazardType.CYCLONE
-            ) |
-            models.Q(
-                status=Pdc.Status.ACTIVE,
-                start_date__gte=three_days_before,
-                hazard_type=HazardType.WILDFIRE,
-            ) | models.Q(
-                status=Pdc.Status.ACTIVE,
-                pdcdisplacement__country__isnull=True,
-                start_date__gte=three_days_before,
-                hazard_type=HazardType.WILDFIRE,
+        queryset = (
+            Pdc.objects.filter(
+                models.Q(
+                    status=Pdc.Status.ACTIVE,
+                    start_date__gte=seven_days_before,
+                    hazard_type=HazardType.FLOOD,
+                )
+                | models.Q(
+                    status=Pdc.Status.ACTIVE,
+                    pdcdisplacement__country__isnull=True,
+                    start_date__gte=seven_days_before,
+                    hazard_type=HazardType.FLOOD,
+                )
+                | models.Q(
+                    status=Pdc.Status.ACTIVE,
+                    start_date__gte=three_days_before,
+                    hazard_type=HazardType.EARTHQUAKE,
+                )
+                | models.Q(
+                    status=Pdc.Status.ACTIVE,
+                    pdcdisplacement__country__isnull=True,
+                    start_date__gte=three_days_before,
+                    hazard_type=HazardType.EARTHQUAKE,
+                )
+                | models.Q(status=Pdc.Status.ACTIVE, end_date__gte=today, hazard_type=HazardType.CYCLONE)
+                | models.Q(
+                    status=Pdc.Status.ACTIVE,
+                    pdcdisplacement__country__isnull=True,
+                    end_date__gte=today,
+                    hazard_type=HazardType.CYCLONE,
+                )
+                | models.Q(
+                    status=Pdc.Status.ACTIVE,
+                    start_date__gte=three_days_before,
+                    hazard_type=HazardType.WILDFIRE,
+                )
+                | models.Q(
+                    status=Pdc.Status.ACTIVE,
+                    pdcdisplacement__country__isnull=True,
+                    start_date__gte=three_days_before,
+                    hazard_type=HazardType.WILDFIRE,
+                )
             )
-        ).order_by('-created_at').distinct()
+            .order_by("-created_at")
+            .distinct()
+        )
         return queryset
 
-    @action(detail=True, url_path='exposure')
+    @action(detail=True, url_path="exposure")
     def get_displacement(self, request, pk):
         object = self.get_object()
-        displacement_data = PdcDisplacement.objects.filter(
-            pdc=object.id
-        ).order_by('-pdc__pdc_updated_at')
+        displacement_data = PdcDisplacement.objects.filter(pdc=object.id).order_by("-pdc__pdc_updated_at")
         population_exposure = None
         capital_exposure = None
         if displacement_data.exists():
@@ -289,47 +285,60 @@ class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
         today = datetime.now().date()
         seven_days_before = today + timedelta(days=-7)
         three_days_before = today + timedelta(days=-3)
-        queryset = GDACS.objects.filter(
-            models.Q(
-                end_date__gte=seven_days_before,
-                hazard_type=HazardType.FLOOD,
-            ) | models.Q(
-                country__isnull=True,
-                end_date__gte=seven_days_before,
-                hazard_type=HazardType.FLOOD,
-            ) | models.Q(
-                end_date__gte=three_days_before,
-                hazard_type=HazardType.EARTHQUAKE,
-            ) | models.Q(
-                country__isnull=True,
-                end_date__gte=three_days_before,
-                hazard_type=HazardType.EARTHQUAKE,
-            ) | models.Q(
-                end_date__gte=seven_days_before,
-                hazard_type=HazardType.CYCLONE,
-            ) | models.Q(
-                country__isnull=True,
-                end_date__gte=seven_days_before,
-                hazard_type=HazardType.CYCLONE,
-            ) | models.Q(
-                end_date__gte=three_days_before,
-                hazard_type=HazardType.DROUGHT,
-            ) | models.Q(
-                country__isnull=True,
-                end_date__gte=three_days_before,
-                hazard_type=HazardType.DROUGHT,
-            ) | models.Q(
-                end_date__gte=three_days_before,
-                hazard_type=HazardType.WILDFIRE,
-            ) | models.Q(
-                country__isnull=True,
-                end_date__gte=three_days_before,
-                hazard_type=HazardType.FLOOD,
+        queryset = (
+            GDACS.objects.filter(
+                models.Q(
+                    end_date__gte=seven_days_before,
+                    hazard_type=HazardType.FLOOD,
+                )
+                | models.Q(
+                    country__isnull=True,
+                    end_date__gte=seven_days_before,
+                    hazard_type=HazardType.FLOOD,
+                )
+                | models.Q(
+                    end_date__gte=three_days_before,
+                    hazard_type=HazardType.EARTHQUAKE,
+                )
+                | models.Q(
+                    country__isnull=True,
+                    end_date__gte=three_days_before,
+                    hazard_type=HazardType.EARTHQUAKE,
+                )
+                | models.Q(
+                    end_date__gte=seven_days_before,
+                    hazard_type=HazardType.CYCLONE,
+                )
+                | models.Q(
+                    country__isnull=True,
+                    end_date__gte=seven_days_before,
+                    hazard_type=HazardType.CYCLONE,
+                )
+                | models.Q(
+                    end_date__gte=three_days_before,
+                    hazard_type=HazardType.DROUGHT,
+                )
+                | models.Q(
+                    country__isnull=True,
+                    end_date__gte=three_days_before,
+                    hazard_type=HazardType.DROUGHT,
+                )
+                | models.Q(
+                    end_date__gte=three_days_before,
+                    hazard_type=HazardType.WILDFIRE,
+                )
+                | models.Q(
+                    country__isnull=True,
+                    end_date__gte=three_days_before,
+                    hazard_type=HazardType.FLOOD,
+                )
             )
-        ).order_by('-created_at').distinct()
+            .order_by("-created_at")
+            .distinct()
+        )
         return queryset
 
-    @action(detail=True, url_path='exposure')
+    @action(detail=True, url_path="exposure")
     def get_displacement(self, request, pk):
         object = self.get_object()
         data = {
@@ -344,13 +353,11 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = MeteoSwissAggFilterSet
 
     def get_queryset(self):
-        return MeteoSwissAgg.objects.select_related('country').filter(
-            country__region__isnull=False,
-            latitude__isnull=False,
-            longitude__isnull=False
+        return MeteoSwissAgg.objects.select_related("country").filter(
+            country__region__isnull=False, latitude__isnull=False, longitude__isnull=False
         )
 
-    @action(detail=True, url_path='exposure')
+    @action(detail=True, url_path="exposure")
     def get_displacement(self, request, pk):
         object = self.get_object()
         data = {
@@ -364,4 +371,4 @@ class GWISViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = GWISFilterSet
 
     def get_queryset(self):
-        return GWIS.objects.select_related('country')
+        return GWIS.objects.select_related("country")

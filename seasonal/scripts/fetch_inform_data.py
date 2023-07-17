@@ -15,7 +15,7 @@ def get_maximum_rows(*, sheet_object):
 def fetch_inform_data(file):
     # NOTE: set `data_only=True` to read cell value instead of formula
     workbook = openpyxl.load_workbook(file, data_only=True)
-    worksheet = workbook.get_sheet_by_name('INFORM Risk 2022 (a-z)')
+    worksheet = workbook.get_sheet_by_name("INFORM Risk 2022 (a-z)")
     max_rows = get_maximum_rows(sheet_object=worksheet)
     # Iterate the loop to read the cell values
     data_all = []
@@ -28,57 +28,33 @@ def fetch_inform_data(file):
         drought = worksheet.cell(row=i, column=13).value
         epidemic = worksheet.cell(row=i, column=14).value
         data = {
-            'country': country,
-            'earthquake': earthquake,
-            'flood': flood,
-            'tsunami': tsunami,
-            'cyclone': cyclone,
-            'drought': drought,
-            'epidemic': epidemic
+            "country": country,
+            "earthquake": earthquake,
+            "flood": flood,
+            "tsunami": tsunami,
+            "cyclone": cyclone,
+            "drought": drought,
+            "epidemic": epidemic,
         }
-        if Country.objects.filter(name=data['country']).exists():
+        if Country.objects.filter(name=data["country"]).exists():
             data_all.append(data.copy())
     for data in data_all:
-        country = Country.objects.get(name=data['country'])
-        earthquake_risk_score = data['earthquake']
-        flood_risk_score = data['flood']
-        tsunami_risk_score = data['tsunami']
-        cyclone_risk_score = data['cyclone']
-        drought_risk_score = data['drought']
-        epidemic_risk_score = data['epidemic']
-        data = {
-            'country': country,
-            'hazard_type': HazardType.EARTHQUAKE,
-            'risk_score': earthquake_risk_score
-        }
+        country = Country.objects.get(name=data["country"])
+        earthquake_risk_score = data["earthquake"]
+        flood_risk_score = data["flood"]
+        tsunami_risk_score = data["tsunami"]
+        cyclone_risk_score = data["cyclone"]
+        drought_risk_score = data["drought"]
+        epidemic_risk_score = data["epidemic"]
+        data = {"country": country, "hazard_type": HazardType.EARTHQUAKE, "risk_score": earthquake_risk_score}
         InformRisk.objects.create(**data)
-        data = {
-            'country': country,
-            'hazard_type': HazardType.FLOOD,
-            'risk_score': flood_risk_score
-        }
+        data = {"country": country, "hazard_type": HazardType.FLOOD, "risk_score": flood_risk_score}
         InformRisk.objects.create(**data)
-        data = {
-            'country': country,
-            'hazard_type': HazardType.CYCLONE,
-            'risk_score': cyclone_risk_score
-        }
+        data = {"country": country, "hazard_type": HazardType.CYCLONE, "risk_score": cyclone_risk_score}
         InformRisk.objects.create(**data)
-        data = {
-            'country': country,
-            'hazard_type': HazardType.DROUGHT,
-            'risk_score': drought_risk_score
-        }
+        data = {"country": country, "hazard_type": HazardType.DROUGHT, "risk_score": drought_risk_score}
         InformRisk.objects.create(**data)
-        data = {
-            'country': country,
-            'hazard_type': HazardType.EPIDEMIC,
-            'risk_score': epidemic_risk_score
-        }
+        data = {"country": country, "hazard_type": HazardType.EPIDEMIC, "risk_score": epidemic_risk_score}
         InformRisk.objects.create(**data)
-        data = {
-            'country': country,
-            'hazard_type': HazardType.TSUNAMI,
-            'risk_score': tsunami_risk_score
-        }
+        data = {"country": country, "hazard_type": HazardType.TSUNAMI, "risk_score": tsunami_risk_score}
         InformRisk.objects.create(**data)

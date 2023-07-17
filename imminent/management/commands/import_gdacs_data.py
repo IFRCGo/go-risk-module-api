@@ -127,7 +127,7 @@ class Command(BaseCommand):
                     data.update(
                         {
                             "population_exposure": {
-                                "exposed_population": data_dict['Exposed population'],
+                                "exposed_population": data_dict["Exposed population"],
                             }
                         }
                     )
@@ -230,7 +230,7 @@ class Command(BaseCommand):
                     data.update(
                         {
                             "population_exposure": {
-                                "impact": data_dict['Impact:'],
+                                "impact": data_dict["Impact:"],
                             }
                         }
                     )

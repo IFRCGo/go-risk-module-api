@@ -12,13 +12,13 @@ def get_maximum_rows(*, sheet_object):
 
 
 def parse_empty_cell_value(data):
-    if data == '':
+    if data == "":
         data = None
     return data
 
 
 def parse_hazard_type(hazard_type):
-    if hazard_type == 'Flood':
+    if hazard_type == "Flood":
         hazard_type = HazardType.FLOOD
     return hazard_type
 
@@ -28,7 +28,7 @@ def create_exposure_population(file):
 
     # NOTE: set `data_only=True` to read cell value instead of formula
     workbook = openpyxl.load_workbook(file, data_only=True)
-    worksheet = workbook.get_sheet_by_name('Flood')
+    worksheet = workbook.get_sheet_by_name("Flood")
     max_rows = get_maximum_rows(sheet_object=worksheet)
     for i in range(1, max_rows):
         country = worksheet.cell(row=i, column=1).value
@@ -37,9 +37,9 @@ def create_exposure_population(file):
         return_period_50_years = parse_empty_cell_value(worksheet.cell(row=i, column=5).value)
         if Country.objects.filter(name=country).exists():
             data_flood = {
-                'country': Country.objects.filter(name=country).first(),
-                'hazard_type': hazard_type,
-                'population_exposure_return_period_25_years': return_period_25_years,
-                'population_exposure_return_period_50_years': return_period_50_years,
+                "country": Country.objects.filter(name=country).first(),
+                "hazard_type": hazard_type,
+                "population_exposure_return_period_25_years": return_period_25_years,
+                "population_exposure_return_period_50_years": return_period_50_years,
             }
             GarHazardDisplacement.objects.get_or_create(**data_flood)

@@ -21,12 +21,12 @@ class OddrinAdmin(admin.ModelAdmin):
 
 @admin.register(Pdc)
 class PdcdAdmin(admin.ModelAdmin):
-    search_fields = ['hazard_name']
+    search_fields = ["hazard_name"]
 
 
 @admin.register(PdcDisplacement)
 class PdcDisplacementdAdmin(admin.ModelAdmin):
-    autocomplete_fields = ['pdc']
+    autocomplete_fields = ["pdc"]
 
 
 @admin.register(Earthquake)
@@ -36,7 +36,7 @@ class EarthquakeAdmin(admin.ModelAdmin):
 
 @admin.register(Adam)
 class AdamAdmin(admin.ModelAdmin):
-    search_fields = ['country__iso3', 'country__name']
+    search_fields = ["country__iso3", "country__name"]
 
 
 # @admin.register(MeteoSwissFile)
@@ -46,17 +46,17 @@ class AdamAdmin(admin.ModelAdmin):
 
 @admin.register(GDACS)
 class GDACSAdmin(admin.ModelAdmin):
-    search_fields = ['country__iso3', 'country__name']
+    search_fields = ["country__iso3", "country__name"]
 
 
 @admin.register(MeteoSwiss)
 class MeteoSwissAdmin(admin.ModelAdmin):
-    search_fields = ['country__iso3', 'country__name']
+    search_fields = ["country__iso3", "country__name"]
 
 
 @admin.register(MeteoSwissAgg)
 class MeteoSwissAggAdmin(admin.ModelAdmin):
-    search_fields = ['country__iso3', 'country__name']
+    search_fields = ["country__iso3", "country__name"]
 
 
 @admin.register(GWIS)

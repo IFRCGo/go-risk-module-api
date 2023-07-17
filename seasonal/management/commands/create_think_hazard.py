@@ -4,11 +4,11 @@ from seasonal.scripts.create_think_hazard import create_think_hazard
 
 
 class Command(BaseCommand):
-    help = 'Create ThinkHazardInformation'
+    help = "Create ThinkHazardInformation"
 
     def add_arguments(self, parser):
-        parser.add_argument('--file')
+        parser.add_argument("--file")
 
     def handle(self, **options):
-        file = options.get('file')
+        file = options.get("file")
         create_think_hazard(file)

@@ -25,80 +25,80 @@ def get_cloud_optimized_file(file):
 
 
 class OddrinSerializer(serializers.ModelSerializer):
-    hazard_type_display = serializers.CharField(source='get_hazard_type_display', read_only=True)
-    file_type_display = serializers.CharField(source='get_file_type_display', read_only=True)
+    hazard_type_display = serializers.CharField(source="get_hazard_type_display", read_only=True)
+    file_type_display = serializers.CharField(source="get_file_type_display", read_only=True)
 
     class Meta:
         model = Oddrin
-        fields = '__all__'
+        fields = "__all__"
 
 
 class PdcSerializer(serializers.ModelSerializer):
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
-    severity_display = serializers.CharField(source='get_severity_display', read_only=True)
+    status_display = serializers.CharField(source="get_status_display", read_only=True)
+    severity_display = serializers.CharField(source="get_severity_display", read_only=True)
 
     class Meta:
         model = Pdc
         exclude = [
-            'footprint_geojson',
-            'storm_position_geojson',
+            "footprint_geojson",
+            "storm_position_geojson",
         ]
 
 
 class PdcDisplacementSerializer(serializers.ModelSerializer):
-    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
-    country_details = CountrySerializer(source='country', read_only=True)
-    pdc_details = PdcSerializer(source='pdc', read_only=True)
+    hazard_type_display = serializers.CharField(source="get_hazard_type_display")
+    country_details = CountrySerializer(source="country", read_only=True)
+    pdc_details = PdcSerializer(source="pdc", read_only=True)
 
     class Meta:
         model = PdcDisplacement
-        fields = '__all__'
+        fields = "__all__"
 
 
 class EarthquakeSerializer(serializers.ModelSerializer):
-    country_details = CountrySerializer(source='country', read_only=True)
+    country_details = CountrySerializer(source="country", read_only=True)
 
     class Meta:
         model = Earthquake
-        fields = '__all__'
+        fields = "__all__"
 
 
 class AdamSerializer(serializers.ModelSerializer):
-    country_details = CountrySerializer(source='country', read_only=True)
-    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+    country_details = CountrySerializer(source="country", read_only=True)
+    hazard_type_display = serializers.CharField(source="get_hazard_type_display")
 
     class Meta:
         model = Adam
-        fields = '__all__'
+        fields = "__all__"
 
 
 class GDACSSeralizer(serializers.ModelSerializer):
-    country_details = CountrySerializer(source='country', read_only=True)
-    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+    country_details = CountrySerializer(source="country", read_only=True)
+    hazard_type_display = serializers.CharField(source="get_hazard_type_display")
 
     class Meta:
         model = GDACS
         exclude = [
-            'footprint_geojson',
-            'population_exposure',
+            "footprint_geojson",
+            "population_exposure",
         ]
 
 
 class MeteoSwissAggSerializer(serializers.ModelSerializer):
-    country_details = CountrySerializer(source='country', read_only=True)
-    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+    country_details = CountrySerializer(source="country", read_only=True)
+    hazard_type_display = serializers.CharField(source="get_hazard_type_display")
 
     class Meta:
         model = MeteoSwissAgg
         exclude = [
-            'geojson_details',
+            "geojson_details",
         ]
 
 
 class GWISSerializer(serializers.ModelSerializer):
-    country_details = CountrySerializer(source='country', read_only=True)
-    hazard_type_display = serializers.CharField(source='get_hazard_type_display')
+    country_details = CountrySerializer(source="country", read_only=True)
+    hazard_type_display = serializers.CharField(source="get_hazard_type_display")
 
     class Meta:
         model = GWIS
-        fields = '__all__'
+        fields = "__all__"

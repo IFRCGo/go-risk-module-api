@@ -10,7 +10,7 @@ logger = logging.getLogger()
 
 
 class Command(BaseCommand):
-    help = 'Import Hazard Exposure Data'
+    help = "Import Hazard Exposure Data"
 
     def handle(self, *args, **options):
         now = datetime.datetime.now()
@@ -19,4 +19,4 @@ class Command(BaseCommand):
         for pdc in pdcs:
             if pdc.end_date and pdc.end_date < today_date:
                 pdc.status = Pdc.Status.EXPIRED
-                pdc.save(update_fields=['status'])
+                pdc.save(update_fields=["status"])

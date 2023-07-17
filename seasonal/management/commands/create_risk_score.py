@@ -3,10 +3,7 @@ import numpy as np
 
 from django.core.management.base import BaseCommand
 
-from seasonal.models import (
-    InformRiskSeasonal,
-    RiskScore
-)
+from seasonal.models import InformRiskSeasonal, RiskScore
 from common.models import Country, HazardType
 
 
@@ -20,11 +17,11 @@ class Command(BaseCommand):
         parser.add_argument("file2")
 
     def map_hazard_type(self, hazard_type):
-        if hazard_type == 'DR':
+        if hazard_type == "DR":
             return HazardType.DROUGHT
-        elif hazard_type == 'FL':
+        elif hazard_type == "FL":
             return HazardType.FLOOD
-        elif hazard_type == 'TC':
+        elif hazard_type == "TC":
             return HazardType.CYCLONE
         return
 
@@ -34,10 +31,7 @@ class Command(BaseCommand):
         # lets import the data from the inform seasonal data
         inform_score_dataframe = pd.DataFrame(
             list(
-                InformRiskSeasonal.objects.filter(
-                    country__independent=True,
-                    country__is_deprecated=False
-                ).values(
+                InformRiskSeasonal.objects.filter(country__independent=True, country__is_deprecated=False).values(
                     "country__name",
                     "country__iso3",
                     "hazard_type",
@@ -84,8 +78,9 @@ class Command(BaseCommand):
         # for population dataframe add `iso3`
         # provided csv lacks iso3
         #  Loading go region grouping
-        regional_dataframe = pd.DataFrame(list(Country.objects.filter(
-            independent=True, is_deprecated=False).values("iso3", "name", "region__name")))
+        regional_dataframe = pd.DataFrame(
+            list(Country.objects.filter(independent=True, is_deprecated=False).values("iso3", "name", "region__name"))
+        )
         regional_dataframe.rename({"iso3": "ISO3", "region__name": "Region"}, axis=1, inplace=True)
         regional_dataframe["ISO3"] = regional_dataframe["ISO3"].str.upper()
         df1["ISO3"] = df1["ISO3"].str.upper()
@@ -108,46 +103,45 @@ class Command(BaseCommand):
         df4["Risk-Rel-NOV"] = df4.november * df4.Vulnerability
         df4["Risk-Rel-DEC"] = df4.december * df4.Vulnerability
 
-        filtered_df = df4[df4['hazard_type'].notnull()]
+        filtered_df = df4[df4["hazard_type"].notnull()]
         for index, row in filtered_df.iterrows():
             yearly_sum = np.sum(
                 [
-                    row['Risk-Rel-JAN'],
-                    row['Risk-Rel-FEB'],
-                    row['Risk-Rel-MAR'],
-                    row['Risk-Rel-APR'],
-                    row['Risk-Rel-MAY'],
-                    row['Risk-Rel-JUN'],
-                    row['Risk-Rel-JUL'],
-                    row['Risk-Rel-AUG'],
-                    row['Risk-Rel-SEP'],
-                    row['Risk-Rel-OCT'],
-                    row['Risk-Rel-NOV'],
-                    row['Risk-Rel-DEC'],
-
+                    row["Risk-Rel-JAN"],
+                    row["Risk-Rel-FEB"],
+                    row["Risk-Rel-MAR"],
+                    row["Risk-Rel-APR"],
+                    row["Risk-Rel-MAY"],
+                    row["Risk-Rel-JUN"],
+                    row["Risk-Rel-JUL"],
+                    row["Risk-Rel-AUG"],
+                    row["Risk-Rel-SEP"],
+                    row["Risk-Rel-OCT"],
+                    row["Risk-Rel-NOV"],
+                    row["Risk-Rel-DEC"],
                 ]
             )
             risk_score_data = {
-                'country': Country.objects.filter(
-                    iso3__icontains=row['ISO3'],
+                "country": Country.objects.filter(
+                    iso3__icontains=row["ISO3"],
                     independent=True,
                     is_deprecated=False,
                 ).first(),
-                'january': row['Risk-Rel-JAN'],
-                'february': row['Risk-Rel-FEB'],
-                'march': row['Risk-Rel-MAR'],
-                'april': row['Risk-Rel-APR'],
-                'may': row['Risk-Rel-MAY'],
-                'june': row['Risk-Rel-JUN'],
-                'july': row['Risk-Rel-JUL'],
-                'august': row['Risk-Rel-AUG'],
-                'september': row['Risk-Rel-SEP'],
-                'october': row['Risk-Rel-OCT'],
-                'november': row['Risk-Rel-NOV'],
-                'december': row['Risk-Rel-DEC'],
-                'yearly_sum': yearly_sum,
-                'hazard_type': self.map_hazard_type(row['hazard_type']),
-                'lcc': row['LCC'],
-                'population_in_thousands': row['Population_in_thousands']
+                "january": row["Risk-Rel-JAN"],
+                "february": row["Risk-Rel-FEB"],
+                "march": row["Risk-Rel-MAR"],
+                "april": row["Risk-Rel-APR"],
+                "may": row["Risk-Rel-MAY"],
+                "june": row["Risk-Rel-JUN"],
+                "july": row["Risk-Rel-JUL"],
+                "august": row["Risk-Rel-AUG"],
+                "september": row["Risk-Rel-SEP"],
+                "october": row["Risk-Rel-OCT"],
+                "november": row["Risk-Rel-NOV"],
+                "december": row["Risk-Rel-DEC"],
+                "yearly_sum": yearly_sum,
+                "hazard_type": self.map_hazard_type(row["hazard_type"]),
+                "lcc": row["LCC"],
+                "population_in_thousands": row["Population_in_thousands"],
             }
             RiskScore.objects.create(**risk_score_data)

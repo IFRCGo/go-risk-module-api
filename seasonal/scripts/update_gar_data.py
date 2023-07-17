@@ -6,6 +6,7 @@ from common.models import HazardType, Country
 from django.db import models
 from django.db.models.functions import Cast, Coalesce
 
+
 def get_maximum_rows(*, sheet_object):
     rows = 0
     for max_row, row in enumerate(sheet_object, 1):
@@ -15,13 +16,13 @@ def get_maximum_rows(*, sheet_object):
 
 
 def parse_empty_cell_value(data):
-    if data == '':
+    if data == "":
         data = {}
     return data
 
 
 def parse_hazard_type(hazard_type):
-    if hazard_type == 'Flood':
+    if hazard_type == "Flood":
         hazard_type = HazardType.FLOOD
     return hazard_type
 
@@ -29,7 +30,7 @@ def parse_hazard_type(hazard_type):
 def update_gar_data(file):
     # NOTE: set `data_only=True` to read cell value instead of formula
     workbook = openpyxl.load_workbook(file, data_only=True)
-    worksheet = workbook.get_sheet_by_name('Economic loss')
+    worksheet = workbook.get_sheet_by_name("Economic loss")
     max_rows = get_maximum_rows(sheet_object=worksheet)
     for i in range(2, max_rows + 1):
         country = worksheet.cell(row=i, column=2).value
@@ -104,36 +105,24 @@ def update_gar_data(file):
                     ),
                 )"""
             else:
-                economic_loss_return_period_10_years = {
-                    'economic_loss': economic_loss_return_period_10_years
-                }
-                economic_loss_return_period_25_years = {
-                    'economic_loss': economic_loss_return_period_25_years
-                }
-                economic_loss_return_period_50_years = {
-                    'economic_loss': economic_loss_return_period_50_years
-                }
-                economic_loss_return_period_100_years = {
-                    'economic_loss': economic_loss_return_period_100_years
-                }
-                economic_loss_return_period_250_years = {
-                    'economic_loss': economic_loss_return_period_250_years
-                }
-                economic_loss_return_period_500_years = {
-                    'economic_loss': economic_loss_return_period_500_years
-                }
+                economic_loss_return_period_10_years = {"economic_loss": economic_loss_return_period_10_years}
+                economic_loss_return_period_25_years = {"economic_loss": economic_loss_return_period_25_years}
+                economic_loss_return_period_50_years = {"economic_loss": economic_loss_return_period_50_years}
+                economic_loss_return_period_100_years = {"economic_loss": economic_loss_return_period_100_years}
+                economic_loss_return_period_250_years = {"economic_loss": economic_loss_return_period_250_years}
+                economic_loss_return_period_500_years = {"economic_loss": economic_loss_return_period_500_years}
                 data = {
-                    'country': Country.objects.filter(name=country).first(),
-                    'hazard_type': hazard_type,
-                    'ten_years': economic_loss_return_period_10_years,
-                    'twenty_five_years': economic_loss_return_period_25_years,
-                    'fifty_years': economic_loss_return_period_50_years,
-                    'hundred_years': economic_loss_return_period_100_years,
-                    'two_hundred_fifty_years': economic_loss_return_period_250_years,
-                    'five_hundred_years': economic_loss_return_period_500_years,
+                    "country": Country.objects.filter(name=country).first(),
+                    "hazard_type": hazard_type,
+                    "ten_years": economic_loss_return_period_10_years,
+                    "twenty_five_years": economic_loss_return_period_25_years,
+                    "fifty_years": economic_loss_return_period_50_years,
+                    "hundred_years": economic_loss_return_period_100_years,
+                    "two_hundred_fifty_years": economic_loss_return_period_250_years,
+                    "five_hundred_years": economic_loss_return_period_500_years,
                 }
                 GarHazardDisplacement.objects.get_or_create(**data)
-    worksheet1 = workbook.get_sheet_by_name('Population exposure')
+    worksheet1 = workbook.get_sheet_by_name("Population exposure")
     max_rows = get_maximum_rows(sheet_object=worksheet1)
     for i in range(1, max_rows + 1):
         country = worksheet1.cell(row=i, column=2).value
@@ -147,24 +136,24 @@ def update_gar_data(file):
                 hazard_type=hazard_type,
             ).update(
                 ten_years=models.Func(
-                    models.F('ten_years'),
-                    models.Value(['population_exposure']),
+                    models.F("ten_years"),
+                    models.Value(["population_exposure"]),
                     models.Value(population_exposure_return_period_10_years, models.JSONField()),
                     True,
-                    function="jsonb_set"
+                    function="jsonb_set",
                 ),
                 twenty_five_years=models.Func(
-                    models.F('twenty_five_years'),
-                    models.Value(['population_exposure']),
+                    models.F("twenty_five_years"),
+                    models.Value(["population_exposure"]),
                     models.Value(population_exposure_return_period_25_years, models.JSONField()),
                     True,
-                    function="jsonb_set"
+                    function="jsonb_set",
                 ),
                 fifty_years=models.Func(
-                    models.F('fifty_years'),
-                    models.Value(['population_exposure']),
+                    models.F("fifty_years"),
+                    models.Value(["population_exposure"]),
                     models.Value(population_exposure_return_period_50_years, models.JSONField()),
                     True,
-                    function="jsonb_set"
+                    function="jsonb_set",
                 ),
             )

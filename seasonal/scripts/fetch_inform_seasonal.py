@@ -13,18 +13,18 @@ def get_maximum_rows(*, sheet_object):
 
 
 def parse_hazard_type(hazard_type):
-    if hazard_type == 'INFORM.TC.Seasonal':
+    if hazard_type == "INFORM.TC.Seasonal":
         hazard_type = HazardType.CYCLONE
-    elif hazard_type == 'INFORM.DR.Seasonal':
+    elif hazard_type == "INFORM.DR.Seasonal":
         hazard_type = HazardType.DROUGHT
-    elif hazard_type == 'INFORM.FL.Seasonal':
+    elif hazard_type == "INFORM.FL.Seasonal":
         hazard_type = HazardType.FLOOD
     return hazard_type
 
 
 def fetch_inform_seasonal(file):
     workbook = openpyxl.load_workbook(file)
-    worksheet = workbook.get_sheet_by_name('Sheet1')
+    worksheet = workbook.get_sheet_by_name("Sheet1")
     max_rows = get_maximum_rows(sheet_object=worksheet)
     hazard_list = [HazardType.CYCLONE, HazardType.DROUGHT, HazardType.FLOOD]
     for i in range(2, max_rows + 1):
@@ -45,23 +45,23 @@ def fetch_inform_seasonal(file):
 
         if Country.objects.filter(iso3=iso3.lower()).exists() and hazard_type in hazard_list:
             data = {
-                'country': Country.objects.filter(
+                "country": Country.objects.filter(
                     iso3=iso3.lower(),
                     independent=True,
                     is_deprecated=False,
                 ).first(),
-                'hazard_type': hazard_type,
-                'january': january,
-                'february': february,
-                'march': march,
-                'april': april,
-                'may': may,
-                'june': june,
-                'july': july,
-                'august': august,
-                'september': september,
-                'october': october,
-                'november': november,
-                'december': december
+                "hazard_type": hazard_type,
+                "january": january,
+                "february": february,
+                "march": march,
+                "april": april,
+                "may": may,
+                "june": june,
+                "july": july,
+                "august": august,
+                "september": september,
+                "october": october,
+                "november": november,
+                "december": december,
             }
             InformRiskSeasonal.objects.create(**data)

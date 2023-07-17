@@ -22,14 +22,6 @@ from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from seasonal.views import (
     SeasonalViewSet,
-    IdmcViewSet,
-    InformRiskViewSet,
-    IdmcSuddenOnsetViewSet,
-    InformRiskSeasonalViewSet,
-    DisplacementViewSet,
-    GarHazardViewSet,
-    GlobalDisplacementViewSet,
-    ThinkHazardInformationViewSet,
     EarlyActionViewSet,
     PublishReportViewSet,
     RiskScoreViewSet,
@@ -38,9 +30,7 @@ from seasonal.views import (
     generate_data,
 )
 from imminent.views import (
-    ImminentViewSet,
     OddrinViewSet,
-    PdcDisplacementViewSet,
     EarthquakeViewSet,
     AdamViewSet,
     PdcViewSet,
@@ -60,15 +50,6 @@ router.register(r'seasonal', SeasonalViewSet, basename='seasonal')
 router.register(r'country-seasonal', SeasonalCountryViewSet, basename='seasonal country')
 router.register(r'imminent', PdcViewSet, basename='imminent')
 
-# router.register(r'idmc-data', IdmcViewSet, basename='idmc')
-# router.register(r'displacement-data', GlobalDisplacementViewSet, basename='global')
-# router.register(r'inform-data', InformRiskViewSet, basename='inform')
-# router.register(r'idmc-return-period-data', IdmcSuddenOnsetViewSet, basename='idmc return period')
-# router.register(r'inform-seasonal-data', InformRiskSeasonalViewSet, basename='inform seasonal')
-# router.register(r'exposure-data', DisplacementViewSet, basename='global exposure')
-# router.register(r'hazard_info', ThinkHazardInformationViewSet, basename='hazard info')
-# router.register(r'gar-return-period', GarHazardViewSet, basename='gar return period')
-# router.register(r'pdc-displacement', PdcDisplacementViewSet, basename='pdc displacement')
 router.register(r'early-actions', EarlyActionViewSet, basename='early actions')
 router.register(r'publish-report', PublishReportViewSet, basename='publish report')
 router.register(r'risk-score', RiskScoreViewSet, basename='risk score')

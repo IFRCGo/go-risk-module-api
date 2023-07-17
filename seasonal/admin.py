@@ -18,7 +18,7 @@ from seasonal.models import (
     PossibleEarlyActionsSectors,
     PublishReport,
     PublishReportProgram,
-    RiskScore
+    RiskScore,
 )
 
 
@@ -64,12 +64,12 @@ class GarProbabilisticAdmin(admin.ModelAdmin):
 
 @admin.register(Ipc)
 class IpcAdmin(admin.ModelAdmin):
-    search_fields = ('country__name', 'analysis_date')
+    search_fields = ("country__name", "analysis_date")
 
 
 @admin.register(IpcMonthly)
 class IpcMonthly(admin.ModelAdmin):
-    search_fields = ('country__name', 'analysis_date')
+    search_fields = ("country__name", "analysis_date")
 
 
 @admin.register(GlobalDisplacement)
@@ -109,4 +109,4 @@ class PublishReportAdmin(admin.ModelAdmin):
 
 @admin.register(RiskScore)
 class RiskScore(admin.ModelAdmin):
-    search_fields = ('country__name', 'country__iso3')
+    search_fields = ("country__name", "country__iso3")

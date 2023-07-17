@@ -13,22 +13,22 @@ def get_maximum_rows(*, sheet_object):
 
 
 def parse_hazard_type(hazard_type):
-    if hazard_type == 'Flood':
+    if hazard_type == "Flood":
         hazard_type = HazardType.FLOOD
-    elif hazard_type == 'Cyclone':
+    elif hazard_type == "Cyclone":
         hazard_type = HazardType.CYCLONE
     return hazard_type
 
 
 def parse_empty_cell_value(data):
-    if data == '':
+    if data == "":
         data = None
     return data
 
 
 def create_global_displacment_data(file):
     workbook = openpyxl.load_workbook(file)
-    worksheet = workbook.get_sheet_by_name('Displacement Risk Per Month')
+    worksheet = workbook.get_sheet_by_name("Displacement Risk Per Month")
     max_rows = get_maximum_rows(sheet_object=worksheet)
     for i in range(2, max_rows):
         iso3 = worksheet.cell(row=i, column=2).value
@@ -76,21 +76,21 @@ def create_global_displacment_data(file):
 
         if Country.objects.filter(iso3=iso3.lower()).exists():
             data = {
-                'country': Country.objects.filter(iso3=iso3.lower()).first(),
-                'iso3': iso3,
-                'hazard_type': hazard_type,
-                'january': january,
-                'february': february,
-                'march': march,
-                'april': april,
-                'may': may,
-                'june': june,
-                'july': july,
-                'august': august,
-                'september': september,
-                'october': october,
-                'november': november,
-                'december': december,
-                'annual_average_displacement': annual_average_displacement
+                "country": Country.objects.filter(iso3=iso3.lower()).first(),
+                "iso3": iso3,
+                "hazard_type": hazard_type,
+                "january": january,
+                "february": february,
+                "march": march,
+                "april": april,
+                "may": may,
+                "june": june,
+                "july": july,
+                "august": august,
+                "september": september,
+                "october": october,
+                "november": november,
+                "december": december,
+                "annual_average_displacement": annual_average_displacement,
             }
             DisplacementData.objects.get_or_create(**data)
