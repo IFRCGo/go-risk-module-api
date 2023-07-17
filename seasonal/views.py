@@ -44,7 +44,8 @@ from seasonal.serializers import (
     SeasonalCountrySerializer,
     InformScoreSerializer,
     SeasonalSerializer,
-    PossibleEarlyActionOptionsSerializer
+    PossibleEarlyActionOptionsSerializer,
+    CharKeyValueSerializer,
 )
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
@@ -392,7 +393,7 @@ class EarlyActionViewSet(viewsets.ReadOnlyModelViewSet):
 
     @extend_schema(
         request=None,
-        responses=PossibleEarlyActionOptionsSerializer(many=True)
+        responses=PossibleEarlyActionOptionsSerializer
     )
     @action(
         detail=False,
@@ -402,7 +403,10 @@ class EarlyActionViewSet(viewsets.ReadOnlyModelViewSet):
         return response.Response(
             PossibleEarlyActionOptionsSerializer(
                 dict(
-                    sectors=PossibleEarlyActionsSectors.objects.all().distinct('name')
+                    sectors=PossibleEarlyActionsSectors.objects.all().distinct('name'),
+                    hazard_type=CharKeyValueSerializer.choices_to_data(
+                        HazardType.choices
+                    ),
                 )
             ).data
         )

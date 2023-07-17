@@ -187,5 +187,21 @@ class PossibleEarlyActionSectorsSerializer(serializers.Serializer):
     name = serializers.CharField()
 
 
+class CharKeyValueSerializer(serializers.Serializer):
+    key = serializers.CharField()
+    value = serializers.CharField()
+
+    @staticmethod
+    def choices_to_data(choices):
+        return [
+            {
+                'key': key,
+                'value': value,
+            }
+            for key, value in choices
+        ]
+
+
 class PossibleEarlyActionOptionsSerializer(serializers.Serializer):
     sectors = PossibleEarlyActionSectorsSerializer(many=True)
+    hazard_type = CharKeyValueSerializer(many=True)
