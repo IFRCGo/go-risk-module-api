@@ -43,7 +43,8 @@ from seasonal.serializers import (
     RiskScoreSerializer,
     SeasonalCountrySerializer,
     InformScoreSerializer,
-    SeasonalSerializer
+    SeasonalSerializer,
+    PossibleEarlyActionOptionsSerializer
 )
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
@@ -389,21 +390,22 @@ class EarlyActionViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = PossibleEarlyActionsFilterSet
     serializer_class = PossibleEarlyActionsSerializer
 
+    @extend_schema(
+        request=None,
+        responses=PossibleEarlyActionOptionsSerializer(many=True)
+    )
     @action(
         detail=False,
         url_path='options'
     )
     def get_options(self, request, **kwargs):
-        options = {
-            'sectors': [
-                {
-                    'id': sector.id,
-                    'name': sector.name,
-                } for sector in PossibleEarlyActionsSectors.objects.all().distinct('name')
-            ],
-        }
-
-        return response.Response(options)
+        return response.Response(
+            PossibleEarlyActionOptionsSerializer(
+                dict(
+                    sectors=PossibleEarlyActionsSectors.objects.all().distinct('name')
+                )
+            ).data
+        )
 
 
 class PublishReportViewSet(viewsets.ReadOnlyModelViewSet):
