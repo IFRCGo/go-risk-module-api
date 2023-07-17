@@ -91,6 +91,6 @@ def create_global_displacment_data(file):
                 "october": october,
                 "november": november,
                 "december": december,
-                "annual_average_displacement": annual_average_displacement,
+                "annual_average": annual_average_displacement,
             }
             DisplacementData.objects.get_or_create(**data)

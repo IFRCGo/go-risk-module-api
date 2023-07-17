@@ -81,7 +81,7 @@ def fetch_idmc_data(file):
             "country": Country.objects.filter(iso3=iso3.lower()).first(),
             "iso3": iso3,
             "hazard_type": parse_hazard_type(hazard_type),
-            "annual_average_displacement": annual_average_displacement,
+            "annual_average": annual_average_displacement,
             "confidence_type": confidence_type,
             "note": note,
             "january": january,

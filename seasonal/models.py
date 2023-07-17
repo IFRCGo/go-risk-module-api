@@ -20,7 +20,7 @@ class Idmc(models.Model):
         max_length=100, verbose_name=_("confidence type"), choices=ConfidenceType.choices, blank=True
     )
     note = models.TextField(verbose_name=_("note"), blank=True, null=True)
-    annual_average_displacement = models.FloatField(verbose_name=_("annual average displacement"), null=True, blank=True)
+    annual_average = models.FloatField(verbose_name=_("annual average"), null=True, blank=True)
     january = models.FloatField(verbose_name=_("january"), null=True, blank=True)
     february = models.FloatField(verbose_name=_("february"), null=True, blank=True)
     march = models.FloatField(verbose_name=_("march"), null=True, blank=True)
@@ -45,7 +45,7 @@ class DisplacementData(models.Model):
         max_length=100, verbose_name=_("hazard type"), choices=HazardType.choices, null=True, blank=True
     )
     note = models.TextField(verbose_name=_("note"), blank=True, null=True)
-    annual_average_displacement = models.FloatField(verbose_name=_("annual average displacement"), null=True, blank=True)
+    annual_average = models.FloatField(verbose_name=_("annual average"), null=True, blank=True)
     january = models.FloatField(verbose_name=_("january"), null=True, blank=True)
     february = models.FloatField(verbose_name=_("february"), null=True, blank=True)
     march = models.FloatField(verbose_name=_("march"), null=True, blank=True)
@@ -87,6 +87,7 @@ class InformRiskSeasonal(models.Model):
     october = models.FloatField(verbose_name=_("october"), null=True, blank=True)
     november = models.FloatField(verbose_name=_("november"), null=True, blank=True)
     december = models.FloatField(verbose_name=_("december"), null=True, blank=True)
+    annual_average = models.FloatField(verbose_name=_("annual average"), null=True, blank=True)
 
     def __str__(self):
         return f"{self.country.name} - {self.hazard_type}"

@@ -208,7 +208,9 @@ class SeasonalViewSet(viewsets.ViewSet):
             "ipc_displacement_data": ipc_displacement_data,
             "raster_displacement_data": raster_displacement_data,
         }
-        return response.Response(SeasonalSerializer(data).data)
+        return response.Response([
+            SeasonalSerializer(data).data]
+        )
 
 
 class SeasonalCountryViewSet(viewsets.ViewSet):
@@ -216,7 +218,7 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
     filterset_fields = "iso3"
 
     @extend_schema(request=None, responses=SeasonalCountrySerializer)
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs) -> dict:
         iso3 = self.request.query_params.get("iso3")
         if iso3 is not None:
             idmc = Idmc.objects.filter(iso3__icontains=iso3)
@@ -253,8 +255,9 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
             # 'hazard_info': hazard_info,
             # 'gar_loss': gar_loss,
         }
-
-        return response.Response(SeasonalCountrySerializer(data).data)
+        return response.Response([
+            SeasonalCountrySerializer(data).data
+        ])
 
 
 def generate_data(request):

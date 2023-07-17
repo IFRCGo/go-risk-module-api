@@ -84,14 +84,43 @@ class DisplacementDataSerializer(serializers.ModelSerializer):
         model = DisplacementData
         fields = "__all__"
 
+class GarHazardDisplacementJsonSerializer(serializers.Serializer):
+    population_displacement = serializers.IntegerField(required=False)
+    economic_loss = serializers.IntegerField(required=False)
+    population_exposure = serializers.IntegerField(required=False)
+
 
 class GarHazardDisplacementSerializer(serializers.ModelSerializer):
     hazard_type_display = serializers.CharField(source="get_hazard_type_display")
     country_details = CountrySerializer(source="country", read_only=True)
+    twenty_years = GarHazardDisplacementJsonSerializer(required=False)
+    ten_years = GarHazardDisplacementJsonSerializer(required=False)
+    twenty_five_years = GarHazardDisplacementJsonSerializer(required=False)
+    fifty_years = GarHazardDisplacementJsonSerializer(required=False)
+    hundred_years = GarHazardDisplacementJsonSerializer(required=False)
+    two_hundred_fifty_years = GarHazardDisplacementJsonSerializer(required=False)
+    five_hundred_years = GarHazardDisplacementJsonSerializer(required=False)
+    one_thousand_years = GarHazardDisplacementJsonSerializer(required=False)
+    one_thousand_five_hundred_years = GarHazardDisplacementJsonSerializer(required=False)
 
     class Meta:
         model = GarHazardDisplacement
-        fields = "__all__"
+        fields = (
+            "id",
+            "country",
+            "hazard_type",
+            "country_details",
+            "hazard_type_display",
+            "ten_years",
+            "twenty_years",
+            "twenty_five_years",
+            "fifty_years",
+            "hundred_years",
+            "two_hundred_fifty_years",
+            "five_hundred_years",
+            "one_thousand_years",
+            "one_thousand_five_hundred_years",
+        )
 
 
 class GarProbabilisticSerializer(serializers.ModelSerializer):
