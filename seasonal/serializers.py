@@ -18,6 +18,7 @@ from seasonal.models import (
 )
 from common.models import Country
 from common.serializers import CountrySerializer
+from imminent.serializers import GWISSerializer
 
 
 class GlobalDisplacementSerializer(serializers.ModelSerializer):
@@ -83,6 +84,7 @@ class DisplacementDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = DisplacementData
         fields = "__all__"
+
 
 class GarHazardDisplacementJsonSerializer(serializers.Serializer):
     population_displacement = serializers.IntegerField(required=False)
@@ -180,6 +182,7 @@ class SeasonalCountrySerializer(serializers.Serializer):
     inform = InformRiskSerializer(many=True, allow_null=True)
     inform_seasonal = InformRiskSeasonalSerializer(many=True, allow_null=True)
     return_period_data = GarHazardDisplacementSerializer(many=True, allow_null=True)
+    gwis = GWISSerializer(many=True, allow_null=True)
 
 
 class MiniCountrySerializer(serializers.ModelSerializer):

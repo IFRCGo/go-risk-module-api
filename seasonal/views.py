@@ -50,6 +50,7 @@ from seasonal.filter_set import (
     PublishReportFilterSet,
     RiskScoreFilterSet,
 )
+from imminent.models import GWIS
 
 
 class IdmcViewSet(viewsets.ReadOnlyModelViewSet):
@@ -235,6 +236,7 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
             return_period_data = GarHazardDisplacement.objects.filter(country__iso3__icontains=iso3).select_related(
                 "country"
             )
+            gwis=GWIS.objects.filter(country__iso3__icontains=iso3).select_related("country")
         else:
             idmc = Idmc.objects.all()
             ipc_displacement_data = GlobalDisplacement.objects.select_related("country")
@@ -242,6 +244,7 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
             inform = InformRisk.objects.select_related("country")
             inform_seasonal = InformRiskSeasonal.objects.select_related("country")
             return_period_data = GarHazardDisplacement.objects.select_related("country")
+            gwis=GWIS.objects.select_related("country")
             # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data
 
         data = {
@@ -251,6 +254,7 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
             "inform": inform,
             "inform_seasonal": inform_seasonal,
             "return_period_data": return_period_data,
+            "gwis": gwis
             # 'idmc_return_period': idmc_return_period_data,
             # 'hazard_info': hazard_info,
             # 'gar_loss': gar_loss,
