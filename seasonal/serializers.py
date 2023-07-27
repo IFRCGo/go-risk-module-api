@@ -212,6 +212,7 @@ class SeasonalSerializer(serializers.Serializer):
     idmc = IdmcSerializer(many=True, allow_null=True)
     ipc_displacement_data = GlobalDisplacementSerializer(many=True, allow_null=True)
     raster_displacement_data = DisplacementDataSerializer(many=True, allow_null=True)
+    gwis = GWISSerializer(many=True, allow_null=True)
 
 
 class PossibleEarlyActionSectorsSerializer(serializers.Serializer):

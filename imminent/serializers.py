@@ -102,3 +102,10 @@ class GWISSerializer(serializers.ModelSerializer):
     class Meta:
         model = GWIS
         fields = "__all__"
+
+
+class PdcExposureSerializer(serializers.Serializer):
+    footprint_geojson = serializers.JSONField()
+    storm_position_geojson = serializers.JSONField()
+    population_exposure = serializers.JSONField()
+    capital_exposure = serializers.JSONField()

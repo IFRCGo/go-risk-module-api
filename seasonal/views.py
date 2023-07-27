@@ -110,7 +110,7 @@ class SeasonalViewSet(viewsets.ViewSet):
             raster_displacement_data = DisplacementData.objects.filter(country__iso3__icontains=iso3).select_related(
                 "country"
             )
-
+            gwis=GWIS.objects.filter(country__iso3__icontains=iso3).select_related("country")
             # hazard_info = ThinkHazardInformationSerializer(
             #     ThinkHazardInformation.objects.filter(
             #         country__iso3__icontains=iso3,
@@ -156,6 +156,9 @@ class SeasonalViewSet(viewsets.ViewSet):
             raster_displacement_data = DisplacementData.objects.filter(
                 country__region__name=region,
             ).select_related("country")
+            gwis=GWIS.objects.filter(
+                country__region__name=region,
+            ).select_related("country")
             # hazard_info = ThinkHazardInformationSerializer(
             #     ThinkHazardInformation.objects.filter(
             #         country__region__name=region,
@@ -197,6 +200,7 @@ class SeasonalViewSet(viewsets.ViewSet):
             idmc = Idmc.objects.all()
             ipc_displacement_data = GlobalDisplacement.objects.select_related("country")
             raster_displacement_data = DisplacementData.objects.select_related("country")
+            gwis=GWIS.objects.select_related("country")
             # hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
             # inform = InformRiskSerializer(InformRisk.objects.select_related('country'), many=True).data
             # inform_seasonal = InformRiskSeasonalSerializer(InformRiskSeasonal.objects.select_related('country'), many=True).data
@@ -208,6 +212,7 @@ class SeasonalViewSet(viewsets.ViewSet):
             "idmc": idmc,
             "ipc_displacement_data": ipc_displacement_data,
             "raster_displacement_data": raster_displacement_data,
+            "gwis": gwis
         }
         return response.Response([
             SeasonalSerializer(data).data]

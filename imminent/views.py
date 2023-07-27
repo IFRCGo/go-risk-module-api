@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 from rest_framework import viewsets, response
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.decorators import action
+from drf_spectacular.utils import extend_schema
 
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db import models
@@ -27,6 +28,7 @@ from imminent.serializers import (
     GDACSSeralizer,
     MeteoSwissAggSerializer,
     GWISSerializer,
+    PdcExposureSerializer,
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
@@ -259,6 +261,7 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return queryset
 
+    @extend_schema(request=None, responses=PdcExposureSerializer)
     @action(detail=True, url_path="exposure")
     def get_displacement(self, request, pk):
         object = self.get_object()
@@ -274,7 +277,7 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
             "population_exposure": population_exposure,
             "capital_exposure": capital_exposure,
         }
-        return response.Response(data)
+        return response.Response(PdcExposureSerializer(data).data)
 
 
 class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
