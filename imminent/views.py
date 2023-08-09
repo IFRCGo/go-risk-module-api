@@ -29,6 +29,8 @@ from imminent.serializers import (
     MeteoSwissAggSerializer,
     GWISSerializer,
     PdcExposureSerializer,
+    GDACSExposureSerializer,
+    AdamExposureSerializer
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
@@ -202,7 +204,17 @@ class AdamViewSet(viewsets.ReadOnlyModelViewSet):
                 hazard_type=HazardType.EARTHQUAKE,
             )
             | models.Q(publish_date__gte=three_days_before, hazard_type=HazardType.EARTHQUAKE, country__isnull=True)
-        )
+        ).order_by('-publish_date').distinct('event_id', 'publish_date')
+
+    @extend_schema(request=None, responses=AdamExposureSerializer)
+    @action(detail=True, url_path="exposure")
+    def get_displacement(self, request, pk):
+        object = self.get_object()
+        data = {
+            "storm_position_geojson": object.storm_position_geojson or None,
+            "population_exposure": object.population_exposure or None,
+        }
+        return response.Response(data)
 
 
 class PdcViewSet(viewsets.ReadOnlyModelViewSet):
@@ -341,6 +353,7 @@ class GDACSViewSet(viewsets.ReadOnlyModelViewSet):
         )
         return queryset
 
+    @extend_schema(request=None, responses=GDACSExposureSerializer)
     @action(detail=True, url_path="exposure")
     def get_displacement(self, request, pk):
         object = self.get_object()

@@ -109,3 +109,13 @@ class PdcExposureSerializer(serializers.Serializer):
     storm_position_geojson = serializers.JSONField()
     population_exposure = serializers.JSONField()
     capital_exposure = serializers.JSONField()
+
+
+class GDACSExposureSerializer(serializers.Serializer):
+    footprint_geojson = serializers.JSONField()
+    population_exposure = serializers.JSONField()
+
+
+class AdamExposureSerializer(serializers.Serializer):
+    storm_position_geojson = serializers.JSONField()
+    population_exposure = serializers.JSONField()

@@ -48,7 +48,7 @@ router.register(r'earthquake', EarthquakeViewSet, basename='earthquake')
 router.register(r'global-exposure-data', OddrinViewSet, basename='oddrin')
 router.register(r'seasonal', SeasonalViewSet, basename='seasonal')
 router.register(r'country-seasonal', SeasonalCountryViewSet, basename='seasonal country')
-router.register(r'imminent', PdcViewSet, basename='imminent')
+router.register(r'pdc', PdcViewSet, basename='imminent')
 
 router.register(r'early-actions', EarlyActionViewSet, basename='early actions')
 router.register(r'publish-report', PublishReportViewSet, basename='publish report')
