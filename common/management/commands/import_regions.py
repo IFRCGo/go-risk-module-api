@@ -9,12 +9,12 @@ class Command(BaseCommand):
     help = 'Import Country'
 
     def handle(self, *args, **options):
-        url = "https://dsgocdnapi.azureedge.net/api/v2/region/"
+        url = "https://goadmin-stage.ifrc.org/api/v2/region"
         response = requests.get(url)
         response_data = response.json()
         for data in response_data['results']:
             data = {
-                'region_id': data['name'],
-                'region_name': data['region_name'],
+                #'region_id': data['name'],
+                'name': data['name'],
             }
             Region.objects.create(**data)

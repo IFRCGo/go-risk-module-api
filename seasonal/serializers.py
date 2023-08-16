@@ -238,3 +238,12 @@ class CharKeyValueSerializer(serializers.Serializer):
 class PossibleEarlyActionOptionsSerializer(serializers.Serializer):
     sectors = PossibleEarlyActionSectorsSerializer(many=True)
     hazard_type = CharKeyValueSerializer(many=True)
+
+
+class SeasonalCountryRequestSerializer(serializers.Serializer):
+    iso3 = serializers.CharField(required=False)
+
+
+class SeasonalRequestSerializer(serializers.Serializer):
+    iso3 = serializers.CharField(required=False)
+    region = serializers.IntegerField(required=False)

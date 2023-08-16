@@ -13,7 +13,6 @@ class Command(BaseCommand):
     help = "Aggregated Meteoswiss Data"
 
     def handle(self, *args, **kwargs):
-        # get the meteoswiss data create an aggregated view for that
         events = (
             MeteoSwiss.objects.values("hazard_name", "country__name")
             .distinct()
@@ -52,8 +51,13 @@ class Command(BaseCommand):
                 ).order_by("initialization_date")
             ]
             details = {x["impact_type"]: x for x in event_details_dict}.values()
+            country_name = event["country__name"]
+            if country_name:
+                country = Country.objects.filter(name__icontains=event["country__name"]).first()
+            else:
+                country = None
             data = {
-                "country": Country.objects.filter(name__icontains=event["country__name"]).first(),
+                "country": country,
                 "hazard_name": event["hazard_name"],
                 "start_date": event["start_date"],
                 "event_details": list(details),

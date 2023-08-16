@@ -238,7 +238,9 @@ class MeteoSwissAgg(models.Model):
     country = models.ForeignKey(
         Country,
         verbose_name=_("country"),
-        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
     )
     event_details = models.JSONField(verbose_name=_("Event Details"), null=True, blank=True)
     geojson_details = models.JSONField(verbose_name=_("Geojson Details"), null=True, blank=True)

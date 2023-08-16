@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = "Update Country bbox"
 
     def handle(self, *args, **options):
-        url = "https://dsgocdnapi.azureedge.net/api/v2/country/"
+        url = "https://goadmin-stage.ifrc.org/api/v2/country/"
         while url:
             response = requests.get(url)
             response_data = response.json()

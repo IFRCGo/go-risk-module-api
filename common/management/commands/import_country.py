@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Import Country'
 
     def handle(self, *args, **options):
-        url = "https://go-api.togglecorp.com/api/v2/country/"
+        url = "https://goadmin-stage.ifrc.org/api/v2/country/"
         while url:
             response = requests.get(url)
             response_data = response.json()

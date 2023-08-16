@@ -8,7 +8,7 @@ from datetime import datetime
 from openpyxl import Workbook
 from django.http import HttpResponse
 from django.db import models
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
 
@@ -44,6 +44,8 @@ from seasonal.serializers import (
     SeasonalSerializer,
     PossibleEarlyActionOptionsSerializer,
     CharKeyValueSerializer,
+    SeasonalCountryRequestSerializer,
+    SeasonalRequestSerializer,
 )
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
@@ -93,11 +95,16 @@ class ThinkHazardInformationViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = ThinkHazardInformation.objects.all()
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[SeasonalRequestSerializer],
+        responses=SeasonalSerializer(many=True)
+    ),
+)
 class SeasonalViewSet(viewsets.ViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_fields = ("iso3", "hazard_type")
 
-    @extend_schema(request=None, responses=SeasonalSerializer)
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get("iso3")
         region = self.request.query_params.get("region")
@@ -219,12 +226,15 @@ class SeasonalViewSet(viewsets.ViewSet):
         )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[SeasonalCountryRequestSerializer],
+        responses=SeasonalCountrySerializer(many=True)
+    ),
+)
 class SeasonalCountryViewSet(viewsets.ViewSet):
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = "iso3"
 
-    @extend_schema(request=None, responses=SeasonalCountrySerializer)
-    def list(self, request, *args, **kwargs) -> dict:
+    def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get("iso3")
         if iso3 is not None:
             idmc = Idmc.objects.filter(iso3__icontains=iso3)
