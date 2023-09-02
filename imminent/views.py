@@ -204,7 +204,7 @@ class AdamViewSet(viewsets.ReadOnlyModelViewSet):
                 hazard_type=HazardType.EARTHQUAKE,
             )
             | models.Q(publish_date__gte=three_days_before, hazard_type=HazardType.EARTHQUAKE, country__isnull=True)
-        ).distinct('event_id')
+        ).order_by('event_id', '-publish_date').distinct('event_id')
 
     @extend_schema(request=None, responses=AdamExposureSerializer)
     @action(detail=True, url_path="exposure")

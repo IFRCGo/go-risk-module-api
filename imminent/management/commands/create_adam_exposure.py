@@ -42,14 +42,14 @@ class Command(BaseCommand):
             props = earthquake_event["properties"]
             data.update(
                 {
-                    "country": Country.objects.filter(iso3=props["iso3"].lower()).first(),
+                    "country": Country.objects.filter(iso3=props["iso3"].lower()).last(),
                     "title": props["title"],
                     "hazard_type": HazardType.EARTHQUAKE,
                     "publish_date": props["published_at"],
                     "event_id": props["event_id"],
                 }
             )
-            Adam.objects.create(**data)
+            Adam.objects.get_or_create(**data)
 
         flood_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/floods/"
         response = http.request("GET", flood_url)
@@ -68,14 +68,14 @@ class Command(BaseCommand):
             props = flood_event["properties"]
             data.update(
                 {
-                    "country": Country.objects.filter(iso3=props["iso3"].lower()).first(),
+                    "country": Country.objects.filter(iso3=props["iso3"].lower()).last(),
                     "title": None,
                     "hazard_type": HazardType.FLOOD,
                     "publish_date": props["effective_date"],
                     "event_id": props["eventid"],
                 }
             )
-            Adam.objects.create(**data)
+            Adam.objects.get_or_create(**data)
 
         cyclone_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/cyclones/"
         response = http.request("GET", cyclone_url)
@@ -93,11 +93,11 @@ class Command(BaseCommand):
             for country in countries_props:
                 data.update(
                     {
-                        "country": Country.objects.filter(name__icontains=country.strip()).first(),
+                        "country": Country.objects.filter(name__icontains=country.strip()).last(),
                         "title": props["title"],
                         "hazard_type": HazardType.CYCLONE,
                         "publish_date": props["published_at"],
                         "event_id": props["event_id"],
                     }
                 )
-                Adam.objects.create(**data)
+                Adam.objects.get_or_create(**data)

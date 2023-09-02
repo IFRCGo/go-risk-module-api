@@ -1,5 +1,6 @@
 import pandas as pd
 from collections import defaultdict
+from Levenshtein import ratio
 
 from django.core.management.base import BaseCommand
 
@@ -11,19 +12,20 @@ class Command(BaseCommand):
     help = "WFP Adam csv population"
 
     def handle(self, **options):
+        # Fetch Adam objects with the specified filters and order
         adam_population = Adam.objects.filter(
             event_details__isnull=False,
             hazard_type=HazardType.CYCLONE,
-        ).order_by("-publish_date", "country") \
-        .distinct("country", "publish_date")
-        pop_country_dict = defaultdict(list)
+        )
         for adam in adam_population:
             try:
                 file = adam.event_details.get("url", {}).get("population_csv")
+
                 if file:
                     dataframe = pd.read_csv(file)
                     exposure_dict = {}
-                    for speed in ['60_KMH', '90_KMH', '120_KMH']:
+                    speeds = ['60_KMH', '90_KMH', '120_KMH']
+                    for speed in speeds:
                         column_name = f"POP_{speed}"
                         if column_name in dataframe.columns:
                             pop_country = dataframe.groupby(['ADM0_NAME'])[column_name].agg('sum').to_dict()
