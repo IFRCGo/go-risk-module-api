@@ -40,6 +40,7 @@ class AdamFilterSet(django_filters.FilterSet):
         qs = super().qs
         return qs.distinct('event_id')
 
+
 class PdcFilterSet(django_filters.FilterSet):
     iso3 = django_filters.CharFilter(field_name="pdcdisplacement__country__iso3", lookup_expr="icontains", label="iso3")
     region = django_filters.ModelMultipleChoiceFilter(

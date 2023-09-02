@@ -1,6 +1,4 @@
 import pandas as pd
-from collections import defaultdict
-from Levenshtein import ratio
 
 from django.core.management.base import BaseCommand
 

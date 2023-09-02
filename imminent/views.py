@@ -30,7 +30,8 @@ from imminent.serializers import (
     GWISSerializer,
     PdcExposureSerializer,
     GDACSExposureSerializer,
-    AdamExposureSerializer
+    AdamExposureSerializer,
+    MeteoSwissFootprintSerializer
 )
 from imminent.filter_set import (
     EarthquakeFilterSet,
@@ -369,10 +370,17 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = MeteoSwissAggFilterSet
 
     def get_queryset(self):
+        today = datetime.now().date()
+        seven_days_before = today + timedelta(days=-7)
         return MeteoSwissAgg.objects.select_related("country").filter(
-            country__region__isnull=False, latitude__isnull=False, longitude__isnull=False
-        )
+            country__region__isnull=False,
+            latitude__isnull=False,
+            longitude__isnull=False,
+            end_date__gte=seven_days_before
+        ).distinct('country', 'hazard_name')
 
+
+    @extend_schema(request=None, responses=MeteoSwissFootprintSerializer)
     @action(detail=True, url_path="exposure")
     def get_displacement(self, request, pk):
         object = self.get_object()

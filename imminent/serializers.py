@@ -69,7 +69,10 @@ class AdamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Adam
-        fields = "__all__"
+        exclude = [
+            "storm_position_geojson",
+            "population_exposure",
+        ]
 
 
 class GDACSSeralizer(serializers.ModelSerializer):
@@ -116,6 +119,16 @@ class GDACSExposureSerializer(serializers.Serializer):
     population_exposure = serializers.JSONField()
 
 
+class AdamPopulationExposureSerializer(serializers.Serializer):
+    exposure_60_kmh = serializers.FloatField(required=False, allow_null=True)
+    exposure_90_kmh = serializers.FloatField(required=False, allow_null=True)
+    exposure_120_kmh = serializers.FloatField(required=False, allow_null=True)
+
+
 class AdamExposureSerializer(serializers.Serializer):
     storm_position_geojson = serializers.JSONField()
-    population_exposure = serializers.JSONField()
+    population_exposure = AdamPopulationExposureSerializer(required=False)
+
+
+class MeteoSwissFootprintSerializer(serializers.Serializer):
+    footprint_geojson = serializers.JSONField(required=False)
