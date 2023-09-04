@@ -61,7 +61,9 @@ class Command(BaseCommand):
                 country_name = filename_splitted[4]
                 impact_type = filename_splitted[5] + "_" + filename_splitted[6] + "_" + filename_splitted[7]
                 meteoswiss = MeteoSwiss.objects.filter(
-                    impact_type=impact_type, folder_id=path, country=Country.objects.filter(name=country_name).first()
+                    impact_type=impact_type,
+                    folder_id=path,
+                    country=Country.objects.filter(name=country_name).first(),
                 )
                 json_details = json.loads(details)
                 if meteoswiss.exists():

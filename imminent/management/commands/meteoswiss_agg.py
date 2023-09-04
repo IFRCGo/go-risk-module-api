@@ -1,7 +1,7 @@
 import logging
 
 from django.core.management.base import BaseCommand
-from django.db.models import Max, Min
+from django.db.models import Max, Min, F
 
 from imminent.models import MeteoSwiss, MeteoSwissAgg
 from common.models import HazardType, Country
@@ -13,56 +13,62 @@ class Command(BaseCommand):
     help = "Aggregated Meteoswiss Data"
 
     def handle(self, *args, **kwargs):
-        events = (
-            MeteoSwiss.objects.values("hazard_name", "country__name")
-            .distinct()
-            .annotate(
-                start_date=Min("initialization_date"),
-                end_date=Max("event_date"),
-            )
-        )
-        for event in list(events):
-            # get the footprint_geojson latest
-            # what if this has no any polygon
-            data = (
-                MeteoSwiss.objects.filter(
-                    impact_type="exposed_population_18mps",
-                    hazard_name=event["hazard_name"],
-                    country__name=event["country__name"],
-                )
-                .order_by("initialization_date")
-                .last()
-            )
-            new_dict = {
-                "id": data.id,
-                "impact_type": data.impact_type,
-                "footprint_geojson": data.footprint_geojson,
-            }
-            event_details_dict = [
-                {
-                    "id": data.id,
-                    "impact_type": data.impact_type,
-                    "max": data.event_details.get("max"),
-                    "mean": data.event_details.get("mean"),
-                    "min": data.event_details.get("min"),
-                }
-                for data in MeteoSwiss.objects.filter(
-                    hazard_name=event["hazard_name"], country__name=event["country__name"]
-                ).order_by("initialization_date")
-            ]
-            details = {x["impact_type"]: x for x in event_details_dict}.values()
-            country_name = event["country__name"]
-            if country_name:
-                country = Country.objects.filter(name__icontains=event["country__name"]).first()
-            else:
-                country = None
+        def get_latest_meteo_swiss_data(hazard_name, country_name):
+            return MeteoSwiss.objects.filter(
+                impact_type="exposed_population_18mps",
+                hazard_name=hazard_name,
+                country__name=country_name
+            ).order_by("-initialization_date").first()
+
+        def get_event_details(hazard_name, country_name):
+            return MeteoSwiss.objects.filter(
+                hazard_name=hazard_name,
+                country__name=country_name
+            ).values(
+                'id',
+                'impact_type',
+                max=F('event_details__max'),
+                mean=F('event_details__mean'),
+                min=F('event_details__min')
+            ).order_by("initialization_date")
+
+        def find_country_by_name(country_name):
+            return Country.objects.filter(name__icontains=country_name).first() if country_name else None
+
+        def create_meteo_swiss_agg_entry(event, latest_data, event_details):
+            country = find_country_by_name(event["country__name"])
+
             data = {
                 "country": country,
                 "hazard_name": event["hazard_name"],
                 "start_date": event["start_date"],
-                "event_details": list(details),
+                "event_details": list(event_details),
                 "hazard_type": HazardType.CYCLONE,
                 "end_date": event["end_date"],
-                "geojson_details": new_dict,
+                "geojson_details": {
+                    "id": latest_data.id,
+                    "impact_type": latest_data.impact_type,
+                    "footprint_geojson": latest_data.footprint_geojson,
+                },
             }
+
             MeteoSwissAgg.objects.create(**data)
+
+        # Get distinct hazard_name and country_name combinations with start_date and end_date
+        event_query = MeteoSwiss.objects.filter(
+            impact_type="exposed_population_18mps"
+        ).values("hazard_name", "country__name").distinct().annotate(
+            start_date=Min("initialization_date"),
+            end_date=Max("event_date"),
+        )
+
+        for event in event_query:
+            hazard_name = event["hazard_name"]
+            country_name = event["country__name"]
+
+            latest_data = get_latest_meteo_swiss_data(hazard_name, country_name)
+
+            if latest_data:
+                event_details = get_event_details(hazard_name, country_name)
+                create_meteo_swiss_agg_entry(event, latest_data, event_details)
+
