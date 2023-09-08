@@ -376,7 +376,7 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
             country__region__isnull=False,
             latitude__isnull=False,
             longitude__isnull=False,
-            end_date__gte=seven_days_before
+            start_date__gte=seven_days_before
         ).distinct('country', 'hazard_name')
 
 
