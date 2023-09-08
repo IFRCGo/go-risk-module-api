@@ -17,6 +17,47 @@ class Command(BaseCommand):
     def parse_date(self, date):
         return datetime.strptime(date, "%Y%m%d%H")
 
+    def import_meteoswiss_data(self, s3):
+        bucket_name = "ch.meteoswiss.hydrometimpact.outlook-product"
+        bucket = s3.Bucket(bucket_name)
+
+        for obj in bucket.objects.all():
+            path, filename = os.path.split(obj.key)
+
+            if filename.endswith(".json"):
+                self.import_json_data(obj, path, filename)
+
+    def import_json_data(self, obj, path, filename):
+        filename_splitted = filename.split("_")
+        country_name = filename_splitted[4]
+        country = Country.objects.filter(name=country_name).first()
+
+        if country:
+            details = obj.get()["Body"].read().decode("utf-8")
+            json_details = json.loads(details)
+            data = {
+                "country": country,
+                "event_details": json_details,
+                "hazard_name": json_details["eventName"],
+                "folder_id": path,
+                "initialization_date": self.parse_date(json_details["initializationTime"]),
+                "event_date": self.parse_date(json_details["eventDate"]),
+                "impact_type": json_details["impactType"],
+                "hazard_type": HazardType.CYCLONE,
+            }
+            MeteoSwiss.objects.update_or_create(
+                hazard_name=data["hazard_name"],
+                country=data["country"],
+                folder_id=data["folder_id"],
+                hazard_type=data["hazard_type"],
+                impact_type=data["impact_type"],
+                defaults={
+                    "initialization_date": data["initialization_date"],
+                    "event_date": data["event_date"],
+                    "event_details": data["event_details"],
+                },
+            )
+
     def handle(self, *args, **kwargs):
         session = boto3.session.Session()
 
@@ -26,47 +67,4 @@ class Command(BaseCommand):
             aws_secret_access_key="pwd4hydroimpactdepl",
             endpoint_url="https://servicedepl.meteoswiss.ch",
         )
-
-        bucket = s3.Bucket("ch.meteoswiss.hydrometimpact.outlook-product")
-        for obj in bucket.objects.all():
-            # split the folder here
-            path, filename = os.path.split(obj.key)
-            # check if the path already exists and
-            # if not only pull the data
-            # lets store the path here to check for the data to pull
-            if filename.endswith(".json"):
-                filename_splitted = filename.split("_")
-                country_name = filename_splitted[4]
-                # get country from filename
-                details = obj.get()["Body"].read().decode("utf-8")
-                json_details = json.loads(details)
-                data = {
-                    "country": Country.objects.filter(name=country_name).first(),
-                    "event_details": json_details,
-                    "hazard_name": json_details["eventName"],
-                    "folder_id": path,
-                    "initialization_date": self.parse_date(json_details["initializationTime"]),
-                    "event_date": self.parse_date(json_details["eventDate"]),
-                    "impact_type": json_details["impactType"],
-                    "hazard_type": HazardType.CYCLONE,
-                }
-                MeteoSwiss.objects.get_or_create(**data)
-        for obj in bucket.objects.all():
-            # split the folder here
-            # folder is determined from path
-            path, filename = os.path.split(obj.key)
-            if filename.endswith(".geojson"):
-                details = obj.get()["Body"].read().decode("utf-8")
-                filename_splitted = filename.split("_")
-                country_name = filename_splitted[4]
-                impact_type = filename_splitted[5] + "_" + filename_splitted[6] + "_" + filename_splitted[7]
-                meteoswiss = MeteoSwiss.objects.filter(
-                    impact_type=impact_type,
-                    folder_id=path,
-                    country=Country.objects.filter(name=country_name).first(),
-                )
-                json_details = json.loads(details)
-                if meteoswiss.exists():
-                    meteoswiss = meteoswiss.first()
-                    meteoswiss.footprint_geojson = json_details
-                    meteoswiss.save()
+        self.import_meteoswiss_data(s3)

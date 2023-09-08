@@ -224,8 +224,8 @@ class MeteoSwiss(models.Model):
     hazard_name = models.CharField(verbose_name=_("hazard name"), max_length=255)
     folder_id = models.CharField(verbose_name=_("folder id"), max_length=255)
     hazard_type = models.CharField(max_length=100, verbose_name=_("hazard type"), choices=HazardType.choices, blank=True)
-    initialization_date = models.DateField(verbose_name=_("initialization date"))
-    event_date = models.DateField(
+    initialization_date = models.DateTimeField(verbose_name=_("initialization date"))
+    event_date = models.DateTimeField(
         verbose_name=_("event date"),
     )
     impact_type = models.CharField(verbose_name=_("impact type"), max_length=255)
@@ -246,13 +246,13 @@ class MeteoSwissAgg(models.Model):
     geojson_details = models.JSONField(verbose_name=_("Geojson Details"), null=True, blank=True)
     hazard_name = models.CharField(verbose_name=_("hazard name"), max_length=255)
     hazard_type = models.CharField(max_length=100, verbose_name=_("hazard type"), choices=HazardType.choices, blank=True)
-    start_date = models.DateField(verbose_name=_("start date"))
-    end_date = models.DateField(verbose_name=_("end date"))
+    start_date = models.DateTimeField(verbose_name=_("start date"))
+    updated_at = models.DateTimeField(verbose_name=_("Updated date"))
     latitude = models.FloatField(verbose_name=_("latitude"), null=True, blank=True)
     longitude = models.FloatField(verbose_name=_("longitude"), null=True, blank=True)
 
     def __str__(self):
-        return f"{self.hazard_name} - {self.start_date} - {self.end_date}"
+        return f"{self.hazard_name} - {self.start_date} - {self.updated_at}"
 
 
 class GWIS(models.Model):

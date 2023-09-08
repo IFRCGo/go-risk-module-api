@@ -41,10 +41,10 @@ class Command(BaseCommand):
             data = {
                 "country": country,
                 "hazard_name": event["hazard_name"],
-                "start_date": event["start_date"],
+                "start_date": event["event_date"],
                 "event_details": list(event_details),
                 "hazard_type": HazardType.CYCLONE,
-                "end_date": event["end_date"],
+                "updated_at": event["initialization_date"],
                 "geojson_details": {
                     "id": latest_data.id,
                     "impact_type": latest_data.impact_type,
@@ -58,8 +58,8 @@ class Command(BaseCommand):
         event_query = MeteoSwiss.objects.filter(
             impact_type="exposed_population_18mps"
         ).values("hazard_name", "country__name").distinct().annotate(
-            start_date=Min("initialization_date"),
-            end_date=Max("event_date"),
+            initialization_date=Min("initialization_date"),
+            event_date=Max("event_date"),
         )
 
         for event in event_query:
@@ -71,4 +71,3 @@ class Command(BaseCommand):
             if latest_data:
                 event_details = get_event_details(hazard_name, country_name)
                 create_meteo_swiss_agg_entry(event, latest_data, event_details)
-

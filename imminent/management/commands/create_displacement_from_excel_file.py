@@ -13,7 +13,7 @@ class Command(BaseCommand):
         # get the execel file from the event_details for cyclone
 
         cyclones = (
-            Adam.objects.filter(hazard_type=HazardType.CYCLONE)
+            Adam.objects.filter(hazard_type=HazardType.CYCLONE,)
             .order_by("-publish_date", "country")
             .distinct("country", "publish_date")
         )
@@ -21,7 +21,7 @@ class Command(BaseCommand):
             excel_file = cyclone.event_details["url"]["population"]
             if excel_file:
                 try:
-                    file = pd.read_excel(excel_file, skiprows=12, engine="openpyxl")
+                    file = pd.read_excel(excel_file, skiprows=15, engine='xlrd')
                     new_dataframe = pd.DataFrame(file)
                     if cyclone.country:
                         country = cyclone.country.name
@@ -55,5 +55,5 @@ class Command(BaseCommand):
                             }
                             cyclone.population_exposure = exposure_dict
                             cyclone.save(update_fields=["population_exposure"])
-                except ValueError:
-                    pass
+                except Exception as e:
+                    print(e)
