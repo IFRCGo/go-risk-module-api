@@ -19,6 +19,7 @@ from seasonal.models import (
     PublishReport,
     PublishReportProgram,
     RiskScore,
+    GwisSeasonal
 )
 
 
@@ -109,4 +110,9 @@ class PublishReportAdmin(admin.ModelAdmin):
 
 @admin.register(RiskScore)
 class RiskScore(admin.ModelAdmin):
+    search_fields = ("country__name", "country__iso3")
+
+
+@admin.register(GwisSeasonal)
+class GwisSeasonalAdmin(admin.ModelAdmin):
     search_fields = ("country__name", "country__iso3")

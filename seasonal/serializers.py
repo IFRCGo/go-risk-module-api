@@ -15,6 +15,7 @@ from seasonal.models import (
     PublishReportProgram,
     PossibleEarlyActionsSectors,
     RiskScore,
+    GwisSeasonal
 )
 from common.models import Country
 from common.serializers import CountrySerializer
@@ -175,6 +176,14 @@ class RiskScoreSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class GwisSeasonalSerializer(serializers.ModelSerializer):
+    hazard_type_display = serializers.CharField(source="get_hazard_type_display")
+    country_details = CountrySerializer(source="country", read_only=True)
+    class Meta:
+        model = GwisSeasonal
+        fields = "__all__"
+
+
 class SeasonalCountrySerializer(serializers.Serializer):
     idmc = IdmcSerializer(many=True, allow_null=True)
     ipc_displacement_data = GlobalDisplacementSerializer(many=True, allow_null=True)
@@ -183,6 +192,7 @@ class SeasonalCountrySerializer(serializers.Serializer):
     inform_seasonal = InformRiskSeasonalSerializer(many=True, allow_null=True)
     return_period_data = GarHazardDisplacementSerializer(many=True, allow_null=True)
     gwis = GWISSerializer(many=True, allow_null=True)
+    gwis_seasonal = GwisSeasonalSerializer(many=True, allow_null=True)
 
 
 class MiniCountrySerializer(serializers.ModelSerializer):
@@ -212,7 +222,8 @@ class SeasonalSerializer(serializers.Serializer):
     idmc = IdmcSerializer(many=True, allow_null=True)
     ipc_displacement_data = GlobalDisplacementSerializer(many=True, allow_null=True)
     raster_displacement_data = DisplacementDataSerializer(many=True, allow_null=True)
-    gwis = GWISSerializer(many=True, allow_null=True)
+    # gwis = GWISSerializer(many=True, allow_null=True)
+    gwis_seasonal = GwisSeasonalSerializer(many=True, allow_null=True)
 
 
 class PossibleEarlyActionSectorsSerializer(serializers.Serializer):

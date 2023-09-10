@@ -34,3 +34,10 @@ class Command(BaseCommand):
                     adam.save(update_fields=["population_exposure"])
             except Exception as e:
                 print(e)
+
+
+
+# {
+#     "year": 2023,
+#     "jan": ->
+# }
