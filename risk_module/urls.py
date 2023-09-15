@@ -38,7 +38,7 @@ from imminent.views import (
     MeteoSwissViewSet,
     GWISViewSet,
 )
-
+import common.views as common_views
 from rest_framework import routers
 
 
@@ -63,6 +63,7 @@ urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
     path('admin/', admin.site.urls),
     path(r'api/v1/export', generate_data),
+    url(r"^api/v1/global-enums/", common_views.GlobalEnumView.as_view(), name="global_enums"),
     # Docs
     path("docs/", SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path("api-docs/", SpectacularAPIView.as_view(), name='schema'),
