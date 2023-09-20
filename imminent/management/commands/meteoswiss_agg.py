@@ -21,16 +21,33 @@ class Command(BaseCommand):
             ).order_by("-initialization_date").first()
 
         def get_event_details(hazard_name, country_name):
-            return MeteoSwiss.objects.filter(
+            latest_dates = MeteoSwiss.objects.filter(
                 hazard_name=hazard_name,
-                country__name=country_name
-            ).values(
-                'id',
-                'impact_type',
-                max=F('event_details__max'),
-                mean=F('event_details__mean'),
-                min=F('event_details__min')
-            ).order_by("initialization_date")
+                country__name=country_name,
+            ).values('impact_type').annotate(
+                latest_initialization_date=Max('initialization_date')
+            )
+
+            latest_data = []
+            for item in latest_dates:
+                impact_type = item['impact_type']
+                latest_date = item['latest_initialization_date']
+                latest_data_query = MeteoSwiss.objects.filter(
+                    hazard_name=hazard_name,
+                    country__name=country_name,
+                    impact_type=impact_type,
+                    initialization_date=latest_date
+                ).values(
+                    'impact_type',
+                    'id',
+                    max=F('event_details__max'),
+                    mean=F('event_details__mean'),
+                    min=F('event_details__min'),
+                )
+
+                latest_data.extend(latest_data_query)
+
+            return list(latest_data)
 
         def find_country_by_name(country_name):
             return Country.objects.filter(name__icontains=country_name).first() if country_name else None
