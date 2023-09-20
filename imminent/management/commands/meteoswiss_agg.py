@@ -67,6 +67,7 @@ class Command(BaseCommand):
                     "impact_type": latest_data.impact_type,
                     "footprint_geojson": latest_data.footprint_geojson,
                 },
+                "model_name": event["model_name"],
             }
 
             MeteoSwissAgg.objects.create(**data)
@@ -74,7 +75,7 @@ class Command(BaseCommand):
         # Get distinct hazard_name and country_name combinations with start_date and end_date
         event_query = MeteoSwiss.objects.filter(
             impact_type="exposed_population_18mps"
-        ).values("hazard_name", "country__name").distinct().annotate(
+        ).values("hazard_name", "country__name", "model_name").distinct().annotate(
             initialization_date=Min("initialization_date"),
             event_date=Max("event_date"),
         )

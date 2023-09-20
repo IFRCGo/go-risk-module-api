@@ -30,6 +30,7 @@ class Command(BaseCommand):
     def import_json_data(self, obj, path, filename):
         filename_splitted = filename.split("_")
         country_name = filename_splitted[4]
+        model_name = filename_splitted[1]
         country = Country.objects.filter(name=country_name).first()
 
         if country:
@@ -44,6 +45,7 @@ class Command(BaseCommand):
                 "event_date": self.parse_date(json_details["eventDate"]),
                 "impact_type": json_details["impactType"],
                 "hazard_type": HazardType.CYCLONE,
+                "model_name": model_name,
             }
             MeteoSwiss.objects.update_or_create(
                 hazard_name=data["hazard_name"],
@@ -51,6 +53,7 @@ class Command(BaseCommand):
                 folder_id=data["folder_id"],
                 hazard_type=data["hazard_type"],
                 impact_type=data["impact_type"],
+                model_name=data["model_name"],
                 defaults={
                     "initialization_date": data["initialization_date"],
                     "event_date": data["event_date"],

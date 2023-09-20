@@ -229,6 +229,12 @@ class MeteoSwiss(models.Model):
         verbose_name=_("event date"),
     )
     impact_type = models.CharField(verbose_name=_("impact type"), max_length=255)
+    model_name = models.CharField(
+        verbose_name=_("model name"),
+        max_length=255,
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return f"{self.hazard_name} - {self.hazard_type}"
@@ -250,6 +256,12 @@ class MeteoSwissAgg(models.Model):
     updated_at = models.DateTimeField(verbose_name=_("Updated date"))
     latitude = models.FloatField(verbose_name=_("latitude"), null=True, blank=True)
     longitude = models.FloatField(verbose_name=_("longitude"), null=True, blank=True)
+    model_name = models.CharField(
+        verbose_name=_("model name"),
+        max_length=255,
+        null=True,
+        blank=True
+    )
 
     def __str__(self):
         return f"{self.hazard_name} - {self.start_date} - {self.updated_at}"
