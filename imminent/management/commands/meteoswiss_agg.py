@@ -43,14 +43,16 @@ class Command(BaseCommand):
                     max=F('event_details__max'),
                     mean=F('event_details__mean'),
                     min=F('event_details__min'),
-                )
+                    five_perc=F('event_details__05perc'),
+                    ninety_five_perc=F('event_details__95perc'),
+                ).distinct('impact_type')
 
                 latest_data.extend(latest_data_query)
 
             return list(latest_data)
 
         def find_country_by_name(country_name):
-            return Country.objects.filter(name__icontains=country_name).first() if country_name else None
+            return Country.objects.filter(name__icontains=country_name).last() if country_name else None
 
         def create_meteo_swiss_agg_entry(event, latest_data, event_details):
             country = find_country_by_name(event["country__name"])
