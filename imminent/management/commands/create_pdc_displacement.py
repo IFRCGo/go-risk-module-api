@@ -30,7 +30,6 @@ class Command(BaseCommand):
             return response.json()
 
         def create_pdc_displacement(pdc, hazard_type, data):
-            print(hazard_type)
             pdc_displacement_list = []
 
             for d in data:
@@ -61,7 +60,6 @@ class Command(BaseCommand):
                 pdc__hazard_type=hazard_type,
                 pdc__pdc_updated_at=pdc_updated_at,
             ).exists():
-                print(hazard_type, "***")
                 pdc = Pdc.objects.filter(uuid=uuid).first()
                 response_data = fetch_pdc_data(uuid, hazard_type, pdc_updated_at)
 

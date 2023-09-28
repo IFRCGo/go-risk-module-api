@@ -56,7 +56,7 @@ class Command(BaseCommand):
         df1["ISO3"] = df1["ISO3"].str.upper()
         # latest inform score data
         df2 = pd.read_excel(
-            file1, sheet_name="INFORM Risk 2023 (a-z)", skiprows=(0, 2), usecols="A, B, R, AD", engine="openpyxl"
+            file1, sheet_name="INFORM Risk 2024 (a-z)", skiprows=(0, 2), usecols="A, B, S, AE", engine="openpyxl"
         )
         df2.rename(
             {"VULNERABILITY": "Vulnerability", "LACK OF COPING CAPACITY": "LCC"},
@@ -65,7 +65,6 @@ class Command(BaseCommand):
         )
         # population data
         pop = pd.read_excel(file2, sheet_name="Estimates", skiprows=range(1, 16), usecols="C, F, K, L")
-        # print(pop)
         new_header = pop.iloc[0]  # grab the first row for the header
         df3 = pop[1:]  # take the data less the header row
         df3.columns = new_header  # set the header row as the df header
@@ -89,7 +88,6 @@ class Command(BaseCommand):
         df32 = pd.merge(df1, df2, how="left", on="ISO3")
         df32region = pd.merge(df32, regional_dataframe, how="inner", on="ISO3")
         df4 = pd.merge(df32region, population_dataframe, how="inner", on="ISO3")
-
         df4["Risk-Rel-JAN"] = df4.january * df4.Vulnerability
         df4["Risk-Rel-FEB"] = df4.february * df4.Vulnerability
         df4["Risk-Rel-MAR"] = df4.march * df4.Vulnerability
