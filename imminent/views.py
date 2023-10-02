@@ -269,8 +269,8 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
                     hazard_type=HazardType.WILDFIRE,
                 )
             )
-            .order_by("-created_at")
-            .distinct()
+            .order_by("uuid", "-created_at")
+            .distinct("uuid")
         )
         return queryset
 
