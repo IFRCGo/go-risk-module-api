@@ -371,14 +371,13 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         today = datetime.now().date()
-        seven_days_before = today + timedelta(days=-7)
+        two_days_before = today + timedelta(days=-2)
         return MeteoSwissAgg.objects.select_related("country").filter(
             country__region__isnull=False,
             latitude__isnull=False,
             longitude__isnull=False,
-            start_date__gte=seven_days_before
+            updated_at__gte=two_days_before
         ).distinct('country', 'hazard_name')
-
 
     @extend_schema(request=None, responses=MeteoSwissFootprintSerializer)
     @action(detail=True, url_path="exposure")
