@@ -284,6 +284,14 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
         if displacement_data.exists():
             population_exposure = displacement_data[0].population_exposure or None
             capital_exposure = displacement_data[0].capital_exposure or None
+            if population_exposure.get('total'):
+                population_exposure = population_exposure
+            else:
+                population_exposure = None
+            if capital_exposure.get('total'):
+                capital_exposure = capital_exposure
+            else:
+                capital_exposure = None
         data = {
             "footprint_geojson": object.footprint_geojson or None,
             "storm_position_geojson": object.storm_position_geojson or None,

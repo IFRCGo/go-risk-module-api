@@ -60,7 +60,7 @@ class Command(BaseCommand):
                 pdc__hazard_type=hazard_type,
                 pdc__pdc_updated_at=pdc_updated_at,
             ).exists():
-                pdc = Pdc.objects.filter(uuid=uuid).first()
+                pdc = Pdc.objects.filter(uuid=uuid).last()
                 response_data = fetch_pdc_data(uuid, hazard_type, pdc_updated_at)
 
                 if response_data:
