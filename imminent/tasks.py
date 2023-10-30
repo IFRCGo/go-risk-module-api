@@ -94,7 +94,14 @@ def pull_meteoswiss():
 
 
 @shared_task
+def pull_meteoswiss_geo():
+    call_command(
+        "pull_meteoswiss_geo",
+    )
+
+
+@shared_task
 def meteoswiss_agg():
     call_command(
-        "meteoroswiss_agg",
+        "meteoswiss_agg",
     )

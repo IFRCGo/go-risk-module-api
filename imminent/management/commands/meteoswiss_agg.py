@@ -1,4 +1,6 @@
 import logging
+from shapely.geometry import Polygon
+from shapely.geometry import mapping
 
 from django.core.management.base import BaseCommand
 from django.db.models import Max, Min, F
@@ -13,6 +15,32 @@ class Command(BaseCommand):
     help = "Aggregated Meteoswiss Data"
 
     def handle(self, *args, **kwargs):
+
+        def get_latitude_longitude(geojson, country):
+            if geojson and len(geojson) > 0:
+                data = geojson.get("footprint_geojson", {})
+                if data:
+                    new_data = data.get("features", [])[0]
+                    if new_data and "geometry" in new_data and new_data["geometry"]:
+                        coordinates = new_data["geometry"]["coordinates"]
+                        if len(coordinates) == 1:
+                            polygon_coordinates = [tuple(x) for x in coordinates[0]]
+                        else:
+                            polygon_coordinates = [tuple(x) for x in coordinates[0][0]]
+
+                        centroid_coords = mapping(Polygon(polygon_coordinates).centroid)["coordinates"]
+                        return centroid_coords[1], centroid_coords[0]
+            if country:
+                country = Country.objects.get(id=country)
+                centroid = country.centroid
+                if "coordinates" in centroid:
+                    lat = centroid["coordinates"][1]
+                    lon = centroid["coordinates"][0]
+                    return lat, lon
+                else:
+                    return None, None
+            return None, None
+
         def get_latest_meteo_swiss_data(hazard_name, country_name):
             return MeteoSwiss.objects.filter(
                 impact_type="exposed_population_18mps",
@@ -55,6 +83,7 @@ class Command(BaseCommand):
             return Country.objects.filter(name__icontains=country_name).last() if country_name else None
 
         def create_meteo_swiss_agg_entry(event, latest_data, event_details):
+            MeteoSwissAgg.objects.all().delete()
             country = find_country_by_name(event["country__name"])
 
             data = {
@@ -91,3 +120,14 @@ class Command(BaseCommand):
             if latest_data:
                 event_details = get_event_details(hazard_name, country_name)
                 create_meteo_swiss_agg_entry(event, latest_data, event_details)
+
+        for id, footprint_geojson, country in MeteoSwissAgg.objects.values_list(
+            "id",
+            "geojson_details",
+            "country"
+        ):
+            meteo = MeteoSwissAgg.objects.get(id=id)
+            lat, lon = get_latitude_longitude(footprint_geojson, country)
+            meteo.latitude = lat
+            meteo.longitude = lon
+            meteo.save()
