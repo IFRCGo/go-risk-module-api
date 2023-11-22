@@ -40,7 +40,7 @@ from imminent.views import (
 )
 import common.views as common_views
 from rest_framework import routers
-
+import imminent.views as imminent_views
 
 router = routers.DefaultRouter()
 
@@ -64,6 +64,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path(r'api/v1/export', generate_data),
     url(r"^api/v1/global-enums/", common_views.GlobalEnumView.as_view(), name="global_enums"),
+    url(r'^api/v1/country-imminent-counts/', imminent_views.CountryImminentViewSet.as_view(), name='country_imminent_counts'),
     # Docs
     path("docs/", SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path("api-docs/", SpectacularAPIView.as_view(), name='schema'),

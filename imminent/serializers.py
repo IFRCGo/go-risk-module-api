@@ -132,3 +132,14 @@ class AdamExposureSerializer(serializers.Serializer):
 
 class MeteoSwissFootprintSerializer(serializers.Serializer):
     footprint_geojson = serializers.JSONField(required=False)
+
+
+class CountryImminentSerializer(serializers.Serializer):
+    gdacs = serializers.IntegerField(required=False)
+    pdc = serializers.IntegerField(required=False)
+    adam = serializers.IntegerField(required=False)
+    meteoswiss = serializers.IntegerField(required=False)
+
+
+class CountryImminentRequestSerializer(serializers.Serializer):
+    iso3 = serializers.CharField(required=False)
