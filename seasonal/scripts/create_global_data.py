@@ -74,9 +74,14 @@ def create_global_displacment_data(file):
             november = None
             december = None
 
-        if Country.objects.filter(iso3=iso3.lower(), independent=True, is_deprecated=False).exists():
+        if Country.objects.filter(
+            iso3=iso3.lower(),
+            iso3__isnull=False,
+            record_type__isnull=False,
+            record_type=Country.CountryType.COUNTRY
+        ).exists():
             data = {
-                "country": Country.objects.filter(iso3=iso3.lower(), independent=True, is_deprecated=False).first(),
+                "country": Country.objects.filter(iso3=iso3.lower(), iso3__isnull=False, record_type__isnull=False, record_type=Country.CountryType.COUNTRY).first(),
                 "iso3": iso3,
                 "hazard_type": hazard_type,
                 "january": january,

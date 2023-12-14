@@ -122,6 +122,9 @@ class Command(BaseCommand):
             risk_score_data = {
                 "country": Country.objects.filter(
                     iso3__icontains=row["ISO3"],
+                    iso3__isnull=False,
+                    record_type__isnull=False,
+                    record_type=Country.CountryType.COUNTRY
                 ).first(),
                 "january": row["Risk-Rel-JAN"],
                 "february": row["Risk-Rel-FEB"],

@@ -30,6 +30,16 @@ class Region(models.Model):
 
 
 class Country(models.Model):
+    class CountryType(models.IntegerChoices):
+        '''
+            We use the Country model for some things that are not "Countries". This helps classify the type.
+        '''
+        COUNTRY = 1, _('Country')
+        CLUSTER = 2, _('Cluster')
+        REGION = 3, _('Region')
+        COUNTRY_OFFICE = 4, _('Country Office')
+        REPRESENTATIVE_OFFICE = 5, _('Representative Office')
+
     name = models.CharField(max_length=255, verbose_name=_('name'), null=True, blank=True)
     iso3 = models.CharField(
         max_length=3, verbose_name=_('iso3'),
@@ -38,6 +48,12 @@ class Country(models.Model):
     iso = models.CharField(
         max_length=2, verbose_name=_('iso2'),
         null=True, blank=True
+    )
+    record_type = models.IntegerField(
+        choices=CountryType.choices,
+        verbose_name=_('type'),
+        null=True, blank=True,
+        help_text=_('Type of entity')
     )
     region = models.ForeignKey(
         Region,
