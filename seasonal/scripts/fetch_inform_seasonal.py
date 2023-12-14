@@ -43,7 +43,11 @@ def fetch_inform_seasonal(file):
         november = worksheet.cell(row=i, column=13).value
         december = worksheet.cell(row=i, column=14).value
 
-        if Country.objects.filter(iso3=iso3.lower()).exists() and hazard_type in hazard_list:
+        if Country.objects.filter(
+            iso3=iso3.lower(),
+            independent=True,
+            is_deprecated=False
+        ).exists() and hazard_type in hazard_list:
             data = {
                 "country": Country.objects.filter(
                     iso3=iso3.lower(),

@@ -368,6 +368,10 @@ class RiskScore(models.Model):
     yearly_sum = models.FloatField(verbose_name=_("yearly_sum"), null=True, blank=True)
     lcc = models.FloatField(verbose_name=_("llc"), null=True, blank=True)
     population_in_thousands = models.FloatField(verbose_name=_("population_in_thousands"), null=True, blank=True)
+    vulnerability = models.FloatField(
+        verbose_name=_('vulnerability'),
+        null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.country.name} - {self.hazard_type} - {self.yearly_sum}"

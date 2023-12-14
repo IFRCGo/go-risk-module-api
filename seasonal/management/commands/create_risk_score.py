@@ -31,7 +31,7 @@ class Command(BaseCommand):
         # lets import the data from the inform seasonal data
         inform_score_dataframe = pd.DataFrame(
             list(
-                InformRiskSeasonal.objects.filter(country__independent=True, country__is_deprecated=False).values(
+                InformRiskSeasonal.objects.values(
                     "country__name",
                     "country__iso3",
                     "hazard_type",
@@ -88,18 +88,18 @@ class Command(BaseCommand):
         df32 = pd.merge(df1, df2, how="left", on="ISO3")
         df32region = pd.merge(df32, regional_dataframe, how="inner", on="ISO3")
         df4 = pd.merge(df32region, population_dataframe, how="inner", on="ISO3")
-        df4["Risk-Rel-JAN"] = df4.january * df4.Vulnerability
-        df4["Risk-Rel-FEB"] = df4.february * df4.Vulnerability
-        df4["Risk-Rel-MAR"] = df4.march * df4.Vulnerability
-        df4["Risk-Rel-APR"] = df4.april * df4.Vulnerability
-        df4["Risk-Rel-MAY"] = df4.may * df4.Vulnerability
-        df4["Risk-Rel-JUN"] = df4.june * df4.Vulnerability
-        df4["Risk-Rel-JUL"] = df4.july * df4.Vulnerability
-        df4["Risk-Rel-AUG"] = df4.august * df4.Vulnerability
-        df4["Risk-Rel-SEP"] = df4.september * df4.Vulnerability
-        df4["Risk-Rel-OCT"] = df4.october * df4.Vulnerability
-        df4["Risk-Rel-NOV"] = df4.november * df4.Vulnerability
-        df4["Risk-Rel-DEC"] = df4.december * df4.Vulnerability
+        df4["Risk-Rel-JAN"] = df4.january
+        df4["Risk-Rel-FEB"] = df4.february
+        df4["Risk-Rel-MAR"] = df4.march
+        df4["Risk-Rel-APR"] = df4.april
+        df4["Risk-Rel-MAY"] = df4.may
+        df4["Risk-Rel-JUN"] = df4.june
+        df4["Risk-Rel-JUL"] = df4.july
+        df4["Risk-Rel-AUG"] = df4.august
+        df4["Risk-Rel-SEP"] = df4.september
+        df4["Risk-Rel-OCT"] = df4.october
+        df4["Risk-Rel-NOV"] = df4.november
+        df4["Risk-Rel-DEC"] = df4.december
 
         filtered_df = df4[df4["hazard_type"].notnull()]
         for index, row in filtered_df.iterrows():
@@ -122,8 +122,6 @@ class Command(BaseCommand):
             risk_score_data = {
                 "country": Country.objects.filter(
                     iso3__icontains=row["ISO3"],
-                    independent=True,
-                    is_deprecated=False,
                 ).first(),
                 "january": row["Risk-Rel-JAN"],
                 "february": row["Risk-Rel-FEB"],
@@ -141,5 +139,6 @@ class Command(BaseCommand):
                 "hazard_type": self.map_hazard_type(row["hazard_type"]),
                 "lcc": row["LCC"],
                 "population_in_thousands": row["Population_in_thousands"],
+                "vulnerability": row["Vulnerability"],
             }
             RiskScore.objects.create(**risk_score_data)
