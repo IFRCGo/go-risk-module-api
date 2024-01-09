@@ -45,7 +45,7 @@ class Command(BaseCommand):
                 details = obj.get()["Body"].read().decode("utf-8")
                 json_details = json.loads(details)
                 meteoswiss.footprint_geojson = json_details
-                meteoswiss.save()
+                meteoswiss.save(update_fields=['footprint_geojson'])
 
     def handle(self, *args, **kwargs):
         session = boto3.session.Session()

@@ -281,6 +281,10 @@ CELERY_BEAT_SCHEDULE = {
         "task": "imminent.tasks.pull_meteoswiss",
         "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
     },
+    "pull_meteoswiss_geo": {
+        "task": "imminent.tasks.pull_meteoswiss_geo",
+        "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval
+    },
     "meteoswiss_agg": {
         "task": "imminent.tasks.meteoswiss_agg",
         "schedule": crontab(minute=0, hour='*/4')  # This task execute daily at 4 hours interval

@@ -31,11 +31,15 @@ class Command(BaseCommand):
         filename_splitted = filename.split("_")
         country_name = filename_splitted[4]
         model_name = filename_splitted[1]
-        country = Country.objects.filter(name=country_name).first()
+        country = Country.objects.filter(
+            name=country_name,
+            record_type=Country.CountryType.COUNTRY
+        ).first()
 
         if country:
             details = obj.get()["Body"].read().decode("utf-8")
             json_details = json.loads(details)
+            impact_type = json_details["impactType"]
             data = {
                 "country": country,
                 "event_details": json_details,
@@ -43,23 +47,14 @@ class Command(BaseCommand):
                 "folder_id": path,
                 "initialization_date": self.parse_date(json_details["initializationTime"]),
                 "event_date": self.parse_date(json_details["eventDate"]),
-                "impact_type": json_details["impactType"],
+                "impact_type": impact_type,
                 "hazard_type": HazardType.CYCLONE,
                 "model_name": model_name,
             }
-            MeteoSwiss.objects.update_or_create(
-                hazard_name=data["hazard_name"],
-                country=data["country"],
-                folder_id=data["folder_id"],
-                hazard_type=data["hazard_type"],
-                impact_type=data["impact_type"],
-                model_name=data["model_name"],
-                defaults={
-                    "initialization_date": data["initialization_date"],
-                    "event_date": data["event_date"],
-                    "event_details": data["event_details"],
-                },
-            )
+            if not MeteoSwiss.objects.filter(country=country, folder_id=path, impact_type=impact_type).exists():
+                MeteoSwiss.objects.create(
+                    **data
+                )
 
     def handle(self, *args, **kwargs):
         session = boto3.session.Session()

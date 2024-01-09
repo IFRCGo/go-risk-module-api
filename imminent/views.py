@@ -384,13 +384,17 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
         two_days_before = today + timedelta(days=-2)
         return MeteoSwissAgg.objects.select_related("country").filter(
             country__region__isnull=False,
-            latitude__isnull=False,
-            longitude__isnull=False,
             updated_at__gte=two_days_before
         ).distinct('country', 'hazard_name')
 
-    @extend_schema(request=None, responses=MeteoSwissFootprintSerializer)
-    @action(detail=True, url_path="exposure")
+    @extend_schema(
+        request=None,
+        responses=MeteoSwissFootprintSerializer
+    )
+    @action(
+        detail=True,
+        url_path="exposure"
+    )
     def get_displacement(self, request, pk):
         object = self.get_object()
         data = {
