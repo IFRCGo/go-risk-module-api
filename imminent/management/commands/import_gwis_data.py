@@ -16,10 +16,11 @@ class Command(BaseCommand):
         # Get all the countries with iso3 codes that are not deprecated and independent
         country_iso3 = list(Country.objects.filter(is_deprecated=False, independent=True).values_list("iso3", flat=True))
 
-        for year in range(2003, 2024):
+        for year in range(2024, 2025):
             for iso3 in country_iso3:
-                self.import_monthly_data(iso3, year)
-                self.import_cumulative_data(iso3, year)
+                if iso3:
+                    self.import_monthly_data(iso3, year)
+                    self.import_cumulative_data(iso3, year)
 
     def import_monthly_data(self, iso3, year):
         url = f"https://api2.effis.emergency.copernicus.eu/statistics/v2/dsr/monthly?country={iso3.upper()}&year={year}"
@@ -71,4 +72,4 @@ class Command(BaseCommand):
             "hazard_type": HazardType.WILDFIRE,
         }
 
-        GWIS.objects.create(**gwis_data)
+        GWIS.objects.get_or_create(**gwis_data)

@@ -428,7 +428,7 @@ class PublishReportViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RiskScoreViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = RiskScore.objects.select_related("country")
+    queryset = RiskScore.objects.filter(country__isnull=False).select_related("country")
     serializer_class = RiskScoreSerializer
     filterset_class = RiskScoreFilterSet
 
