@@ -73,6 +73,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'drf_spectacular',
+    #  Health-check
+    'health_check',  # required
+    'health_check.db',  # stock Django health checkers
+    'health_check.cache',
+    'health_check.storage',
+    'health_check.contrib.migrations',
+    'health_check.contrib.psutil',  # disk and memory utilization; requires psutil
+    'health_check.contrib.redis',  # requires Redis broker
 
     # DJANGO APPS
     'django.contrib.admin',
@@ -332,4 +340,12 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'IFRC-GO RISK API Documenation',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+}
+
+# Health-check config
+REDIS_URL = CELERY_REDIS_URL
+HEALTHCHECK_CACHE_KEY = "go_risk_healthcheck_key"
+HEALTH_CHECK = {
+    'DISK_USAGE_MAX': 80,  # percent
+    'MEMORY_MIN': 100,  # in MB
 }

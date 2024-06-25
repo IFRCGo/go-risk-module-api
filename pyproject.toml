@@ -38,6 +38,8 @@ django-environ = "^0.9.0"
 drf-spectacular = "*"
 xlrd  = "==1.2.0"
 python-Levenshtein = "==0.21.1"
+django-health-check = "*"
+psutil = "*"
 
 [tool.poetry.dev-dependencies]
 pytest-django = "*"
