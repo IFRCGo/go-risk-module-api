@@ -11,6 +11,7 @@ RUN apt-get -y update \
         git \
         g++ \
         curl \
+        wait-for-it \
         gdal-bin \
         libgdal-dev
 

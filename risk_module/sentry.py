@@ -94,3 +94,56 @@ def init_sentry(app_type, tags={}, **config):
         scope.set_tag('app_type', app_type)
         for tag, value in tags.items():
             scope.set_tag(tag, value)
+
+
+class SentryMonitor(models.TextChoices):
+    """
+    This class is used to create Sentry monitor of cron jobs
+    """
+
+    IMPORT_EARTHQUAKE_DATA = "import_earthquake_data", "0 0 * * *"
+    CREATE_PDC_DATA = "create_pdc_data", "0 */2 * * *"
+    CREATE_PDC_DAILY = "create_pdc_daily", "0 5 * * *"
+    CREATE_PDC_DISPLACEMENT = "create_pdc_displacement", "0 */3 * * *"
+    CREATE_PDC_POLYGON = "create_pdc_polygon", "0 */6 * * *"
+    CREATE_PDC_INTENSITY = "create_pdc_intensity", "0 */7 * * *"
+    CHECK_PDC_STATUS = "check_pdc_status", "0 1 * * *"
+    CREATE_HAZARD_INFORMATION = "create_hazard_information", "0 0 2 * *"
+    CREATE_ADAM_EXPOSURE = "create_adam_exposure", "0 */4 * * *"
+    UPDATE_ADAM_CYCLONE = "update_adam_cyclone", "0 */4 * * *"
+    IMPORT_GDACS_DATA = "import_gdacs_data", "0 */4 * * *"
+    PULL_METEOSWISS = "pull_meteoswiss", "0 */4 * * *"
+    PULL_METEOSWISS_GEO = "pull_meteoswiss_geo", "0 */4 * * *"
+    METEOSWISS_AGG = "meteoswiss_agg", "0 */4 * * *"
+    UPDATE_ADAM_ALERT_LEVEL = "update_adam_alert_level", "0 */4 * * *"
+
+    @staticmethod
+    def _crontab_to_string(c: crontab):
+        return f"{c._orig_minute} {c._orig_hour} {c._orig_day_of_month} {c._orig_month_of_year} {c._orig_day_of_week}"
+
+    @classmethod
+    def load_cron_data(cls) -> typing.List[typing.Tuple[str, str]]:
+        return [(key, cls._crontab_to_string(metadata["schedule"])) for key, metadata in settings.CELERY_BEAT_SCHEDULE.items()]
+
+    @classmethod
+    def validate_config(cls):
+        """
+        Validate SentryMonitor task list with Helm
+        """
+        current_helm_crons = cls.load_cron_data()
+        assert set(cls.choices) == set(current_helm_crons), (
+            # Show a simple diff for correction
+            "SentryMonitor needs update\n\n"
+            + (
+                "\n".join(
+                    list(
+                        context_diff(
+                            [f"{c} {s}" for c, s in set(cls.choices)],
+                            [f"{c} {s}" for c, s in set(current_helm_crons)],
+                            fromfile="SentryMonitor",
+                            tofile="CELERY_BEAT_SCHEDULE",
+                        )
+                    )
+                )
+            )
+        )
