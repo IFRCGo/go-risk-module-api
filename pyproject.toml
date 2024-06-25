@@ -2,7 +2,7 @@
 name = "risk-module-server"
 version = "0.1.0"
 description = ""
-authors = ["Togglecorp Dev dev@togglecorp.com"]
+authors = ["IFRC"]
 license = "GNU Affero General Public License v3.0"
 
 [tool.poetry.dependencies]

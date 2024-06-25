@@ -1,6 +1,6 @@
 FROM python:3.8-slim-buster
 
-LABEL maintainer="Togglecorp Dev dev@togglecorp.com"
+LABEL maintainer="IFRC"
 
 ENV PYTHONUNBUFFERED 1
 
