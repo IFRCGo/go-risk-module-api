@@ -1,0 +1,9 @@
+[flake8]
+extend-ignore = C901, W504
+max-line-length = 130
+# NOTE: Update in .pre-commit-config.yaml as well
+extend-exclude = .git,__pycache__,old,build,dist,*/migrations/*.py,.venv
+max-complexity = 10
+per-file-ignores =
+    /**/tests/*_mock_data.py: E501
+    **/snap_test_*.py: E501
