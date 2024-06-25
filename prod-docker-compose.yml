@@ -1,0 +1,81 @@
+version: "3.7"
+
+x-server: &base_server_setup
+  image: risk-module:latest
+  build:
+    context: .
+  restart: unless-stopped
+  env_file:
+    - .env
+  volumes:
+    - .:/code
+    - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+  depends_on:
+    - db
+    - redis
+
+
+services:
+  # titiler:
+  #   image: developmentseed/titiler:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     - FORWARDED_ALLOW_IPS="*"
+
+  db:
+    image: postgres:12.0-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DATABASE=${DATABASE_NAME}
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis-data:/redis_data
+
+  server:
+    <<: *base_server_setup
+    command: bash -c "/code/scripts/run_prod.sh"
+
+  celery-beat:
+    <<: *base_server_setup
+    command: bash -c "/code/scripts/run_worker.sh"
+
+  celery:
+    <<: *base_server_setup
+    command: bash -c "/code/scripts/run_worker.sh"
+    deploy:  # TODO: Fix memory leak
+      resources:
+        limits:
+          memory: 10GB
+
+  caddy:
+    image: caddy:2.4.6
+    restart: unless-stopped
+    environment:
+      CADDY_EMAIL: ${CADDY_EMAIL?err}
+      CADDY_HOST_DOMAIN_AZURE: ${CADDY_HOST_DOMAIN_AZURE?err}
+      CADDY_HOST_DOMAIN_IFRC: ${CADDY_HOST_DOMAIN_IFRC?err}
+    volumes:
+      # risk module volumes
+      - ./storage/static/:/go-risk-module-api/static/
+      - ./storage/media/:/go-risk-module-api/media/
+      # Caddyfile volumes
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/certs:/etc/ssl/caddy/:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+
+volumes:
+  caddy_data:
+  caddy_config:
+  postgres-data:
+  redis-data:
+  ipython_data_local:

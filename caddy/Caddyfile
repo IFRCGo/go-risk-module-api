@@ -1,0 +1,37 @@
+{
+    email {$CADDY_EMAIL}
+}
+
+(go-risk-base) {
+    encode gzip zstd
+    root * /go-risk-module-api/
+    @isStatic {
+        path /static/* /media/*
+    }
+    @notStatic {
+        not path /static/* /media/*
+    }
+    reverse_proxy @notStatic server:9007 {
+        header_up X-Forwarded-Proto https
+    }
+    file_server
+
+    header @isStatic {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Request-Methos "GET"
+        Access-Control-Allow-Headers Content-Type
+    }
+}
+
+{$CADDY_HOST_DOMAIN_AZURE} {
+    import go-risk-base
+}
+
+{$CADDY_HOST_DOMAIN_IFRC} {
+    import go-risk-base
+    # NOTE: Custom certificate from IFRC
+    # 1. Ask IFRC for certificates & key
+    # 2. Generate crt using https://www.digicert.com/kb/ssl-support/pem-ssl-creation.htm -> Entire SSL CRT
+    #  $ cat star_ifrc_org.crt DigiCertCA.crt TrustedRoot.crt > go_ifrc_org.crt
+    tls /etc/ssl/caddy/go_ifrc_org.crt /etc/ssl/caddy/go_ifrc_org.key
+}

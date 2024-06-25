@@ -15,12 +15,12 @@ services:
     volumes:
       - redis-data:/redis_data
 
-  titiler:
-    image: developmentseed/titiler:latest
-    ports:
-      - "8000:8000"
-    environment:
-      - FORWARDED_ALLOW_IPS="*"
+  # titiler:
+  #   image: developmentseed/titiler:latest
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - FORWARDED_ALLOW_IPS="*"
 
   server:
     image: ghcr.io/ifrcgo/go-risk-module-api:latest
@@ -39,6 +39,7 @@ services:
     command: bash -c "/code/scripts/run_develop.sh"
     volumes:
       - .:/code
+      - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
     ports:
       - "9001:9001"
     depends_on:
@@ -48,3 +49,4 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  ipython_data_local:
