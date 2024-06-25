@@ -36,7 +36,6 @@ class Command(BaseCommand):
                 print(e)
 
 
-
 # {
 #     "year": 2023,
 #     "jan": ->

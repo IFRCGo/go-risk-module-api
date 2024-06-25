@@ -1,9 +1,7 @@
 import logging
-from shapely.geometry import Polygon
-from shapely.geometry import mapping
 
 from django.core.management.base import BaseCommand
-from django.db.models import Max, Min, F
+from django.db.models import Max, F
 
 from imminent.models import MeteoSwiss, MeteoSwissAgg
 from common.models import HazardType, Country

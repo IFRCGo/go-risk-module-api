@@ -1,6 +1,4 @@
-import datetime
 import logging
-import requests
 import pandas as pd
 import numpy as np
 
@@ -38,7 +36,11 @@ class Command(BaseCommand):
         for country_name, group in country_groups:
             gwis_data = {'country': Country.objects.filter(name__icontains=country_name).first()}
             for month in month_mapping.values():
-                gwis_data[month] = group.loc[group['month'] == month, 'dsr_avg'].values[0] if month in group['month'].values else None
+                gwis_data[month] = (
+                    group.loc[group['month'] == month, 'dsr_avg'].values[0]
+                    if month in group['month'].values
+                    else None
+                )
             # group['dsr_avg'] = group['dsr_avg'].replace({np.NaN: None}, inplace=True)
             gwis_data['yearly_sum'] = group['dsr_avg'].sum()
             gwis_data['hazard_type'] = HazardType.WILDFIRE

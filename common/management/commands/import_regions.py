@@ -14,7 +14,7 @@ class Command(BaseCommand):
         response_data = response.json()
         for data in response_data['results']:
             data = {
-                #'region_id': data['name'],
+                # 'region_id': data['name'],
                 'name': data['name'],
             }
             Region.objects.create(**data)

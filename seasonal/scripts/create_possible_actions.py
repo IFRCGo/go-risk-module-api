@@ -44,7 +44,7 @@ def parse_budget_cost(budget):
 
 
 def parse_number_of_people_at_risk(people):
-    if people and type(people) == str:
+    if people and isinstance(people, str):
         people_split = people.split(" ")
         if len(people_split) > 1:
             new_people_at_risk = float(people_split[0]) * 1000000

@@ -8,7 +8,7 @@ def create_raster_tile(file):
     """
     Work flow convert the geotiff file that is in 16-bit to 8-bit for mapbox
     """
-    scaled_command_using_glad = f"gdal_translate -ot Byte -b 1 ODDRIN_EQ20210814HTI_Est20210815.tif raster.tif -scale 0 22954.003 1 255 -a_nodata 0 -colorinterp_1 blue"
+    scaled_command_using_glad = "gdal_translate -ot Byte -b 1 ODDRIN_EQ20210814HTI_Est20210815.tif raster.tif -scale 0 22954.003 1 255 -a_nodata 0 -colorinterp_1 blue"  # noqa: E501
 
     scaled_file = subprocess.Popen(scaled_command_using_glad, stdout=subprocess.PIPE, shell=True)
     print(scaled_file)

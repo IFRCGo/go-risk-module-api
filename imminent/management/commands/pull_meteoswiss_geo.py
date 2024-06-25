@@ -6,7 +6,7 @@ from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from imminent.models import MeteoSwiss
-from common.models import Country, HazardType
+from common.models import Country
 
 logger = logging.getLogger(__name__)
 
@@ -58,4 +58,3 @@ class Command(BaseCommand):
         )
 
         self.import_meteoswiss_data(s3)
-

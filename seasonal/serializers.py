@@ -179,6 +179,7 @@ class RiskScoreSerializer(serializers.ModelSerializer):
 class GwisSeasonalSerializer(serializers.ModelSerializer):
     hazard_type_display = serializers.CharField(source="get_hazard_type_display")
     country_details = CountrySerializer(source="country", read_only=True)
+
     class Meta:
         model = GwisSeasonal
         fields = "__all__"

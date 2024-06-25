@@ -14,7 +14,7 @@ class Command(BaseCommand):
         today = datetime.now().date()
         yesterday = today - timedelta(days=1)
 
-        url = f"https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?eventlist={hazard_type}&fromDate={yesterday}&toDate={today}&alertlevel=Green;Orange;Red"
+        url = f"https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?eventlist={hazard_type}&fromDate={yesterday}&toDate={today}&alertlevel=Green;Orange;Red"  # noqa: E501
         response = requests.get(url)
 
         if response.status_code != 200:
@@ -53,8 +53,16 @@ class Command(BaseCommand):
                 elif hazard_type_str == "TC":
                     data["population_exposure"]["exposed_population"] = displacement_data.get(1, {}).get("Exposed population")
                 elif hazard_type_str == "FL":
-                    data["population_exposure"]["death"] = int(displacement_data.get(1, {}).get(1)) if displacement_data.get(1, {}).get(1) != "-" else None
-                    data["population_exposure"]["displaced"] = int(displacement_data.get(1, {}).get(2)) if displacement_data.get(1, {}).get(2) != "-" else None
+                    data["population_exposure"]["death"] = (
+                        int(displacement_data.get(1, {}).get(1))
+                        if displacement_data.get(1, {}).get(1) != "-"
+                        else None
+                    )
+                    data["population_exposure"]["displaced"] = (
+                        int(displacement_data.get(1, {}).get(2))
+                        if displacement_data.get(1, {}).get(2) != "-"
+                        else None
+                    )
                 elif hazard_type_str == "DR":
                     data["population_exposure"]["impact"] = displacement_data.get("Impact:")
                 elif hazard_type_str == "WF":

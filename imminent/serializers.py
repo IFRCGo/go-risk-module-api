@@ -7,7 +7,6 @@ from imminent.models import (
     Earthquake,
     Adam,
     GDACS,
-    MeteoSwiss,
     MeteoSwissAgg,
     GWIS,
 )
