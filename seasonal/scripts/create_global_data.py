@@ -80,6 +80,7 @@ def create_global_displacment_data(file):
             record_type__isnull=False,
             record_type=Country.CountryType.COUNTRY
         ).exists():
+            ("heree")
             data = {
                 "country": Country.objects.filter(iso3=iso3.lower(), iso3__isnull=False, record_type__isnull=False, record_type=Country.CountryType.COUNTRY).first(),
                 "iso3": iso3,
