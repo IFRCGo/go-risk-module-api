@@ -1,0 +1,37 @@
+default_language_version:
+  python: python3
+
+# NOTE: Update in .flake8 pyproject.toml as well
+exclude: |
+    (?x)^(
+      \.git|
+      __pycache__|
+      .*snap_test_.*\.py|
+      .+\/.+\/migrations\/.*|
+      \.venv
+    )
+
+repos:
+  # TODO: Enable
+  # - repo: https://github.com/psf/black
+  #   rev: 24.3.0
+  #   hooks:
+  #     - id: black
+  #       # args: ["--check"]
+
+  # TODO: Enable
+  # - repo: https://github.com/PyCQA/isort
+  #   rev: 5.13.2
+  #   hooks:
+  #     - id: isort
+  #       # args: ["--check"]
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+
+  # - repo: https://github.com/RobertCraigie/pyright-python
+  #   rev: v1.1.364
+  #   hooks:
+  #     - id: pyright

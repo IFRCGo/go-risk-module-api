@@ -42,15 +42,12 @@ env = environ.Env(
     SENTRY_SAMPLE_RATE=(float, 0.2),
     RISK_ENVIRONMENT=(str, 'local'),
     RISK_API_FQDN=(str, 'localhost'),
-
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DJANGO_SECRET_KEY')
+DEBUG = env('DJANGO_DEBUG')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -73,6 +70,14 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'drf_spectacular',
+    #  Health-check
+    'health_check',  # required
+    'health_check.db',  # stock Django health checkers
+    'health_check.cache',
+    'health_check.storage',
+    'health_check.contrib.migrations',
+    'health_check.contrib.psutil',  # disk and memory utilization; requires psutil
+    'health_check.contrib.redis',  # requires Redis broker
 
     # DJANGO APPS
     'django.contrib.admin',
@@ -215,10 +220,11 @@ if env('USE_AWS_FOR_MEDIA'):
 
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+STATIC_ROOT = os.path.join(BASE_DIR, 'storage/static')
+STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'storage/media')
 MEDIA_URL = '/media/'
-STATIC_URL = "/staticfiles/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -332,4 +338,12 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'IFRC-GO RISK API Documenation',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+}
+
+# Health-check config
+REDIS_URL = CELERY_REDIS_URL
+HEALTHCHECK_CACHE_KEY = "go_risk_healthcheck_key"
+HEALTH_CHECK = {
+    'DISK_USAGE_MAX': 80,  # percent
+    'MEMORY_MIN': 100,  # in MB
 }

@@ -4,7 +4,6 @@ from seasonal.models import GarHazardDisplacement
 from common.models import HazardType, Country
 
 from django.db import models
-from django.db.models.functions import Cast, Coalesce
 
 
 def get_maximum_rows(*, sheet_object):

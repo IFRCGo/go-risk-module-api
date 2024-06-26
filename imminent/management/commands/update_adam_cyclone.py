@@ -1,10 +1,9 @@
 import urllib3
 import json
-from datetime import datetime
 
 from django.core.management.base import BaseCommand
 
-from common.models import Country, HazardType
+from common.models import HazardType
 from imminent.models import Adam
 
 

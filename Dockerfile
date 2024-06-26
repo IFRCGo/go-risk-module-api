@@ -1,6 +1,6 @@
 FROM python:3.8-slim-buster
 
-LABEL maintainer="Togglecorp Dev dev@togglecorp.com"
+LABEL maintainer="IFRC"
 
 ENV PYTHONUNBUFFERED 1
 
@@ -11,6 +11,7 @@ RUN apt-get -y update \
         git \
         g++ \
         curl \
+        wait-for-it \
         gdal-bin \
         libgdal-dev
 

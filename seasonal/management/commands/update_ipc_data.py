@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for i in range(1, 9):
-            ipc_url = f"https://map.ipcinfo.org/api/public/population-tracking-tool/data/2017,2022/?page={i}&limit=2000000000000&condition=A"
+            ipc_url = f"https://map.ipcinfo.org/api/public/population-tracking-tool/data/2017,2022/?page={i}&limit=2000000000000&condition=A"  # noqa: E501
             response = requests.get(ipc_url)
             if response.status_code != 200:
                 error_log = f"Error querying ipc data at {ipc_url}"

@@ -2,7 +2,7 @@
 name = "risk-module-server"
 version = "0.1.0"
 description = ""
-authors = ["Togglecorp Dev dev@togglecorp.com"]
+authors = ["IFRC"]
 license = "GNU Affero General Public License v3.0"
 
 [tool.poetry.dependencies]
@@ -10,7 +10,7 @@ python = "^3.8"
 celery = { version = "==5.1.1", extras = ["redis"] }
 djangorestframework-camel-case = "==1.2.0"
 djangorestframework = "==3.12.4"
-django-celery-beat = "==2.2.0"
+django-celery-beat = "==2.2.1"
 django-cors-headers = "==3.7.0"
 django-crispy-forms = "==1.12.0"
 django-storages = "==1.11.1"
@@ -38,6 +38,8 @@ django-environ = "^0.9.0"
 drf-spectacular = "*"
 xlrd  = "==1.2.0"
 python-Levenshtein = "==0.21.1"
+django-health-check = "*"
+psutil = "*"
 
 [tool.poetry.dev-dependencies]
 pytest-django = "*"
@@ -47,19 +49,25 @@ extraPaths = ["apps"]
 exclude = [
     "**/node_modules",
     "**/__pycache__",
+    "apps/experimental",
+    "apps/typestubs",
+    "**/snap_test_*.py",
 ]
 reportMissingImports = true
 reportMissingTypeStubs = false
+venvPath = "."
+venv = ".venv"
 
 [tool.black]
-line-length = 125
-py36 = true
+line-length = 130
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
   | \.tox
   | \.venv
+  | \.db
   | _build
   | buck-out
   | build
@@ -67,7 +75,19 @@ exclude = '''
   | docs
 )/
 '''
-extend-exclude = '^.*\b(migrations)\b.*$'
+# NOTE: Update in .pre-commit-config.yaml as well
+extend-exclude = "^.*\\b(migrations)\\b.*$ (__pycache__|.*snap_test_.*\\.py|.+/+.+/+migrations/+.*)"
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+# NOTE: Update in .pre-commit-config.yaml as well
+skip = [
+    "**/__pycache__",
+    "**/snap_test_*.py",
+    ".venv/",
+    "**/migrations/*.py",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

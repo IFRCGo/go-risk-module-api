@@ -47,7 +47,6 @@ from seasonal.serializers import (
     CharKeyValueSerializer,
     SeasonalCountryRequestSerializer,
     SeasonalRequestSerializer,
-    GwisSeasonalSerializer
 )
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
@@ -220,9 +219,9 @@ class SeasonalViewSet(viewsets.ViewSet):
             # hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
             # inform = InformRiskSerializer(InformRisk.objects.select_related('country'), many=True).data
             # inform_seasonal = InformRiskSeasonalSerializer(InformRiskSeasonal.objects.select_related('country'), many=True).data
-            # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data
-            # return_period_data = GarHazardDisplacementSerializer(GarHazardDisplacement.objects.select_related('country'), many=True).data
-            # gar_loss = GarProbabilisticSerializer(GarProbabilistic.objects.select_related('country'), many=True).data
+            # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data  # noqa: E501
+            # return_period_data = GarHazardDisplacementSerializer(GarHazardDisplacement.objects.select_related('country'), many=True).data  # noqa: E501
+            # gar_loss = GarProbabilisticSerializer(GarProbabilistic.objects.select_related('country'), many=True).data  # noqa: E501
 
         data = {
             "idmc": idmc,
@@ -272,7 +271,7 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
             return_period_data = GarHazardDisplacement.objects.select_related("country")
             gwis = GWIS.objects.select_related("country")
             gwis_seasonal = GwisSeasonal.objects.select_related("country")
-            # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data
+            # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data  # noqa: E501
         data = {
             "idmc": idmc,
             "ipc_displacement_data": ipc_displacement_data,

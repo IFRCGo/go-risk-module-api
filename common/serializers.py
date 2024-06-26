@@ -12,7 +12,7 @@ class RegionSerializer(serializers.ModelSerializer):
 
 
 class CountrySerializer(serializers.ModelSerializer):
-    #region_details = RegionSerializer(source='region', read_only=True)
+    # region_details = RegionSerializer(source='region', read_only=True)
 
     class Meta:
         model = Country

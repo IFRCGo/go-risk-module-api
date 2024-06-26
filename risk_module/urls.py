@@ -61,6 +61,7 @@ router.register(r'gwis', GWISViewSet, basename='gwis')
 
 urlpatterns = [
     url(r'^api/v1/', include(router.urls)),
+    path('health-check/', include('health_check.urls')),
     path('admin/', admin.site.urls),
     path(r'api/v1/export', generate_data),
     url(r"^api/v1/global-enums/", common_views.GlobalEnumView.as_view(), name="global_enums"),

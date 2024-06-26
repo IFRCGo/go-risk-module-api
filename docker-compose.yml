@@ -1,12 +1,32 @@
-version: "3.7"
+x-server: &base_server_setup
+  image: ghcr.io/ifrcgo/go-risk-module-api:latest
+  build: .
+  env_file:
+    - .env
+  environment:
+    DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?err}
+    DATABASE_NAME: ${DATABASE_NAME:-postgres}
+    DATABASE_USER: ${DATABASE_USER:-postgres}
+    DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+    DATABASE_HOST: ${DATABASE_HOST:-db}
+    DATABASE_PORT: ${DATABASE_PORT:-5432}
+    CELERY_REDIS_URL: ${CELERY_REDIS_URL:-redis://redis:6379/0}
+  volumes:
+    - .:/code
+    - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+  depends_on:
+    - db
+    - redis
+
 
 services:
   db:
     image: postgres:12.0-alpine
     environment:
-      - POSTGRES_DATABASE=${DATABASE_NAME}
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -15,36 +35,30 @@ services:
     volumes:
       - redis-data:/redis_data
 
-  titiler:
-    image: developmentseed/titiler:latest
-    ports:
-      - "8000:8000"
-    environment:
-      - FORWARDED_ALLOW_IPS="*"
+  # titiler:
+  #   image: developmentseed/titiler:latest
+  #   ports:
+  #     - "8000:8000"
+  #   environment:
+  #     - FORWARDED_ALLOW_IPS="*"
 
   server:
-    image: ghcr.io/ifrcgo/go-risk-module-api:latest
-    build: .
-    env_file:
-      - .env
-    environment:
-      DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
-      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?err}
-      DATABASE_NAME: ${DATABASE_NAME:-postgres}
-      DATABASE_USER: ${DATABASE_USER:-postgres}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
-      DATABASE_HOST: ${DATABASE_HOST:-db}
-      DATABASE_PORT: ${DATABASE_PORT:-5432}
-      CELERY_REDIS_URL: ${CELERY_REDIS_URL:-redis://redis:6379/0}
+    <<: *base_server_setup
     command: bash -c "/code/scripts/run_develop.sh"
-    volumes:
-      - .:/code
     ports:
       - "9001:9001"
-    depends_on:
-      - db
-      - redis
+
+  celery-beat:
+    <<: *base_server_setup
+    # TODO: Use development mode
+    command: bash -c "celery -A risk_module beat --max-interval 3600 -l debug --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+
+  celery:
+    <<: *base_server_setup
+    # TODO: Use development mode
+    command: bash -c "celery -A risk_module worker --loglevel=info"
 
 volumes:
   postgres-data:
   redis-data:
+  ipython_data_local:
