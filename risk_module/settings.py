@@ -42,7 +42,6 @@ env = environ.Env(
     SENTRY_SAMPLE_RATE=(float, 0.2),
     RISK_ENVIRONMENT=(str, 'local'),
     RISK_API_FQDN=(str, 'localhost'),
-
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -221,10 +220,11 @@ if env('USE_AWS_FOR_MEDIA'):
 
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+STATIC_ROOT = os.path.join(BASE_DIR, 'storage/static')
+STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'storage/media')
 MEDIA_URL = '/media/'
-STATIC_URL = "/staticfiles/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

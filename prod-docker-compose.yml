@@ -7,7 +7,20 @@ x-server: &base_server_setup
   restart: unless-stopped
   env_file:
     - .env
+  environment:
+    DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?err}
+    DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+    DATABASE_NAME: ${DATABASE_NAME:-postgres}
+    DATABASE_USER: ${DATABASE_USER:-postgres}
+    DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+    DATABASE_HOST: ${DATABASE_HOST:-db}
+    DATABASE_PORT: ${DATABASE_PORT:-5432}
+    CELERY_REDIS_URL: ${CELERY_REDIS_URL:-redis://redis:6379/0}
+    RISK_ENVIRONMENT: ${RISK_ENVIRONMENT:-PROD}
+    RISK_API_FQDN: ${RISK_API_FQDN?err}
   volumes:
+    # TODO: Remove host volume for code
     - .:/code
     - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
   depends_on:
@@ -16,24 +29,19 @@ x-server: &base_server_setup
 
 
 services:
-  # titiler:
-  #   image: developmentseed/titiler:latest
-  #   restart: unless-stopped
-  #   environment:
-  #     - FORWARDED_ALLOW_IPS="*"
-
   db:
     image: postgres:12.0-alpine
     restart: unless-stopped
     environment:
-      - POSTGRES_DATABASE=${DATABASE_NAME}
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DATABASE=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
   redis:
     image: redis:alpine
+    restart: unless-stopped
     volumes:
       - redis-data:/redis_data
 
@@ -43,7 +51,7 @@ services:
 
   celery-beat:
     <<: *base_server_setup
-    command: bash -c "/code/scripts/run_worker.sh"
+    command: bash -c "/code/scripts/run_worker_beat.sh"
 
   celery:
     <<: *base_server_setup
@@ -70,8 +78,8 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     ports:
-      - "80:80"
-      - "443:443"
+      - "${CADDY_HTTP_PORT:-80}:80"
+      - "${CADDY_HTTPS_PORT:-443}:443"
 
 volumes:
   caddy_data:

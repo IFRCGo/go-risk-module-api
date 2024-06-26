@@ -48,7 +48,7 @@ class Command(BaseCommand):
                         "value": str(schedule),
                     },
                 },
-                "environment": settings.GO_ENVIRONMENT,
+                "environment": settings.RISK_ENVIRONMENT,
                 "status": "ok",
             }
 
