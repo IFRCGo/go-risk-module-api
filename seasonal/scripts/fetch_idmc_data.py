@@ -28,7 +28,7 @@ def fetch_idmc_data(file):
     max_rows = get_maximum_rows(sheet_object=worksheet)
     # Iterate the loop to read the cell values
     for i in range(2, max_rows + 1):
-        country = worksheet.cell(row=i, column=1).value
+        # country = worksheet.cell(row=i, column=1).value
         iso3 = worksheet.cell(row=i, column=2).value
         hazard_type = worksheet.cell(row=i, column=3).value.lower()
         annual_average_displacement = worksheet.cell(row=i, column=4).value

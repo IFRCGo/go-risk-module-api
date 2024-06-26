@@ -1,9 +1,10 @@
-import os
+# import os
 import subprocess
 
 # import gdal
 
 
+# TODO: Clean-up
 def create_raster_tile(file):
     """
     Work flow convert the geotiff file that is in 16-bit to 8-bit for mapbox
@@ -21,5 +22,5 @@ def create_raster_tile(file):
     print(upload)
 
     # the upload_id is thus used to create_tileset
-    create_tileset = f"mapbox datasets create-tileset ckw4px83t06yi21pndbxpnpg5 {username}"
-    tileset = os.system(create_tileset)
+    # create_tileset = f"mapbox datasets create-tileset ckw4px83t06yi21pndbxpnpg5 {username}"
+    # tileset = os.system(create_tileset)
