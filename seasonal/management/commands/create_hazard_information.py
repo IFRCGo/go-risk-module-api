@@ -10,6 +10,7 @@ from common.models import HazardType, Country
 logger = logging.getLogger()
 
 
+# XXX: Not used right now
 class Command(BaseCommand):
     help = "Create ThinkHazardInformation"
 
@@ -37,12 +38,17 @@ class Command(BaseCommand):
         countries = ThinkHazardCountry.objects.all().values_list("iso3", "country_id")
         for iso3, country_id in countries:
             for hazard_type in hazardTypeThinkHazard:
+
+                map_hazard_type = None
                 if hazard_type == "CY":
                     map_hazard_type = HazadTypeList[0]
                 elif hazard_type == "FL":
                     map_hazard_type = HazadTypeList[1]
                 elif hazard_type == "DR":
                     map_hazard_type = HazadTypeList[2]
+                if map_hazard_type:
+                    continue
+
                 url = f"https://thinkhazard.org/en/report/{country_id}/{hazard_type}.json"
                 response = requests.get(url)
                 if response.status_code == 200:

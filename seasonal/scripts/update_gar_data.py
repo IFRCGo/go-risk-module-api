@@ -27,6 +27,7 @@ def parse_hazard_type(hazard_type):
 
 
 def update_gar_data(file):
+    # NOTE: Import File: seasonal/gar_update.xlsx
     # NOTE: set `data_only=True` to read cell value instead of formula
     workbook = openpyxl.load_workbook(file, data_only=True)
     worksheet = workbook.get_sheet_by_name("Economic loss")

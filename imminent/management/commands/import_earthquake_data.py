@@ -17,6 +17,7 @@ from imminent.models import Earthquake
 logger = logging.getLogger()
 
 
+# XXX: Not used right now
 class Command(BaseCommand):
     help = "Import Earthquake geo-locations from external api"
 

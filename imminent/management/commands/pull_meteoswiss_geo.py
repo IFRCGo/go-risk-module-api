@@ -11,6 +11,8 @@ from common.models import Country
 logger = logging.getLogger(__name__)
 
 
+# TODO: This is not approved to be used in production
+# This is run in staging only for now
 class Command(BaseCommand):
     help = "Import Meteoswiss Data"
 

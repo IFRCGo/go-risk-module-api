@@ -31,6 +31,11 @@ class Command(BaseCommand):
                 # Check whether is the country is present in local country
                 if Country.objects.filter(iso=data["code"].lower(), independent=True, is_deprecated=False).exists():
                     country = Country.objects.filter(iso=data["code"].lower(), independent=True, is_deprecated=False).first()
+                    projected_period_start_date = None
+                    projected_period_end_date = None
+                    second_projected_period_start_date = None
+                    second_projected_period_end_date = None
+
                     if "current_period_dates" in data:
                         current_period_dates = data["current_period_dates"].split("-")
                         if len(current_period_dates) == 2:
