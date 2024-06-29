@@ -39,7 +39,8 @@ env = environ.Env(
     CELERY_REDIS_URL=str,
 
     SENTRY_DSN=(str, None),
-    SENTRY_SAMPLE_RATE=(float, 0.2),
+    SENTRY_TRACE_SAMPLE_RATE=(float, 0.2),
+    SENTRY_PROFILE_SAMPLE_RATE=(float, 0.2),
     RISK_ENVIRONMENT=(str, 'local'),
     RISK_API_FQDN=(str, 'localhost'),
 )
@@ -313,14 +314,16 @@ BUFFER_DISTANCE_IN_KM = 50
 # ENDPOINT_URL = os.environ['ENDPOINT_URL']
 # Sentry Config
 SENTRY_DSN = env('SENTRY_DSN')
-SENTRY_SAMPLE_RATE = env('SENTRY_SAMPLE_RATE')
+SENTRY_TRACE_SAMPLE_RATE = env('SENTRY_TRACE_SAMPLE_RATE')
+SENTRY_PROFILE_SAMPLE_RATE = env('SENTRY_PROFILE_SAMPLE_RATE')
 RISK_ENVIRONMENT = env('RISK_ENVIRONMENT')
 RISK_API_FQDN = env('RISK_API_FQDN')
 
 SENTRY_CONFIG = {
     'dsn': SENTRY_DSN,
     'send_default_pii': True,
-    'traces_sample_rate': SENTRY_SAMPLE_RATE,
+    'traces_sample_rate': SENTRY_TRACE_SAMPLE_RATE,
+    'profiles_sample_rate': SENTRY_PROFILE_SAMPLE_RATE,
     'release': sentry.fetch_git_sha(BASE_DIR),
     'environment': RISK_ENVIRONMENT,
     'debug': DEBUG,
