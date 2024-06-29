@@ -1,6 +1,6 @@
 import pandas as pd
 
-from rest_framework import viewsets, response
+from rest_framework import viewsets, response, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 
@@ -243,48 +243,38 @@ class SeasonalViewSet(viewsets.ViewSet):
 )
 class SeasonalCountryViewSet(viewsets.ViewSet):
 
+    # XXX: Unbound request
     def list(self, request, *args, **kwargs):
-        iso3 = self.request.query_params.get("iso3")
-        if iso3 is not None:
-            idmc = Idmc.objects.filter(iso3__icontains=iso3)
-            ipc_displacement_data = GlobalDisplacement.objects.filter(country__iso3__icontains=iso3).select_related(
-                "country"
+        iso3 = request.query_params.get("iso3")
+        if iso3 is None:
+            return response.Response(
+                {'message': 'Please provide iso3 in the query params'},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-            raster_displacement_data = DisplacementData.objects.filter(country__iso3__icontains=iso3).select_related(
-                "country"
-            )
-            inform = InformRisk.objects.filter(
-                country__iso3__icontains=iso3,
-            ).select_related("country")
-            inform_seasonal = InformRiskSeasonal.objects.filter(country__iso3__icontains=iso3).select_related("country")
-            return_period_data = GarHazardDisplacement.objects.filter(country__iso3__icontains=iso3).select_related(
-                "country"
-            )
-            gwis = GWIS.objects.filter(country__iso3__icontains=iso3).select_related("country")
-            gwis_seasonal = GwisSeasonal.objects.filter(country__iso3__icontains=iso3).select_related("country")
-        else:
-            idmc = Idmc.objects.all()
-            ipc_displacement_data = GlobalDisplacement.objects.select_related("country")
-            raster_displacement_data = DisplacementData.objects.select_related("country")
-            inform = InformRisk.objects.select_related("country")
-            inform_seasonal = InformRiskSeasonal.objects.select_related("country")
-            return_period_data = GarHazardDisplacement.objects.select_related("country")
-            gwis = GWIS.objects.select_related("country")
-            gwis_seasonal = GwisSeasonal.objects.select_related("country")
-            # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data  # noqa: E501
+
+        idmc_qs = Idmc.objects.select_related("country").filter(country__iso3__icontains=iso3)
+        ipc_displacement_data_qs = GlobalDisplacement.objects.select_related("country").filter(country__iso3__icontains=iso3)
+        raster_displacement_data_qs = DisplacementData.objects.select_related("country").filter(country__iso3__icontains=iso3)
+        inform_qs = InformRisk.objects.select_related("country").filter(country__iso3__icontains=iso3)
+        inform_seasonal_qs = InformRiskSeasonal.objects.select_related("country").filter(country__iso3__icontains=iso3)
+        return_period_data_qs = GarHazardDisplacement.objects.select_related("country").filter(country__iso3__icontains=iso3)
+        gwis_qs = GWIS.objects.select_related("country").filter(country__iso3__icontains=iso3)
+        gwis_seasonal_qs = GwisSeasonal.objects.select_related("country").filter(country__iso3__icontains=iso3)
+
         data = {
-            "idmc": idmc,
-            "ipc_displacement_data": ipc_displacement_data,
-            "raster_displacement_data": raster_displacement_data,
-            "inform": inform,
-            "inform_seasonal": inform_seasonal,
-            "return_period_data": return_period_data,
-            "gwis": gwis,
-            "gwis_seasonal": gwis_seasonal,
+            "idmc": idmc_qs,
+            "ipc_displacement_data": ipc_displacement_data_qs,
+            "raster_displacement_data": raster_displacement_data_qs,
+            "inform": inform_qs,
+            "inform_seasonal": inform_seasonal_qs,
+            "return_period_data": return_period_data_qs,
+            "gwis": gwis_qs,
+            "gwis_seasonal": gwis_seasonal_qs,
             # 'idmc_return_period': idmc_return_period_data,
             # 'hazard_info': hazard_info,
             # 'gar_loss': gar_loss,
         }
+
         return response.Response([
             SeasonalCountrySerializer(data).data
         ])
