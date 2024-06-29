@@ -35,12 +35,13 @@ def update_gar_data(file):
     for i in range(2, max_rows + 1):
         country = worksheet.cell(row=i, column=2).value
         hazard_type = parse_hazard_type(worksheet.cell(row=i, column=3).value)
-        economic_loss_return_period_10_years = parse_empty_cell_value(worksheet.cell(row=i, column=3).value)
-        economic_loss_return_period_25_years = parse_empty_cell_value(worksheet.cell(row=i, column=4).value)
-        economic_loss_return_period_50_years = parse_empty_cell_value(worksheet.cell(row=i, column=5).value)
-        economic_loss_return_period_100_years = parse_empty_cell_value(worksheet.cell(row=i, column=6).value)
-        economic_loss_return_period_250_years = parse_empty_cell_value(worksheet.cell(row=i, column=7).value)
-        economic_loss_return_period_500_years = parse_empty_cell_value(worksheet.cell(row=i, column=8).value)
+        # TODO: Need manual fix -> Update each column to +1
+        economic_loss_return_period_10_years = parse_empty_cell_value(worksheet.cell(row=i, column=4).value)
+        economic_loss_return_period_25_years = parse_empty_cell_value(worksheet.cell(row=i, column=5).value)
+        economic_loss_return_period_50_years = parse_empty_cell_value(worksheet.cell(row=i, column=6).value)
+        economic_loss_return_period_100_years = parse_empty_cell_value(worksheet.cell(row=i, column=7).value)
+        economic_loss_return_period_250_years = parse_empty_cell_value(worksheet.cell(row=i, column=8).value)
+        economic_loss_return_period_500_years = parse_empty_cell_value(worksheet.cell(row=i, column=9).value)
         if Country.objects.filter(name=country).exists():
             if economic_loss_return_period_10_years:
                 economic_loss_return_period_10_years = economic_loss_return_period_10_years * 1000000

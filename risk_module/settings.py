@@ -238,6 +238,7 @@ CELERY_RESULT_BACKEND = CELERY_REDIS_URL
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_ACKS_LATE = True
 
+# TODO: Need to disable one of the tasks which doesn't work
 CELERY_BEAT_SCHEDULE = {
     "import_earthquake_data": {
         "task": "imminent.tasks.import_earthquake_data",
