@@ -1,9 +1,9 @@
 import requests
 import logging
 import datetime
-import os
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.utils import timezone
 
 from imminent.models import Pdc, PdcDisplacement
@@ -29,7 +29,7 @@ class Command(BaseCommand):
         return severity_map.get(severity, severity)
 
     def fetch_data(self, url, data):
-        headers = {"Authorization": f"Bearer {os.environ.get('PDC_ACCESS_TOKEN')}"}
+        headers = {"Authorization": f"Bearer {settings.PDC_ACCESS_TOKEN}"}
         response = requests.post(url, headers=headers, json=data)
         if response.status_code != 200:
             error_log = f"Error querying PDC data at {url}"
@@ -38,9 +38,8 @@ class Command(BaseCommand):
         return response.json()
 
     def fetch_exposure_data(self, uuid):
-        access_token = os.environ.get("PDC_ACCESS_TOKEN")
         url = f"https://sentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/"
-        headers = {"Authorization": f"Bearer {access_token}"}
+        headers = {"Authorization": f"Bearer {settings.PDC_ACCESS_TOKEN}"}
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             error_log = f"Error querying PDC Exposure data at {url}"
@@ -49,15 +48,13 @@ class Command(BaseCommand):
         return response.json()
 
     def fetch_polygon_data(self, uuid):
-        username = os.environ.get("PDC_USERNAME")
-        password = os.environ.get("PDC_PASSWORD")
         session = requests.Session()
         login_url = "https://partners.pdc.org/arcgis/tokens/generateToken"
 
         data = {
             "f": "json",
-            "username": username,
-            "password": password,
+            "username": settings.PDC_USERNAME,
+            "password": settings.PDC_PASSWORD,
             "referer": "https://www.arcgis.com",
         }
 

@@ -1,9 +1,9 @@
 import requests
 import logging
 import datetime
-import os
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.utils import timezone
 
 from imminent.models import Pdc
@@ -34,9 +34,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data
-        access_token = os.environ.get("PDC_ACCESS_TOKEN")
         url = "https://sentry.pdc.org/hp_srv/services/hazards/t/json/search_hazard"
-        headers = {"Authorization": "Bearer {}".format(access_token)}
+        headers = {"Authorization": "Bearer {}".format(settings.PDC_ACCESS_TOKEN)}
         # make sure to use the datetime now and timestamp for the post data
         # current date and time
         now = datetime.datetime.now()

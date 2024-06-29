@@ -1,7 +1,7 @@
 import requests
-import os
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 from imminent.models import Pdc
 from common.models import HazardType
@@ -15,16 +15,14 @@ class Command(BaseCommand):
         # arch-gis server of pdc
         # filtering only cyclone since they only have track of disaster path
         uuids = Pdc.objects.filter(status=Pdc.Status.ACTIVE, hazard_type=HazardType.CYCLONE).values_list("uuid", flat=True)
-        username = os.environ.get("PDC_USERNAME")
-        password = os.environ.get("PDC_PASSWORD")
         for uuid in uuids:
             session = requests.Session()
             login_url = "https://partners.pdc.org/arcgis/tokens/generateToken"
 
             data = {
                 "f": "json",
-                "username": username,
-                "password": password,
+                "username": settings.PDC_USERNAME,
+                "password": settings.PDC_PASSWORD,
                 "referer": "https://www.arcgis.com",
             }
 

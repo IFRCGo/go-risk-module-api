@@ -1,8 +1,8 @@
-import os
 import requests
 import logging
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 from imminent.models import Pdc, PdcDisplacement
 from common.models import Country
@@ -16,9 +16,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         def fetch_pdc_data(uuid, hazard_type, pdc_updated_at):
-            access_token = os.environ.get("PDC_ACCESS_TOKEN")
             url = f"https://sentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/"
-            headers = {"Authorization": f"Bearer {access_token}"}
+            headers = {"Authorization": f"Bearer {settings.PDC_ACCESS_TOKEN}"}
             response = requests.get(url, headers=headers)
 
             if response.status_code != 200:

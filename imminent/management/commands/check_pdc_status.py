@@ -1,7 +1,7 @@
 import logging
-import datetime
 
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 
 from imminent.models import Pdc
 
@@ -13,10 +13,13 @@ class Command(BaseCommand):
     help = "Import Hazard Exposure Data"
 
     def handle(self, *args, **options):
-        now = datetime.datetime.now()
-        today_date = now.date()
-        pdcs = Pdc.objects.filter(status=Pdc.Status.ACTIVE)
-        for pdc in pdcs:
-            if pdc.end_date and pdc.end_date < today_date:
-                pdc.status = Pdc.Status.EXPIRED
-                pdc.save(update_fields=["status"])
+        today_date = timezone.now().date()
+        resp = (
+            Pdc.objects.filter(
+                status=Pdc.Status.ACTIVE,
+                end_date__lt=today_date,
+            ).update(
+                status=Pdc.Status.EXPIRED,
+            )
+        )
+        print(f'Updated: {resp}')

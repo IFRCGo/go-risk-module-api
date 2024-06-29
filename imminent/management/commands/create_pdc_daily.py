@@ -1,9 +1,9 @@
 import requests
 import logging
 import datetime
-import os
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.utils import timezone
 
 from imminent.models import Pdc
@@ -23,9 +23,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data
-        access_token = os.environ.get("PDC_ACCESS_TOKEN")
         url = "https://sentry.pdc.org/hp_srv/services/hazards/t/json/get_active_hazards"
-        headers = {"Authorization": "Bearer {}".format(access_token)}
+        headers = {"Authorization": "Bearer {}".format(settings.PDC_ACCESS_TOKEN)}
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
             error_log = f"Error querying PDC data at {url}"

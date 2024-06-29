@@ -43,6 +43,10 @@ env = environ.Env(
     SENTRY_PROFILE_SAMPLE_RATE=(float, 0.2),
     RISK_ENVIRONMENT=(str, 'local'),
     RISK_API_FQDN=(str, 'localhost'),
+    # PDC
+    PDC_USERNAME=str,
+    PDC_PASSWORD=str,
+    PDC_ACCESS_TOKEN=str,
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -351,3 +355,9 @@ HEALTH_CHECK = {
     'DISK_USAGE_MAX': 80,  # percent
     'MEMORY_MIN': 100,  # in MB
 }
+
+
+# PDC
+PDC_USERNAME = env('PDC_USERNAME')
+PDC_PASSWORD = env('PDC_PASSWORD')
+PDC_ACCESS_TOKEN = env('PDC_ACCESS_TOKEN')
