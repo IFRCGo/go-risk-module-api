@@ -14,39 +14,50 @@ import os
 import environ
 from pathlib import Path
 from celery.schedules import crontab
+from django.utils.log import DEFAULT_LOGGING
 
 from risk_module import sentry
 
 
 env = environ.Env(
+    # Application info
+    RISK_ENVIRONMENT=str,
+    RISK_API_FQDN=str,
+    # Django configs
     DJANGO_DEBUG=(bool, False),
     DJANGO_SECRET_KEY=str,
     DJANGO_ALLOWED_HOSTS=(list, ['*']),
+    TIME_ZONE=(str, 'UTC'),
     # Database
     DATABASE_NAME=str,
     DATABASE_USER=str,
     DATABASE_PASSWORD=str,
-    DATABASE_PORT=(int, 5432),
+    DATABASE_PORT=int,
     DATABASE_HOST=str,
-    TIME_ZONE=(str, 'UTC'),
-
+    # S3 (NOTE: Not used anywhere)
     USE_AWS_FOR_MEDIA=(bool, False),
     S3_AWS_ACCESS_KEY_ID=str,
     S3_AWS_SECRET_ACCESS_KEY=str,
     S3_STORAGE_BUCKET_NAME=str,
     S3_REGION_NAME=str,
-
-    CELERY_REDIS_URL=str,
-
+    # Redis
+    CELERY_REDIS_URL=str,  # redis://redis:6379/0
+    CACHE_REDIS_URL=str,  # redis://redis:6379/1
+    # Sentry
     SENTRY_DSN=(str, None),
     SENTRY_TRACE_SAMPLE_RATE=(float, 0.2),
     SENTRY_PROFILE_SAMPLE_RATE=(float, 0.2),
-    RISK_ENVIRONMENT=(str, 'local'),
-    RISK_API_FQDN=(str, 'localhost'),
     # PDC
     PDC_USERNAME=str,
     PDC_PASSWORD=str,
     PDC_ACCESS_TOKEN=str,
+    # Meteoswiss
+    METEOSWISS_S3_ENDPOINT_URL=str,
+    METEOSWISS_S3_BUCKET=str,
+    METEOSWISS_S3_ACCESS_KEY=str,
+    METEOSWISS_S3_SECRET_KEY=str,
+    # Logging
+    APPS_LOGGING_LEVEL=(str, 'WARNING'),
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -167,31 +178,36 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'formatters': {
-        'verbose': {
-            'format': '[contactor] %(levelname)s %(asctime)s %(message)s'
+    **DEFAULT_LOGGING,
+    "formatters": {
+        **DEFAULT_LOGGING["formatters"],
+        "simple": {
+            "format": "%(asctime)s %(levelname)s - %(name)s - %(message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S",
         },
     },
-    'handlers': {
+    "handlers": {
+        **DEFAULT_LOGGING["handlers"],
         # Send all messages to console
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
         }
     },
-    'loggers': {
-        # This is the "catch all" logger
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+    "loggers": {
+        **DEFAULT_LOGGING["loggers"],
+        "": {
+            # This is the "catch all" logger
+            # XXX: Does this work?
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "apps": {
+            "handlers": ["console"],
+            "level": env("APPS_LOGGING_LEVEL"),
+            "propagate": False,
         },
     }
 }
@@ -349,15 +365,36 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Health-check config
-REDIS_URL = CELERY_REDIS_URL
+REDIS_URL = env('CACHE_REDIS_URL')
 HEALTHCHECK_CACHE_KEY = "go_risk_healthcheck_key"
 HEALTH_CHECK = {
     'DISK_USAGE_MAX': 80,  # percent
     'MEMORY_MIN': 100,  # in MB
 }
 
+# Cache
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        "KEY_PREFIX": "dj_cache-",
+    }
+}
+
+# Redis locking
+REDIS_DEFAULT_LOCK_EXPIRE = 60 * 10  # Lock expires in 10min (in seconds)
 
 # PDC
 PDC_USERNAME = env('PDC_USERNAME')
 PDC_PASSWORD = env('PDC_PASSWORD')
 PDC_ACCESS_TOKEN = env('PDC_ACCESS_TOKEN')
+
+# METEO_SWISS
+METEO_SWISS_S3_ENDPOINT_URL = env("METEOSWISS_S3_ENDPOINT_URL")
+METEO_SWISS_S3_BUCKET = env("METEOSWISS_S3_BUCKET")
+METEO_SWISS_S3_ACCESS_KEY = env("METEOSWISS_S3_ACCESS_KEY")
+METEO_SWISS_S3_SECRET_KEY = env("METEOSWISS_S3_SECRET_KEY")
