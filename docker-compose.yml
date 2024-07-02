@@ -1,17 +1,32 @@
 x-server: &base_server_setup
   image: ghcr.io/ifrcgo/go-risk-module-api:latest
   build: .
-  env_file:
-    - .env
   environment:
+    RISK_ENVIRONMENT: ${RISK_ENVIRONMENT:-development}
+    RISK_API_FQDN: ${RISK_API_FQDN:-localhost}
     DJANGO_DEBUG: ${DJANGO_DEBUG:-True}
-    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:?err}
+    DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY?}
+    # Database
     DATABASE_NAME: ${DATABASE_NAME:-postgres}
     DATABASE_USER: ${DATABASE_USER:-postgres}
     DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
     DATABASE_HOST: ${DATABASE_HOST:-db}
     DATABASE_PORT: ${DATABASE_PORT:-5432}
+    # Redis
     CELERY_REDIS_URL: ${CELERY_REDIS_URL:-redis://redis:6379/0}
+    CACHE_REDIS_URL: ${CELERY_REDIS_URL:-redis://redis:6379/1}
+    # PDC
+    PDC_USERNAME: ${PDC_USERNAME?error}
+    PDC_PASSWORD: ${PDC_PASSWORD?error}
+    PDC_ACCESS_TOKEN: ${PDC_ACCESS_TOKEN?error}
+    # Meteoswiss
+    METEOSWISS_S3_ENDPOINT_URL: ${METEOSWISS_S3_ENDPOINT_URL?error}
+    METEOSWISS_S3_BUCKET: ${METEOSWISS_S3_BUCKET?error}
+    METEOSWISS_S3_ACCESS_KEY: ${METEOSWISS_S3_ACCESS_KEY?error}
+    METEOSWISS_S3_SECRET_KEY: ${METEOSWISS_S3_SECRET_KEY?error}
+  env_file:
+    # NOTE: Pass additional environment using .env
+    - .env
   volumes:
     - .:/code
     - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history

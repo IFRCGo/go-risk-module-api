@@ -5,6 +5,7 @@ import os
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from imminent.models import MeteoSwiss
 from common.models import Country
 
@@ -20,8 +21,7 @@ class Command(BaseCommand):
         return datetime.strptime(date, "%Y%m%d%H")
 
     def import_meteoswiss_data(self, s3):
-        bucket_name = "ch.meteoswiss.hydrometimpact.outlook-product"
-        bucket = s3.Bucket(bucket_name)
+        bucket = s3.Bucket(settings.METEO_SWISS_S3_BUCKET)
 
         for obj in bucket.objects.all():
             path, filename = os.path.split(obj.key)
@@ -54,9 +54,9 @@ class Command(BaseCommand):
 
         s3 = session.resource(
             service_name="s3",
-            aws_access_key_id="ifrc_hydrometimpactoutlookproduct",
-            aws_secret_access_key="pwd4hydroimpactdepl",
-            endpoint_url="https://servicedepl.meteoswiss.ch",
+            endpoint_url=settings.METEO_SWISS_S3_ENDPOINT_URL,
+            aws_access_key_id=settings.METEO_SWISS_S3_ACCESS_KEY,
+            aws_secret_access_key=settings.METEO_SWISS_S3_SECRET_KEY,
         )
 
         self.import_meteoswiss_data(s3)

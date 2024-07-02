@@ -152,3 +152,47 @@ class SentryMonitor(models.TextChoices):
                 )
             )
         )
+
+
+class SentryMonitorConfig:
+    """
+    Custom config for SentryMonitor
+    https://docs.sentry.io/product/crons/getting-started/http/#creating-or-updating-a-monitor-through-a-check-in-optional
+    """
+
+    MAX_RUNTIME_DEFAULT = 30  # Our default is also 30 min
+    MAX_RUNTIME = {
+        SentryMonitor.CREATE_PDC_POLYGON: 60,
+    }
+
+    @classmethod
+    def get_checkin_margin(cls, _: SentryMonitor) -> int:
+        """
+        The amount of time (in minutes) [Sentry Default 1 min]
+        Sentry should wait for your checkin before it's considered missed ("grace period")
+        """
+        return 3
+
+    @classmethod
+    def get_max_runtime(cls, enum: SentryMonitor) -> int:
+        """
+        The amount of time (in minutes) [Sentry Default 30m]
+        Job is allowed to run before it's considered failed
+        """
+        return cls.MAX_RUNTIME.get(enum, cls.MAX_RUNTIME_DEFAULT)
+
+    @classmethod
+    def get_failure_issue_threshold(cls, _: SentryMonitor) -> int:
+        """
+        [Sentry Default 1]
+        The number of consecutive failed check-ins it takes before an issue is created. Optional.
+        """
+        return 1
+
+    @classmethod
+    def get_recovery_threshold(cls, _: SentryMonitor) -> int:
+        """
+        [Sentry Default 1]
+        The number of consecutive OK check-ins it takes before an issue is resolved. Optional.
+        """
+        return 1
