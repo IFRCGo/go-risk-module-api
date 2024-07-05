@@ -109,126 +109,30 @@ class SeasonalViewSet(viewsets.ViewSet):
     def list(self, request, *args, **kwargs):
         iso3 = self.request.query_params.get("iso3")
         region = self.request.query_params.get("region")
-        # hazard_type = self.request.query_params.get('hazard_type')
+
+        idmc_qs = Idmc.objects.select_related("country")
+        ipc_displacement_data_qs = GlobalDisplacement.objects.select_related("country")
+        raster_displacement_data_qs = DisplacementData.objects.select_related("country")
+        gwis_seasonal_qs = GwisSeasonal.objects.select_related("country")
+
+        # XXX: Is this filters required? We have other enpoints for Country
         if iso3 is not None:
-            idmc = Idmc.objects.filter(iso3__icontains=iso3)
-            ipc_displacement_data = GlobalDisplacement.objects.filter(country__iso3__icontains=iso3).select_related(
-                "country"
-            )
-            raster_displacement_data = DisplacementData.objects.filter(country__iso3__icontains=iso3).select_related(
-                "country"
-            )
-            # gwis = GWIS.objects.filter(country__iso3__icontains=iso3).select_related("country")
-            gwis_seasonal = GwisSeasonal.objects.filter(
-                country__iso3__icontains=iso3
-            ).select_related("country")
-            # hazard_info = ThinkHazardInformationSerializer(
-            #     ThinkHazardInformation.objects.filter(
-            #         country__iso3__icontains=iso3,
-            #     ),
-            #     many=True
-            # ).data
-            # inform = InformRiskSerializer(
-            #     InformRisk.objects.filter(
-            #         country__iso3__icontains=iso3,
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # inform_seasonal = InformRiskSeasonalSerializer(
-            #     InformRiskSeasonal.objects.filter(
-            #         country__iso3__icontains=iso3
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # idmc_return_period_data = IdmcSuddenOnsetSerializer(
-            #     IdmcSuddenOnset.objects.filter(
-            #         country__iso3__icontains=iso3
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # return_period_data = GarHazardDisplacementSerializer(
-            #     GarHazardDisplacement.objects.filter(
-            #         country__iso3__icontains=iso3
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # gar_loss = GarProbabilisticSerializer(
-            #     GarProbabilistic.objects.filter(
-            #         country__iso3__icontains=iso3
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-
+            idmc_qs = idmc_qs.filter(iso3__icontains=iso3)
+            ipc_displacement_data_qs = ipc_displacement_data_qs.filter(country__iso3__icontains=iso3)
+            raster_displacement_data_qs = raster_displacement_data_qs.filter(country__iso3__icontains=iso3)
+            gwis_seasonal_qs = gwis_seasonal_qs.filter(country__iso3__icontains=iso3)
+        # XXX: Is this filters used?
         elif region:
-            idmc = Idmc.objects.filter(country__region__name=region)
-            ipc_displacement_data = GlobalDisplacement.objects.filter(
-                country__region=region,
-            ).select_related("country")
-            raster_displacement_data = DisplacementData.objects.filter(
-                country__region__name=region,
-            ).select_related("country")
-            # gwis = GWIS.objects.filter(
-            #     country__region__name=region,
-            # ).select_related("country")
-            gwis_seasonal = GwisSeasonal.objects.filter(
-                country__region__name=region
-            ).select_related("country")
-            # hazard_info = ThinkHazardInformationSerializer(
-            #     ThinkHazardInformation.objects.filter(
-            #         country__region__name=region,
-            #     ),
-            #     many=True
-            # ).data
-            # inform = InformRiskSerializer(
-            #     InformRisk.objects.filter(
-            #         country__region__name=region,
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # inform_seasonal = InformRiskSeasonalSerializer(
-            #     InformRiskSeasonal.objects.filter(
-            #         country__region__name=region,
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # idmc_return_period_data = IdmcSuddenOnsetSerializer(
-            #     IdmcSuddenOnset.objects.filter(
-            #         country__region__name=region,
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # return_period_data = GarHazardDisplacementSerializer(
-            #     GarHazardDisplacement.objects.filter(
-            #         country__region__name=region,
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-            # gar_loss = GarProbabilisticSerializer(
-            #     GarProbabilistic.objects.filter(
-            #         country__region__name=region,
-            #     ).select_related('country'),
-            #     many=True
-            # ).data
-
-        else:
-            idmc = Idmc.objects.all()
-            ipc_displacement_data = GlobalDisplacement.objects.select_related("country")
-            raster_displacement_data = DisplacementData.objects.select_related("country")
-            # gwis = GWIS.objects.select_related("country")
-            gwis_seasonal = GwisSeasonal.objects.select_related("country")
-            # hazard_info = ThinkHazardInformationSerializer(ThinkHazardInformation.objects.all(), many=True).data
-            # inform = InformRiskSerializer(InformRisk.objects.select_related('country'), many=True).data
-            # inform_seasonal = InformRiskSeasonalSerializer(InformRiskSeasonal.objects.select_related('country'), many=True).data
-            # idmc_return_period_data = IdmcSuddenOnsetSerializer(IdmcSuddenOnset.objects.select_related('country'), many=True).data  # noqa: E501
-            # return_period_data = GarHazardDisplacementSerializer(GarHazardDisplacement.objects.select_related('country'), many=True).data  # noqa: E501
-            # gar_loss = GarProbabilisticSerializer(GarProbabilistic.objects.select_related('country'), many=True).data  # noqa: E501
+            idmc_qs = idmc_qs.filter(country__region__name=region)
+            ipc_displacement_data_qs = ipc_displacement_data_qs.filter(country__region=region)
+            raster_displacement_data_qs = raster_displacement_data_qs.filter(country__region__name=region)
+            gwis_seasonal_qs = gwis_seasonal_qs.filter(country__region__name=region)
 
         data = {
-            "idmc": idmc,
-            "ipc_displacement_data": ipc_displacement_data,
-            "raster_displacement_data": raster_displacement_data,
-            # "gwis": gwis,
-            "gwis_seasonal": gwis_seasonal,
+            "idmc": idmc_qs,
+            "ipc_displacement_data": ipc_displacement_data_qs,
+            "raster_displacement_data": raster_displacement_data_qs,
+            "gwis_seasonal": gwis_seasonal_qs,
         }
         return response.Response([
             SeasonalSerializer(data).data]
