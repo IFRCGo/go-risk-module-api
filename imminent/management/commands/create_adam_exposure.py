@@ -1,5 +1,6 @@
 import urllib3
 import json
+import pytz
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
@@ -8,6 +9,13 @@ from sentry_sdk.crons import monitor
 from risk_module.sentry import SentryMonitor
 from common.models import Country, HazardType
 from imminent.models import Adam
+
+
+def get_timezone_aware_datetime(iso_format_datetime) -> datetime:
+    _datetime = datetime.fromisoformat(iso_format_datetime)
+    if _datetime.tzinfo is None:
+        _datetime = _datetime.replace(tzinfo=pytz.UTC)
+    return _datetime
 
 
 class Command(BaseCommand):
@@ -48,7 +56,7 @@ class Command(BaseCommand):
                     "country": Country.objects.filter(iso3=props["iso3"].lower()).last(),
                     "title": props["title"],
                     "hazard_type": HazardType.EARTHQUAKE,
-                    "publish_date": props["published_at"],
+                    "publish_date": get_timezone_aware_datetime(props["published_at"]),
                     "event_id": props["event_id"],
                 }
             )
@@ -74,7 +82,7 @@ class Command(BaseCommand):
                     "country": Country.objects.filter(iso3=props["iso3"].lower()).last(),
                     "title": None,
                     "hazard_type": HazardType.FLOOD,
-                    "publish_date": props["effective_date"],
+                    "publish_date": get_timezone_aware_datetime(props["effective_date"]),
                     "event_id": props["eventid"],
                 }
             )
@@ -99,7 +107,7 @@ class Command(BaseCommand):
                         "country": Country.objects.filter(name__icontains=country.strip()).last(),
                         "title": props["title"],
                         "hazard_type": HazardType.CYCLONE,
-                        "publish_date": props["published_at"],
+                        "publish_date": get_timezone_aware_datetime(props["published_at"]),
                         "event_id": props["event_id"],
                     }
                 )

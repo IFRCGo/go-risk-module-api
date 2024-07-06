@@ -59,9 +59,9 @@ class Command(BaseCommand):
 
         now = timezone.now() - datetime.timedelta(days=60)  # XXX: Look for last 3 month
         cyclone_events_qs = self.adam_qs().filter(publish_date__gte=now).values_list('event_id', flat=True).distinct()
-        print(f"Events to check: {cyclone_events_qs.count()}")
+        logger.info(f"Events to check: {cyclone_events_qs.count()}")
         for event_id in cyclone_events_qs:
-            print(f"Fetching event_id: {event_id}")
+            logger.info(f"Fetching event_id: {event_id}")
             cyclone_url = AdamConfig.get_cyclone_url(event_id)
             response = http.request("GET", cyclone_url)
             data = response.data
@@ -69,7 +69,7 @@ class Command(BaseCommand):
 
             publish_date = get_timezone_aware_datetime(cyclone_data["features"][0]["properties"]["published_at"])
             if not self.adam_qs().filter(event_id=event_id, publish_date__lt=publish_date).exists():
-                print('Nothing to update.....')
+                logger.info('Nothing to update.....')
                 continue
 
             resp = self.adam_qs().filter(event_id=event_id).update(
@@ -77,7 +77,7 @@ class Command(BaseCommand):
                 publish_date=publish_date,
                 event_details=cyclone_data["features"][0]["properties"],
             )
-            print('Updated', resp)
+            logger.info(f'Updated {resp}')
 
     @monitor(monitor_slug=SentryMonitor.UPDATE_ADAM_CYCLONE)
     def handle(self, **options):
@@ -140,9 +140,9 @@ class Command(BaseCommand):
                 cyclone_data["features"][0]["properties"]["published_at"]
             )
             cyclone_event.event_details = cyclone_data["features"][0]["properties"]
-            print(cyclone_event.publish_date)
+            logger.info(cyclone_event.publish_date)
             bulk_mgr.add(cyclone_event)
 
         bulk_mgr.done()
-        print(bulk_mgr.summary())
+        logger.info(bulk_mgr.summary())
     """

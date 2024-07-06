@@ -1,6 +1,7 @@
 import logging
 import urllib3
 import json
+import pytz
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
@@ -10,6 +11,13 @@ from imminent.models import Adam
 
 
 logger = logging.getLogger()
+
+
+def get_timezone_aware_datetime(iso_format_datetime) -> datetime:
+    _datetime = datetime.fromisoformat(iso_format_datetime)
+    if _datetime.tzinfo is None:
+        _datetime = _datetime.replace(tzinfo=pytz.UTC)
+    return _datetime
 
 
 # TODO: Confirm if this is used or superseed by create_adam_exposure?
@@ -41,6 +49,6 @@ class Command(BaseCommand):
                     "hazard_type": self.map_hazard_type(data["eventType"]),
                     "country": Country.objects.filter(iso3=data["eventISO3"].lower()).first(),
                     "event_id": data["guid"].split("_")[0] if data["eventType"] == "Tropical Storm" else data["guid"],
-                    "publish_date": data["pubDate"],
+                    "publish_date": get_timezone_aware_datetime(data["pubDate"]),
                 }
                 Adam.objects.create(**adam)

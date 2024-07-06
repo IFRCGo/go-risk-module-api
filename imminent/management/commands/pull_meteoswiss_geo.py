@@ -2,6 +2,7 @@ import boto3
 import logging
 import json
 import os
+import pytz
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
@@ -21,7 +22,8 @@ class Command(BaseCommand):
     help = "Import Meteoswiss Data"
 
     def parse_date(self, date):
-        return datetime.strptime(date, "%Y%m%d%H")
+        date = datetime.strptime(date, "%Y%m%d%H")
+        return date.replace(tzinfo=pytz.UTC)
 
     def import_meteoswiss_data(self, s3):
         bucket = s3.Bucket(settings.METEO_SWISS_S3_BUCKET)
