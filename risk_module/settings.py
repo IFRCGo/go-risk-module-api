@@ -182,7 +182,7 @@ LOGGING = {
     "formatters": {
         **DEFAULT_LOGGING["formatters"],
         "simple": {
-            "format": "%(asctime)s %(levelname)s - %(name)s - %(message)s",
+            "format": "%(asctime)s %(levelname)s/%(processName)s - %(name)s - %(message)s",
             "datefmt": "%Y-%m-%dT%H:%M:%S",
         },
     },
