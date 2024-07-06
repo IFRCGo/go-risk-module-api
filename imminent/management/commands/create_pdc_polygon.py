@@ -5,7 +5,9 @@ import typing
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from imminent.models import Pdc
 
 
@@ -136,6 +138,7 @@ class Command(BaseCommand):
             )
         return True
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_POLYGON)
     def handle(self, *args, **kwargs):
         """
         Query PDC data from Arc GIS: https://partners.pdc.org/arcgis/rest/services/partners/pdc_hazard_exposure/MapServer/27/query

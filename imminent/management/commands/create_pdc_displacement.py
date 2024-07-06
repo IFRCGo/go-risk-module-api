@@ -3,7 +3,9 @@ import logging
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from imminent.models import Pdc, PdcDisplacement
 from common.models import Country
 
@@ -13,6 +15,7 @@ logger = logging.getLogger()
 class Command(BaseCommand):
     help = "Import Hazard Exposure Data"
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DISPLACEMENT)
     def handle(self, *args, **options):
 
         def fetch_pdc_data(uuid, hazard_type, pdc_updated_at):

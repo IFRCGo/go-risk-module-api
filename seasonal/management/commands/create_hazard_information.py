@@ -2,9 +2,10 @@ import requests
 import logging
 
 from django.core.management.base import BaseCommand
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from seasonal.models import ThinkHazardCountry, ThinkHazardInformation
-
 from common.models import HazardType, Country
 
 logger = logging.getLogger()
@@ -25,6 +26,7 @@ class Command(BaseCommand):
             hazard_level = ThinkHazardInformation.ThinkHazardLevel.HIGH
         return hazard_level
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_HAZARD_INFORMATION)
     def handle(self, **options):
         """
         We are deleting all the information from think_hazard information

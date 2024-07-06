@@ -3,7 +3,9 @@ import json
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from common.models import Country, HazardType
 from imminent.models import Adam
 
@@ -14,6 +16,7 @@ class Command(BaseCommand):
     def parse_datetime(self, date):
         return datetime.strptime(date, "%Y-%m-%dT%HH:MM::SS").strftime("%Y-%m-%d")
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_ADAM_EXPOSURE)
     def handle(self, *args, **kwargs):
         http = urllib3.PoolManager()
 

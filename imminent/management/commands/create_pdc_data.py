@@ -5,9 +5,11 @@ import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
+from sentry_sdk.crons import monitor
 
 from imminent.models import Pdc
 from common.models import HazardType
+from risk_module.sentry import SentryMonitor
 
 
 logger = logging.getLogger()
@@ -31,6 +33,7 @@ class Command(BaseCommand):
             severity = Pdc.Severity.INFORMATION
         return severity
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DATA)
     def handle(self, *args, **options):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data

@@ -2,7 +2,9 @@ import requests
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from imminent.models import Pdc
 from common.models import HazardType
 
@@ -10,6 +12,7 @@ from common.models import HazardType
 class Command(BaseCommand):
     help = "Import polygon from `uuid` from pdc arch-gis"
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_INTENSITY)
     def handle(self, *args, **kwargs):
         # get all the uuids and use them to query to the
         # arch-gis server of pdc

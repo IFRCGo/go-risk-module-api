@@ -5,7 +5,9 @@ import datetime
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from imminent.models import Pdc
 from common.models import HazardType
 
@@ -20,6 +22,7 @@ class Command(BaseCommand):
         # NOTE: all timestamp are in millisecond and with timezone `utc`
         return timezone.make_aware(datetime.datetime.utcfromtimestamp(int(timestamp) / 1000))
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DAILY)
     def handle(self, *args, **options):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data

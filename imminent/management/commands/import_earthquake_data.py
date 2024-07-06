@@ -9,7 +9,9 @@ from geopy.extra.rate_limiter import RateLimiter
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from common.models import Country
 
 from imminent.models import Earthquake
@@ -32,6 +34,7 @@ class Command(BaseCommand):
         if location and location.raw["address"].get("country"):
             return location.raw["address"]["country"]
 
+    @monitor(monitor_slug=SentryMonitor.IMPORT_EARTHQUAKE_DATA)
     def handle(self, *args, **options):
         """
         NOTE: We will delete all the previous earthquake

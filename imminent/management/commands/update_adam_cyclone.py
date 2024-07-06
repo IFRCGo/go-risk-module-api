@@ -7,7 +7,9 @@ import json
 from django.core.management.base import BaseCommand
 from django.db import models
 from django.utils import timezone
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from common.models import HazardType
 # from risk_module.managers import BulkUpdateManager
 from imminent.models import Adam
@@ -77,6 +79,7 @@ class Command(BaseCommand):
             )
             print('Updated', resp)
 
+    @monitor(monitor_slug=SentryMonitor.UPDATE_ADAM_CYCLONE)
     def handle(self, **options):
         return self.full_sync()
 

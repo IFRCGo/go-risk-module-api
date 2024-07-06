@@ -7,6 +7,9 @@ from datetime import datetime
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from sentry_sdk.crons import monitor
+
+from risk_module.sentry import SentryMonitor
 from imminent.models import MeteoSwiss
 from common.models import Country, HazardType
 
@@ -58,6 +61,7 @@ class Command(BaseCommand):
                     **data
                 )
 
+    @monitor(monitor_slug=SentryMonitor.PULL_METEOSWISS)
     def handle(self, *args, **kwargs):
         session = boto3.session.Session()
 

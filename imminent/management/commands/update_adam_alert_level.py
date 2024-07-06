@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from common.models import HazardType
 from imminent.models import Adam
 
@@ -11,6 +13,7 @@ from imminent.models import Adam
 class Command(BaseCommand):
     help = "Update Adam Earthquake Alert Level"
 
+    @monitor(monitor_slug=SentryMonitor.UPDATE_ADAM_ALERT_LEVEL)
     def handle(self, *args, **kwargs):
         adams = Adam.objects.filter(hazard_type=HazardType.EARTHQUAKE)
         for adam in adams:

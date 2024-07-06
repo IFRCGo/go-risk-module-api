@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 from django.core.management.base import BaseCommand
+from sentry_sdk.crons import monitor
+
+from risk_module.sentry import SentryMonitor
 from imminent.models import GDACS
 from common.models import Country, HazardType
 
@@ -82,6 +85,7 @@ class Command(BaseCommand):
 
             GDACS.objects.create(**data)
 
+    @monitor(monitor_slug=SentryMonitor.IMPORT_GDACS_DATA)
     def handle(self, *args, **kwargs):
         self.import_hazard_data("EQ", HazardType.EARTHQUAKE)
         self.import_hazard_data("TC", HazardType.CYCLONE)
