@@ -127,7 +127,6 @@ class Command(BaseCommand):
         if "features" not in response_data:
             # Sample error response: {'error': {'code': 400, 'message': 'Failed to execute query.', 'details': []}}
             if "error" in response_data:
-                logger.warning(f'Failed to process uuids: {uuid_list}. Will try again individually')
                 return False
 
         for feature in response_data["features"]:
@@ -143,12 +142,13 @@ class Command(BaseCommand):
         """
         Query PDC data from Arc GIS: https://partners.pdc.org/arcgis/rest/services/partners/pdc_hazard_exposure/MapServer/27/query
         """
-        uuid_list = list(Pdc.objects.filter(status=Pdc.Status.ACTIVE).values_list("uuid", flat=True))
+        uuid_list = list(Pdc.objects.filter(status=Pdc.Status.ACTIVE).values_list("uuid", flat=True).distinct())
         retry_uuid_list = []
         session = requests.Session()
         token_expires = None
         for uuid_chunk_list in chunk_list(uuid_list, 5):
             if not self.save_pdc_using_uuid(session, token_expires, uuid_chunk_list):
+                logger.warning(f'Failed to process uuids: {uuid_chunk_list}. Will try again individually')
                 retry_uuid_list.extend(uuid_chunk_list)
 
         # For failed, try one by one again
