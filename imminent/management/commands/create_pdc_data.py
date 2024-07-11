@@ -7,9 +7,10 @@ from django.conf import settings
 from django.utils import timezone
 from sentry_sdk.crons import monitor
 
-from imminent.models import Pdc
-from common.models import HazardType
 from risk_module.sentry import SentryMonitor
+from common.models import HazardType
+from common.utils import logging_response_context
+from imminent.models import Pdc
 
 
 logger = logging.getLogger()
@@ -50,9 +51,12 @@ class Command(BaseCommand):
         }
         response = requests.post(url, headers=headers, json=data)
         if response.status_code != 200:
-            error_log = f"Error querying PDC data at {url}"
-            logger.error(error_log)
-            logger.error(response.content)
+            logger.error(
+                "Error querying PDC data",
+                extra=logging_response_context(response),
+            )
+            # TODO: return?
+
         response_data = response.json()
         for data in response_data:
             # NOTE: Filter the active hazard only

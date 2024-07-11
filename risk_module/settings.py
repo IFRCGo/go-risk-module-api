@@ -177,14 +177,33 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+def log_render_extra_context(record):
+    """
+    Append extra->context to logs
+    """
+    # NOTE: Using .__ to make sure this is not sent to sentry but .context is
+    record.__context_message = ""
+    if hasattr(record, "context"):
+        record.__context_message = f" - {str(record.context)}"
+    return True
+
+
 LOGGING = {
     **DEFAULT_LOGGING,
     "formatters": {
         **DEFAULT_LOGGING["formatters"],
         "simple": {
-            "format": "%(asctime)s %(levelname)s/%(processName)s - %(name)s - %(message)s",
+            "format": "%(asctime)s %(levelname)s/%(processName)s - %(name)s - %(message)s%(__context_message)s",
             "datefmt": "%Y-%m-%dT%H:%M:%S",
         },
+    },
+    "filters": {
+        **DEFAULT_LOGGING["filters"],
+        "render_extra_context": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": log_render_extra_context,
+        }
     },
     "handlers": {
         **DEFAULT_LOGGING["handlers"],
@@ -193,6 +212,7 @@ LOGGING = {
             "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "simple",
+            "filters": ["render_extra_context"],
         }
     },
     "loggers": {

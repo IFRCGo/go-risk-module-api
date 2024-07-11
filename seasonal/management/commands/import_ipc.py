@@ -4,8 +4,9 @@ import requests
 
 from django.core.management.base import BaseCommand
 
-from seasonal.models import Ipc
 from common.models import HazardType, Country
+from common.utils import logging_response_context
+from seasonal.models import Ipc
 
 
 logger = logging.getLogger(__name__)
@@ -23,9 +24,12 @@ class Command(BaseCommand):
             ipc_url = f"https://map.ipcinfo.org/api/public/population-tracking-tool/data/2017,2023/?page={i}&limit=2000000000000&condition=A"  # noqa: E501
             response = requests.get(ipc_url)
             if response.status_code != 200:
-                error_log = f"Error querying ipc data at {ipc_url}"
-                logger.error(error_log)
-                logger.error(response.content)
+                logger.error(
+                    "Error querying ipc data",
+                    extra=logging_response_context(response),
+                )
+                # TODO:Continue to next one?
+
             ipc_data = response.json()
             for data in ipc_data:
                 # Check whether is the country is present in local country

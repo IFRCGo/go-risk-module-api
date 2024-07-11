@@ -4,6 +4,7 @@ import requests
 from django.core.management.base import BaseCommand
 
 from common.models import Country
+from common.utils import logging_response_context
 from seasonal.models import PublishReportProgram, PublishReport
 
 logger = logging.getLogger(__name__)
@@ -16,9 +17,10 @@ class Command(BaseCommand):
         rmd_url = "https://rmd-api-prod-appservice.azurewebsites.net/publishreport"
         response = requests.get(rmd_url)
         if response.status_code != 200:
-            error_log = f"Error querying ipc data at {rmd_url}"
-            logger.error(error_log)
-            logger.error(response.content)
+            logger.error(
+                "Error querying ipc data",
+                extra=logging_response_context(response),
+            )
         rmd_data = response.json()
         for program_data in rmd_data:
             if Country.objects.filter(name__icontains=program_data["program"]["country"]).exists():

@@ -1,3 +1,4 @@
+import logging
 import urllib3
 import json
 import pytz
@@ -8,7 +9,11 @@ from sentry_sdk.crons import monitor
 
 from risk_module.sentry import SentryMonitor
 from common.models import Country, HazardType
+from common.utils import logging_response_context
 from imminent.models import Adam
+
+
+logger = logging.getLogger(__name__)
 
 
 def get_timezone_aware_datetime(iso_format_datetime) -> datetime:
@@ -24,15 +29,31 @@ class Command(BaseCommand):
     def parse_datetime(self, date):
         return datetime.strptime(date, "%Y-%m-%dT%HH:MM::SS").strftime("%Y-%m-%d")
 
-    @monitor(monitor_slug=SentryMonitor.CREATE_ADAM_EXPOSURE)
-    def handle(self, *args, **kwargs):
-        http = urllib3.PoolManager()
+    @staticmethod
+    def is_response_valid(response, response_data) -> bool:
+        if (
+            response.status != 200 or
+            (
+                isinstance(response_data, dict) and
+                "features" not in response_data
+            )
+        ):
+            return False
+        return True
 
+    def process_earthquakes(self, http):
         earthquake_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/earthquakes/"
         response = http.request("GET", earthquake_url)
-        data = response.data
-        eathquake_values = json.loads(data)
-        for earthquake_event in eathquake_values["features"]:
+        response_data = json.loads(response.data)
+
+        if not self.is_response_valid(response, response_data):
+            logger.error(
+                "Error querying Adam Earthquakes data",
+                extra=logging_response_context(response),
+            )
+            return
+
+        for earthquake_event in response_data["features"]:
             geojson = {
                 "type": "Feature",
                 "geometry": earthquake_event["geometry"],
@@ -62,11 +83,19 @@ class Command(BaseCommand):
             )
             Adam.objects.get_or_create(**data)
 
+    def process_floods(self, http):
         flood_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/floods/"
         response = http.request("GET", flood_url)
-        data = response.data
-        flood_values = json.loads(data)
-        for flood_event in flood_values["features"]:
+        response_data = json.loads(response.data)
+
+        if not self.is_response_valid(response, response_data):
+            logger.error(
+                "Error querying Adam Floods data",
+                extra=logging_response_context(response),
+            )
+            return
+
+        for flood_event in response_data["features"]:
             geojson = {
                 "type": "Feature",
                 "geometry": flood_event["geometry"],
@@ -88,11 +117,19 @@ class Command(BaseCommand):
             )
             Adam.objects.get_or_create(**data)
 
+    def process_cyclones(self, http):
         cyclone_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/cyclones/"
         response = http.request("GET", cyclone_url)
-        data = response.data
-        cyclone_values = json.loads(data)
-        for cyclone_event in cyclone_values["features"]:
+        response_data = json.loads(response.data)
+
+        if not self.is_response_valid(response, response_data):
+            logger.error(
+                "Error querying Adam Cyclones data",
+                extra=logging_response_context(response),
+            )
+            return
+
+        for cyclone_event in response_data["features"]:
             data = {
                 "geojson": cyclone_event["geometry"],
                 "event_details": cyclone_event["properties"],
@@ -112,3 +149,10 @@ class Command(BaseCommand):
                     }
                 )
                 Adam.objects.get_or_create(**data)
+
+    @monitor(monitor_slug=SentryMonitor.CREATE_ADAM_EXPOSURE)
+    def handle(self, *args, **kwargs):
+        http = urllib3.PoolManager()
+        self.process_earthquakes(http)
+        self.process_floods(http)
+        self.process_cyclones(http)

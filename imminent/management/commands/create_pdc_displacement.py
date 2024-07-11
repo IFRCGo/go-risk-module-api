@@ -6,8 +6,9 @@ from django.conf import settings
 from sentry_sdk.crons import monitor
 
 from risk_module.sentry import SentryMonitor
-from imminent.models import Pdc, PdcDisplacement
 from common.models import Country
+from common.utils import logging_response_context
+from imminent.models import Pdc, PdcDisplacement
 
 logger = logging.getLogger()
 
@@ -24,9 +25,10 @@ class Command(BaseCommand):
             response = requests.get(url, headers=headers)
 
             if response.status_code != 200:
-                error_log = f"Error querying PDC Exposure data at {url}"
-                logger.error(error_log)
-                logger.error(response.content)
+                logger.error(
+                    "Error querying PDC Exposure data",
+                    extra=logging_response_context(response),
+                )
                 return None
 
             return response.json()
