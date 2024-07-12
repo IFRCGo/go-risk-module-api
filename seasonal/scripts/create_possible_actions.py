@@ -96,8 +96,10 @@ def create_possible_actions(file):
     for i in range(3, max_rows + 1):
         hazard_type = parse_hazard_type(worksheet.cell(row=i, column=1).value)
         country_list = worksheet.cell(row=i, column=4).value
-        if country_list:
-            countries = parse_country(country_list)
+        if not country_list:
+            continue
+
+        countries = parse_country(country_list)
         early_actions = worksheet.cell(row=i, column=2).value
         hazard_name = worksheet.cell(row=i, column=3).value
         location = worksheet.cell(row=i, column=5).value

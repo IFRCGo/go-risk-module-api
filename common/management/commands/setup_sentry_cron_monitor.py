@@ -5,7 +5,7 @@ import requests
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from risk_module.sentry import SentryMonitor
+from risk_module.sentry import SentryMonitor, SentryMonitorConfig
 
 logger = logging.getLogger(__name__)
 
@@ -37,8 +37,10 @@ class Command(BaseCommand):
 
         SENTRY_INGEST = f"https://{parsed_url.hostname}"
 
-        for cronjob in SentryMonitor.choices:
-            job, schedule = cronjob
+        for sentry_monitor in SentryMonitor:
+            job = sentry_monitor.value
+            schedule = sentry_monitor.label
+
             SENTRY_CRONS = f"{SENTRY_INGEST}/api/{project_id}/cron/{job}/{api_key}/"
 
             payload = {
@@ -47,6 +49,11 @@ class Command(BaseCommand):
                         "type": "crontab",
                         "value": str(schedule),
                     },
+                    "checkin_margin": SentryMonitorConfig.get_checkin_margin(sentry_monitor),
+                    "max_runtime": SentryMonitorConfig.get_max_runtime(sentry_monitor),
+                    "failure_issue_threshold": SentryMonitorConfig.get_failure_issue_threshold(sentry_monitor),
+                    "recovery_threshold": SentryMonitorConfig.get_recovery_threshold(sentry_monitor),
+                    "tz": settings.TIME_ZONE,  # timezone
                 },
                 "environment": settings.RISK_ENVIRONMENT,
                 "status": "ok",

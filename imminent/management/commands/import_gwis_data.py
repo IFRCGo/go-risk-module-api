@@ -3,8 +3,9 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from imminent.models import GWIS
 from common.models import HazardType, Country
+from common.utils import logging_response_context
+from imminent.models import GWIS
 
 logger = logging.getLogger(__name__)
 
@@ -27,9 +28,10 @@ class Command(BaseCommand):
         response = requests.get(url, verify=False)
 
         if response.status_code != 200:
-            error_log = f"Error querying GWIS data at {url}"
-            logger.error(error_log)
-            logger.error(response.content)
+            logger.error(
+                "Error querying GWIS data - Monthly Data",
+                extra=logging_response_context(response),
+            )
             return
 
         response_data = response.json()
@@ -43,9 +45,10 @@ class Command(BaseCommand):
         response = requests.get(url, verify=False)
 
         if response.status_code != 200:
-            error_log = f"Error querying GWIS data at {url}"
-            logger.error(error_log)
-            logger.error(response.content)
+            logger.error(
+                "Error querying GWIS data - Cumulative data",
+                extra=logging_response_context(response),
+            )
             return
 
         response_data = response.json()

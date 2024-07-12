@@ -2,24 +2,31 @@ import boto3
 import logging
 import json
 import os
+import pytz
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
+from sentry_sdk.crons import monitor
+
+from risk_module.sentry import SentryMonitor
 from imminent.models import MeteoSwiss
 from common.models import Country
 
 logger = logging.getLogger(__name__)
 
 
+# TODO: This is not approved to be used in production
+# This is run in staging only for now
 class Command(BaseCommand):
     help = "Import Meteoswiss Data"
 
     def parse_date(self, date):
-        return datetime.strptime(date, "%Y%m%d%H")
+        date = datetime.strptime(date, "%Y%m%d%H")
+        return date.replace(tzinfo=pytz.UTC)
 
     def import_meteoswiss_data(self, s3):
-        bucket_name = "ch.meteoswiss.hydrometimpact.outlook-product"
-        bucket = s3.Bucket(bucket_name)
+        bucket = s3.Bucket(settings.METEO_SWISS_S3_BUCKET)
 
         for obj in bucket.objects.all():
             path, filename = os.path.split(obj.key)
@@ -47,14 +54,15 @@ class Command(BaseCommand):
                 meteoswiss.footprint_geojson = json_details
                 meteoswiss.save(update_fields=['footprint_geojson'])
 
+    @monitor(monitor_slug=SentryMonitor.PULL_METEOSWISS_GEO)
     def handle(self, *args, **kwargs):
         session = boto3.session.Session()
 
         s3 = session.resource(
             service_name="s3",
-            aws_access_key_id="ifrc_hydrometimpactoutlookproduct",
-            aws_secret_access_key="pwd4hydroimpactdepl",
-            endpoint_url="https://servicedepl.meteoswiss.ch",
+            endpoint_url=settings.METEO_SWISS_S3_ENDPOINT_URL,
+            aws_access_key_id=settings.METEO_SWISS_S3_ACCESS_KEY,
+            aws_secret_access_key=settings.METEO_SWISS_S3_SECRET_KEY,
         )
 
         self.import_meteoswiss_data(s3)

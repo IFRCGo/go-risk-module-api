@@ -1,10 +1,21 @@
 import requests
+import pytz
 from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 from django.core.management.base import BaseCommand
+from sentry_sdk.crons import monitor
+
+from risk_module.sentry import SentryMonitor
 from imminent.models import GDACS
 from common.models import Country, HazardType
+
+
+def get_timezone_aware_datetime(iso_format_datetime) -> datetime:
+    publish_date = datetime.fromisoformat(iso_format_datetime)
+    if publish_date.tzinfo is None:
+        publish_date = publish_date.replace(tzinfo=pytz.UTC)
+    return publish_date
 
 
 class Command(BaseCommand):
@@ -33,8 +44,8 @@ class Command(BaseCommand):
             data = {
                 "hazard_id": event_id,
                 "hazard_name": old_data["properties"]["eventname"] or old_data["properties"]["htmldescription"],
-                "start_date": old_data["properties"]["fromdate"],
-                "end_date": old_data["properties"]["todate"],
+                "start_date": get_timezone_aware_datetime(old_data["properties"]["fromdate"]),
+                "end_date": get_timezone_aware_datetime(old_data["properties"]["todate"]),
                 "alert_level": old_data["properties"]["alertlevel"],
                 "country": Country.objects.filter(iso3__iexact=old_data["properties"]["iso3"]).first(),
                 "event_details": old_data["properties"],
@@ -82,6 +93,7 @@ class Command(BaseCommand):
 
             GDACS.objects.create(**data)
 
+    @monitor(monitor_slug=SentryMonitor.IMPORT_GDACS_DATA)
     def handle(self, *args, **kwargs):
         self.import_hazard_data("EQ", HazardType.EARTHQUAKE)
         self.import_hazard_data("TC", HazardType.CYCLONE)

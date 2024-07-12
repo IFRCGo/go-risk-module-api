@@ -9,14 +9,18 @@ from geopy.extra.rate_limiter import RateLimiter
 
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from common.models import Country
+from common.utils import logging_response_context
 
 from imminent.models import Earthquake
 
 logger = logging.getLogger()
 
 
+# XXX: Not used right now
 class Command(BaseCommand):
     help = "Import Earthquake geo-locations from external api"
 
@@ -31,6 +35,7 @@ class Command(BaseCommand):
         if location and location.raw["address"].get("country"):
             return location.raw["address"]["country"]
 
+    @monitor(monitor_slug=SentryMonitor.IMPORT_EARTHQUAKE_DATA)
     def handle(self, *args, **options):
         """
         NOTE: We will delete all the previous earthquake
@@ -49,9 +54,12 @@ class Command(BaseCommand):
         )
         response = requests.get(url)
         if response.status_code != 200:
-            error_log = f"Error querying earthquake data at {url}"
-            logger.error(error_log)
-            logger.error(response.content)
+            logger.error(
+                "Error querying earthquake data",
+                extra=logging_response_context(response),
+            )
+            # TODO: return?
+
         earthquake_data = response.json()
         header = [
             "event_id",

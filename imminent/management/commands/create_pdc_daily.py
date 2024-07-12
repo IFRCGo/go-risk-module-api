@@ -1,13 +1,16 @@
 import requests
 import logging
 import datetime
-import os
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 from django.utils import timezone
+from sentry_sdk.crons import monitor
 
-from imminent.models import Pdc
+from risk_module.sentry import SentryMonitor
 from common.models import HazardType
+from common.utils import logging_response_context
+from imminent.models import Pdc
 
 
 logger = logging.getLogger()
@@ -20,17 +23,20 @@ class Command(BaseCommand):
         # NOTE: all timestamp are in millisecond and with timezone `utc`
         return timezone.make_aware(datetime.datetime.utcfromtimestamp(int(timestamp) / 1000))
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DAILY)
     def handle(self, *args, **options):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data
-        access_token = os.environ.get("PDC_ACCESS_TOKEN")
         url = "https://sentry.pdc.org/hp_srv/services/hazards/t/json/get_active_hazards"
-        headers = {"Authorization": "Bearer {}".format(access_token)}
+        headers = {"Authorization": "Bearer {}".format(settings.PDC_ACCESS_TOKEN)}
         response = requests.get(url, headers=headers)
         if response.status_code != 200:
-            error_log = f"Error querying PDC data at {url}"
-            logger.error(error_log)
-            logger.error(response.content)
+            logger.error(
+                "Error querying PDC data",
+                extra=logging_response_context(response),
+            )
+            # TODO return?
+
         response_data = response.json()
         for data in response_data:
             # NOTE: Filter the active hazard only

@@ -14,34 +14,50 @@ import os
 import environ
 from pathlib import Path
 from celery.schedules import crontab
+from django.utils.log import DEFAULT_LOGGING
 
 from risk_module import sentry
 
 
 env = environ.Env(
+    # Application info
+    RISK_ENVIRONMENT=str,
+    RISK_API_FQDN=str,
+    # Django configs
     DJANGO_DEBUG=(bool, False),
     DJANGO_SECRET_KEY=str,
     DJANGO_ALLOWED_HOSTS=(list, ['*']),
+    TIME_ZONE=(str, 'UTC'),
     # Database
     DATABASE_NAME=str,
     DATABASE_USER=str,
     DATABASE_PASSWORD=str,
-    DATABASE_PORT=(int, 5432),
+    DATABASE_PORT=int,
     DATABASE_HOST=str,
-    TIME_ZONE=(str, 'UTC'),
-
+    # S3 (NOTE: Not used anywhere)
     USE_AWS_FOR_MEDIA=(bool, False),
     S3_AWS_ACCESS_KEY_ID=str,
     S3_AWS_SECRET_ACCESS_KEY=str,
     S3_STORAGE_BUCKET_NAME=str,
     S3_REGION_NAME=str,
-
-    CELERY_REDIS_URL=str,
-
+    # Redis
+    CELERY_REDIS_URL=str,  # redis://redis:6379/0
+    CACHE_REDIS_URL=str,  # redis://redis:6379/1
+    # Sentry
     SENTRY_DSN=(str, None),
-    SENTRY_SAMPLE_RATE=(float, 0.2),
-    RISK_ENVIRONMENT=(str, 'local'),
-    RISK_API_FQDN=(str, 'localhost'),
+    SENTRY_TRACE_SAMPLE_RATE=(float, 0.2),
+    SENTRY_PROFILE_SAMPLE_RATE=(float, 0.2),
+    # PDC
+    PDC_USERNAME=str,
+    PDC_PASSWORD=str,
+    PDC_ACCESS_TOKEN=str,
+    # Meteoswiss
+    METEOSWISS_S3_ENDPOINT_URL=str,
+    METEOSWISS_S3_BUCKET=str,
+    METEOSWISS_S3_ACCESS_KEY=str,
+    METEOSWISS_S3_SECRET_KEY=str,
+    # Logging
+    APPS_LOGGING_LEVEL=(str, 'WARNING'),
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -161,32 +177,57 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+def log_render_extra_context(record):
+    """
+    Append extra->context to logs
+    """
+    # NOTE: Using .__ to make sure this is not sent to sentry but .context is
+    record.__context_message = ""
+    if hasattr(record, "context"):
+        record.__context_message = f" - {str(record.context)}"
+    return True
+
+
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        }
-    },
-    'formatters': {
-        'verbose': {
-            'format': '[contactor] %(levelname)s %(asctime)s %(message)s'
+    **DEFAULT_LOGGING,
+    "formatters": {
+        **DEFAULT_LOGGING["formatters"],
+        "simple": {
+            "format": "%(asctime)s %(levelname)s/%(processName)s - %(name)s - %(message)s%(__context_message)s",
+            "datefmt": "%Y-%m-%dT%H:%M:%S",
         },
     },
-    'handlers': {
-        # Send all messages to console
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
+    "filters": {
+        **DEFAULT_LOGGING["filters"],
+        "render_extra_context": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": log_render_extra_context,
         }
     },
-    'loggers': {
-        # This is the "catch all" logger
-        '': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
+    "handlers": {
+        **DEFAULT_LOGGING["handlers"],
+        # Send all messages to console
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+            "filters": ["render_extra_context"],
+        }
+    },
+    "loggers": {
+        **DEFAULT_LOGGING["loggers"],
+        "": {
+            # This is the "catch all" logger
+            # XXX: Does this work?
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "apps": {
+            "handlers": ["console"],
+            "level": env("APPS_LOGGING_LEVEL"),
+            "propagate": False,
         },
     }
 }
@@ -238,6 +279,7 @@ CELERY_RESULT_BACKEND = CELERY_REDIS_URL
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_ACKS_LATE = True
 
+# TODO: Need to disable one of the tasks which doesn't work
 CELERY_BEAT_SCHEDULE = {
     "import_earthquake_data": {
         "task": "imminent.tasks.import_earthquake_data",
@@ -312,14 +354,16 @@ BUFFER_DISTANCE_IN_KM = 50
 # ENDPOINT_URL = os.environ['ENDPOINT_URL']
 # Sentry Config
 SENTRY_DSN = env('SENTRY_DSN')
-SENTRY_SAMPLE_RATE = env('SENTRY_SAMPLE_RATE')
+SENTRY_TRACE_SAMPLE_RATE = env('SENTRY_TRACE_SAMPLE_RATE')
+SENTRY_PROFILE_SAMPLE_RATE = env('SENTRY_PROFILE_SAMPLE_RATE')
 RISK_ENVIRONMENT = env('RISK_ENVIRONMENT')
 RISK_API_FQDN = env('RISK_API_FQDN')
 
 SENTRY_CONFIG = {
     'dsn': SENTRY_DSN,
     'send_default_pii': True,
-    'traces_sample_rate': SENTRY_SAMPLE_RATE,
+    'traces_sample_rate': SENTRY_TRACE_SAMPLE_RATE,
+    'profiles_sample_rate': SENTRY_PROFILE_SAMPLE_RATE,
     'release': sentry.fetch_git_sha(BASE_DIR),
     'environment': RISK_ENVIRONMENT,
     'debug': DEBUG,
@@ -341,9 +385,36 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Health-check config
-REDIS_URL = CELERY_REDIS_URL
+REDIS_URL = env('CACHE_REDIS_URL')
 HEALTHCHECK_CACHE_KEY = "go_risk_healthcheck_key"
 HEALTH_CHECK = {
     'DISK_USAGE_MAX': 80,  # percent
     'MEMORY_MIN': 100,  # in MB
 }
+
+# Cache
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_URL,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        },
+        "KEY_PREFIX": "dj_cache-",
+    }
+}
+
+# Redis locking
+REDIS_DEFAULT_LOCK_EXPIRE = 60 * 10  # Lock expires in 10min (in seconds)
+
+# PDC
+PDC_USERNAME = env('PDC_USERNAME')
+PDC_PASSWORD = env('PDC_PASSWORD')
+PDC_ACCESS_TOKEN = env('PDC_ACCESS_TOKEN')
+
+# METEO_SWISS
+METEO_SWISS_S3_ENDPOINT_URL = env("METEOSWISS_S3_ENDPOINT_URL")
+METEO_SWISS_S3_BUCKET = env("METEOSWISS_S3_BUCKET")
+METEO_SWISS_S3_ACCESS_KEY = env("METEOSWISS_S3_ACCESS_KEY")
+METEO_SWISS_S3_SECRET_KEY = env("METEOSWISS_S3_SECRET_KEY")

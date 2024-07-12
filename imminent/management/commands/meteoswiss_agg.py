@@ -2,7 +2,9 @@ import logging
 
 from django.core.management.base import BaseCommand
 from django.db.models import Max, F
+from sentry_sdk.crons import monitor
 
+from risk_module.sentry import SentryMonitor
 from imminent.models import MeteoSwiss, MeteoSwissAgg
 from common.models import HazardType, Country
 
@@ -12,6 +14,7 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Aggregated Meteoswiss Data"
 
+    @monitor(monitor_slug=SentryMonitor.METEOSWISS_AGG)
     def handle(self, *args, **kwargs):
 
         def get_latitude_longitude(country):

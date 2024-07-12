@@ -35,6 +35,9 @@ class Command(BaseCommand):
                             country1_df = []
                         if len(country1_df) > 0:
                             country1_speed = country1_df.iloc[:, 4:].values.tolist()
+                            speed_60 = None
+                            speed_90 = None
+                            speed_120 = None
                             if len(country1_speed[0]) == 4:
                                 speed_60 = country1_speed[0][0]
                                 speed_90 = country1_speed[0][1]

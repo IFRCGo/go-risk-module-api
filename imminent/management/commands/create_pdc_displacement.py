@@ -1,11 +1,14 @@
-import os
 import requests
 import logging
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
+from sentry_sdk.crons import monitor
 
-from imminent.models import Pdc, PdcDisplacement
+from risk_module.sentry import SentryMonitor
 from common.models import Country
+from common.utils import logging_response_context
+from imminent.models import Pdc, PdcDisplacement
 
 logger = logging.getLogger()
 
@@ -13,18 +16,19 @@ logger = logging.getLogger()
 class Command(BaseCommand):
     help = "Import Hazard Exposure Data"
 
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DISPLACEMENT)
     def handle(self, *args, **options):
 
         def fetch_pdc_data(uuid, hazard_type, pdc_updated_at):
-            access_token = os.environ.get("PDC_ACCESS_TOKEN")
             url = f"https://sentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/"
-            headers = {"Authorization": f"Bearer {access_token}"}
+            headers = {"Authorization": f"Bearer {settings.PDC_ACCESS_TOKEN}"}
             response = requests.get(url, headers=headers)
 
             if response.status_code != 200:
-                error_log = f"Error querying PDC Exposure data at {url}"
-                logger.error(error_log)
-                logger.error(response.content)
+                logger.error(
+                    "Error querying PDC Exposure data",
+                    extra=logging_response_context(response),
+                )
                 return None
 
             return response.json()

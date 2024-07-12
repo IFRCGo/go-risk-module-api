@@ -5,8 +5,8 @@ import pandas as pd
 
 from django.core.management.base import BaseCommand
 
-
 from common.models import HazardType, Country
+from common.utils import logging_response_context
 from seasonal.models import DisplacementData
 
 
@@ -31,9 +31,12 @@ class Command(BaseCommand):
                 session = requests.Session()
                 response = session.post(disaster_url, data=data)
                 if response.status_code != 200:
-                    error_log = f"Error querying Displacement data at {disaster_url}"
-                    logger.error(error_log)
-                    logger.error(response.content)
+                    logger.error(
+                        "Error querying Displacement data",
+                        extra=logging_response_context(response),
+                    )
+                    # TODO: continue?
+
                 tables = pd.read_html(response.content)
                 displacement_data = tables[0]
                 if hasattr(displacement_data, "Average modelised physical exposure per year (total x 1000)"):
