@@ -15,22 +15,25 @@ class Command(BaseCommand):
 
     @monitor(monitor_slug=SentryMonitor.UPDATE_ADAM_ALERT_LEVEL)
     def handle(self, *args, **kwargs):
-        adams = Adam.objects.filter(hazard_type=HazardType.EARTHQUAKE)
+        adams = Adam.objects.filter(hazard_type=HazardType.EARTHQUAKE).only('id', 'event_details')
         for adam in adams:
-            mag = adam.event_details.get("mag")
             if adam.event_details is None:
                 continue
 
+            mag = adam.event_details.get("mag")
+            if mag is None:
+                continue
+
             alert_level = None
-            if mag:
-                if mag < 6.2:
-                    alert_level = "Green"
-                elif mag > 6 and mag <= 6.5:
-                    alert_level = "Orange"
-                elif mag > 6.5:
-                    alert_level = "Red"
-                if alert_level is None:
-                    continue
+            if mag < 6.2:
+                alert_level = "Green"
+            elif mag > 6 and mag <= 6.5:
+                alert_level = "Orange"
+            elif mag > 6.5:
+                alert_level = "Red"
+
+            if alert_level is None:
+                continue
 
             adam.event_details["alert_level"] = alert_level
             adam.save(update_fields=["event_details"])
