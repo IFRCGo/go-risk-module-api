@@ -42,5 +42,5 @@ staticfiles/
 .mypy-dep/
 
 # Misc
-./caddy/certs
+caddy/certs
 storage/

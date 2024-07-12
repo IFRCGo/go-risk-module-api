@@ -151,4 +151,4 @@ deploy/eb/
 storage/
 
 # Misc
-./caddy/certs
+caddy/certs
