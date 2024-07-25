@@ -1,17 +1,16 @@
-import requests
-import logging
 import datetime
+import logging
 
-from django.core.management.base import BaseCommand
+import requests
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.utils import timezone
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
 from common.models import HazardType
 from common.utils import logging_response_context
 from imminent.models import Pdc
-
+from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger()
 
@@ -171,9 +170,7 @@ class Command(BaseCommand):
                 elif hazard_type == "WILDFIRE":
                     hazard_type = HazardType.WILDFIRE
                     pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(
-                        uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at
-                    ).exists():
+                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
                         continue
                     else:
                         data = {

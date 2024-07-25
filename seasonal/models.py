@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from common.models import HazardType, Country
+from common.models import Country, HazardType
 
 
 class Idmc(models.Model):
@@ -205,9 +205,7 @@ class Ipc(models.Model):
     second_projected_period_start_date = models.DateField(
         verbose_name=_("second projected period start date"), blank=True, null=True
     )
-    second_projected_period_end_date = models.DateField(
-        verbose_name=_("second projected period end date"), blank=True, null=True
-    )
+    second_projected_period_end_date = models.DateField(verbose_name=_("second projected period end date"), blank=True, null=True)
     hazard_type = models.CharField(max_length=100, verbose_name=_("hazard type"), choices=HazardType.choices, blank=True)
     is_projected = models.BooleanField(verbose_name=_("is projected"), default=False)
 
@@ -294,9 +292,7 @@ class PossibleEarlyActions(models.Model):
     budget = models.IntegerField(verbose_name=_("Budget"), null=True, blank=True)
     cost = models.IntegerField(verbose_name=_("Cost"), null=True, blank=True)
     implementation_date = models.DateField(verbose_name=_("Implementation Date"), null=True, blank=True)
-    implementation_date_raw = models.CharField(
-        max_length=255, verbose_name=_("Implementation Date Raw"), null=True, blank=True
-    )
+    implementation_date_raw = models.CharField(max_length=255, verbose_name=_("Implementation Date Raw"), null=True, blank=True)
     timeframe = models.IntegerField(verbose_name=_("Timeframe"), null=True, blank=True)
     timeframe_raw = models.CharField(max_length=255, verbose_name=_("Timeframe Raw"), null=True, blank=True)
     effective_time = models.IntegerField(verbose_name=_("Effective Time"), null=True, blank=True)
@@ -368,10 +364,7 @@ class RiskScore(models.Model):
     yearly_sum = models.FloatField(verbose_name=_("yearly_sum"), null=True, blank=True)
     lcc = models.FloatField(verbose_name=_("llc"), null=True, blank=True)
     population_in_thousands = models.FloatField(verbose_name=_("population_in_thousands"), null=True, blank=True)
-    vulnerability = models.FloatField(
-        verbose_name=_('vulnerability'),
-        null=True, blank=True
-    )
+    vulnerability = models.FloatField(verbose_name=_("vulnerability"), null=True, blank=True)
 
     def __str__(self):
         return f"{self.country.name} - {self.hazard_type} - {self.yearly_sum}"
@@ -383,11 +376,7 @@ class GwisSeasonal(models.Model):
         on_delete=models.CASCADE,
         verbose_name=_("country"),
     )
-    hazard_type = models.CharField(
-        max_length=100, verbose_name=_("hazard type"),
-        choices=HazardType.choices,
-        blank=True
-    )
+    hazard_type = models.CharField(max_length=100, verbose_name=_("hazard type"), choices=HazardType.choices, blank=True)
     january = models.FloatField(verbose_name=_("january"), null=True, blank=True)
     february = models.FloatField(verbose_name=_("february"), null=True, blank=True)
     march = models.FloatField(verbose_name=_("march"), null=True, blank=True)

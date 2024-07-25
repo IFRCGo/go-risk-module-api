@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0010_publishreport_publishreportprogram'),
+        ("seasonal", "0010_publishreport_publishreportprogram"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='possibleearlyactions',
-            name='effective_time_raw',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Effective Time Raw'),
+            model_name="possibleearlyactions",
+            name="effective_time_raw",
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="Effective Time Raw"),
         ),
         migrations.AddField(
-            model_name='possibleearlyactions',
-            name='implementation_date_raw',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Implementation Date Raw'),
+            model_name="possibleearlyactions",
+            name="implementation_date_raw",
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="Implementation Date Raw"),
         ),
         migrations.AddField(
-            model_name='possibleearlyactions',
-            name='timeframe_raw',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Timeframe Raw'),
+            model_name="possibleearlyactions",
+            name="timeframe_raw",
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="Timeframe Raw"),
         ),
     ]

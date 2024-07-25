@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('imminent', '0015_meteoswissagg'),
+        ("imminent", "0015_meteoswissagg"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='meteoswissagg',
-            name='geojson_details',
-            field=models.JSONField(blank=True, null=True, verbose_name='Geojson Details'),
+            model_name="meteoswissagg",
+            name="geojson_details",
+            field=models.JSONField(blank=True, null=True, verbose_name="Geojson Details"),
         ),
     ]

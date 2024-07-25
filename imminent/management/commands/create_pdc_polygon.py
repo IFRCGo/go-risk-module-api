@@ -1,15 +1,14 @@
-import logging
-import requests
 import datetime
+import logging
 import typing
 
-from django.core.management.base import BaseCommand
+import requests
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
 from imminent.models import Pdc
-
+from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +57,7 @@ ARC_GIS_DEFAULT_PARAMS = {
 def chunk_list(lst: typing.List[typing.Any], n: int):
     """Yield successive n-sized chunks from lst."""
     for i in range(0, len(lst), n):
-        yield lst[i:i + n]
+        yield lst[i : i + n]
 
 
 class Command(BaseCommand):
@@ -78,7 +77,7 @@ class Command(BaseCommand):
         login_response = session.post(login_url, data=data, allow_redirects=True).json()
         return (
             login_response["token"],
-            datetime.datetime.fromtimestamp(login_response["expires"]/1000),
+            datetime.datetime.fromtimestamp(login_response["expires"] / 1000),
         )
 
     @staticmethod
@@ -90,11 +89,7 @@ class Command(BaseCommand):
         if len(uuid_list) == 0:
             return f"hazard_uuid = '{uuid_list[0]}'"
 
-        list_value = (
-            ",".join([
-                f"'{_uuid}'" for _uuid in uuid_list
-            ])
-        )
+        list_value = ",".join([f"'{_uuid}'" for _uuid in uuid_list])
         return f"hazard_uuid IN ({list_value})"
 
     def save_pdc_using_uuid(self, session, token_expires, uuid_list: typing.List[str]) -> bool:
@@ -148,11 +143,11 @@ class Command(BaseCommand):
         token_expires = None
         for uuid_chunk_list in chunk_list(uuid_list, 5):
             if not self.save_pdc_using_uuid(session, token_expires, uuid_chunk_list):
-                logger.warning(f'Failed to process uuids: {uuid_chunk_list}. Will try again individually')
+                logger.warning(f"Failed to process uuids: {uuid_chunk_list}. Will try again individually")
                 retry_uuid_list.extend(uuid_chunk_list)
 
         # For failed, try one by one again
         if retry_uuid_list:
-            logger.info(f'Retrying {len(retry_uuid_list)} uuids')
+            logger.info(f"Retrying {len(retry_uuid_list)} uuids")
             for uuid in retry_uuid_list:
                 self.save_pdc_using_uuid(session, token_expires, [uuid])

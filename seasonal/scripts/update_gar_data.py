@@ -1,9 +1,8 @@
 import openpyxl
-
-from seasonal.models import GarHazardDisplacement
-from common.models import HazardType, Country
-
 from django.db import models
+
+from common.models import Country, HazardType
+from seasonal.models import GarHazardDisplacement
 
 
 def get_maximum_rows(*, sheet_object):

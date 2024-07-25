@@ -6,13 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('common', '0007_auto_20230206_0403'),
+        ("common", "0007_auto_20230206_0403"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='country',
-            name='record_type',
-            field=models.IntegerField(blank=True, choices=[(1, 'Country'), (2, 'Cluster'), (3, 'Region'), (4, 'Country Office'), (5, 'Representative Office')], help_text='Type of entity', null=True, verbose_name='type'),
+            model_name="country",
+            name="record_type",
+            field=models.IntegerField(
+                blank=True,
+                choices=[(1, "Country"), (2, "Cluster"), (3, "Region"), (4, "Country Office"), (5, "Representative Office")],
+                help_text="Type of entity",
+                null=True,
+                verbose_name="type",
+            ),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('common', '0005_country_bbox'),
+        ("common", "0005_country_bbox"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='country',
-            name='centroid',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='centroid'),
+            model_name="country",
+            name="centroid",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="centroid"),
         ),
     ]

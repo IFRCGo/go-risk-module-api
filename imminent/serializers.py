@@ -1,18 +1,16 @@
 from rest_framework import serializers
 
-from imminent.models import (
-    Oddrin,
-    PdcDisplacement,
-    Pdc,
-    Earthquake,
-    Adam,
-    GDACS,
-    MeteoSwissAgg,
-    GWIS,
-)
-
 from common.serializers import CountrySerializer
-
+from imminent.models import (
+    GDACS,
+    GWIS,
+    Adam,
+    Earthquake,
+    MeteoSwissAgg,
+    Oddrin,
+    Pdc,
+    PdcDisplacement,
+)
 
 """
 def get_cloud_optimized_file(file):

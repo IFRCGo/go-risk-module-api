@@ -1,18 +1,18 @@
 import time
 from contextlib import contextmanager
+
 from django.conf import settings
 from django.core.cache import caches
 from django_redis.client import DefaultClient
 
 from risk_module.sentry import SentryMonitor
 
-
-cache: DefaultClient = caches['default']
+cache: DefaultClient = caches["default"]
 
 
 class CacheKey:
     class RedisLockKey:
-        _BASE = 'dj-lock-'
+        _BASE = "dj-lock-"
 
     @classmethod
     def get_sm_lock(cls, enum: SentryMonitor) -> str:

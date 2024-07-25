@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0012_auto_20220620_0947'),
+        ("seasonal", "0012_auto_20220620_0947"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='publishreport',
-            name='attachment_url',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Attachment URL'),
+            model_name="publishreport",
+            name="attachment_url",
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="Attachment URL"),
         ),
         migrations.AddField(
-            model_name='publishreport',
-            name='publish_report_id',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Publish Report'),
+            model_name="publishreport",
+            name="publish_report_id",
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="Publish Report"),
         ),
     ]

@@ -1,8 +1,11 @@
 from __future__ import absolute_import, unicode_literals
+
 import os
+
 import celery
 from celery.signals import setup_logging
 from django.conf import settings
+
 from risk_module.sentry import init_sentry
 
 
@@ -15,7 +18,9 @@ class Celery(celery.Celery):
 @setup_logging.connect
 def config_loggers(*args, **kwags):
     from logging.config import dictConfig
+
     from django.conf import settings
+
     dictConfig(settings.LOGGING)
 
 

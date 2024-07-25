@@ -1,10 +1,9 @@
 import openpyxl
-
 from django.db import models
+from django.db.models.expressions import Func
 
 from common.models import Country, HazardType
 from seasonal.models import GarHazardDisplacement
-from django.db.models.expressions import Func
 
 
 def get_maximum_rows(*, sheet_object):

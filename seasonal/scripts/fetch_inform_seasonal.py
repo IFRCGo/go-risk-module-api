@@ -1,7 +1,7 @@
 import openpyxl
 
+from common.models import Country, HazardType
 from seasonal.models import InformRiskSeasonal
-from common.models import HazardType, Country
 
 
 def get_maximum_rows(*, sheet_object):
@@ -43,10 +43,7 @@ def fetch_inform_seasonal(file):
         november = worksheet.cell(row=i, column=13).value
         december = worksheet.cell(row=i, column=14).value
 
-        if Country.objects.filter(
-            iso3=iso3.lower(),
-            independent=True
-        ).exists() and hazard_type in hazard_list:
+        if Country.objects.filter(iso3=iso3.lower(), independent=True).exists() and hazard_type in hazard_list:
             data = {
                 "country": Country.objects.filter(
                     iso3=iso3.lower(),

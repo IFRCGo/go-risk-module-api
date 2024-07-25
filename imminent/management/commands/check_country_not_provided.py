@@ -1,13 +1,12 @@
+import logging
 from functools import partial
 
 import pyproj
-from shapely.ops import transform
+from django.conf import settings
+from django.core.management.base import BaseCommand
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
-import logging
-
-from django.core.management.base import BaseCommand
-from django.conf import settings
+from shapely.ops import transform
 
 from common.models import Country
 from imminent.models import Pdc, PdcDisplacement

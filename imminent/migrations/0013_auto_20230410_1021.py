@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('imminent', '0012_gdacs'),
+        ("imminent", "0012_gdacs"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='gdacs',
-            name='latitude',
-            field=models.FloatField(blank=True, null=True, verbose_name='latitude'),
+            model_name="gdacs",
+            name="latitude",
+            field=models.FloatField(blank=True, null=True, verbose_name="latitude"),
         ),
         migrations.AddField(
-            model_name='gdacs',
-            name='longitude',
-            field=models.FloatField(blank=True, null=True, verbose_name='longitude'),
+            model_name="gdacs",
+            name="longitude",
+            field=models.FloatField(blank=True, null=True, verbose_name="longitude"),
         ),
     ]

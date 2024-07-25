@@ -1,11 +1,7 @@
 import django_filters
 
-from imminent.models import Earthquake, Adam, Pdc, GDACS, MeteoSwissAgg, GWIS
-from common.models import (
-    HazardType,
-    Country,
-    Region,
-)
+from common.models import Country, HazardType, Region
+from imminent.models import GDACS, GWIS, Adam, Earthquake, MeteoSwissAgg, Pdc
 
 
 class EarthquakeFilterSet(django_filters.FilterSet):
@@ -27,9 +23,7 @@ class AdamFilterSet(django_filters.FilterSet):
         queryset=Country.objects.all(),
     )
     iso3 = django_filters.CharFilter(field_name="country__iso3", lookup_expr="icontains")
-    region = django_filters.ModelMultipleChoiceFilter(
-        queryset=Region.objects.all(), field_name="country__region", label="region"
-    )
+    region = django_filters.ModelMultipleChoiceFilter(queryset=Region.objects.all(), field_name="country__region", label="region")
 
     class Meta:
         model = Adam
@@ -38,7 +32,7 @@ class AdamFilterSet(django_filters.FilterSet):
     @property
     def qs(self):
         qs = super().qs
-        return qs.distinct('event_id')
+        return qs.distinct("event_id")
 
 
 class PdcFilterSet(django_filters.FilterSet):
@@ -54,9 +48,7 @@ class PdcFilterSet(django_filters.FilterSet):
 
 class GDACSFilterSet(django_filters.FilterSet):
     iso3 = django_filters.CharFilter(field_name="country__iso3", lookup_expr="icontains", label="iso3")
-    region = django_filters.ModelMultipleChoiceFilter(
-        queryset=Region.objects.all(), field_name="country__region", label="region"
-    )
+    region = django_filters.ModelMultipleChoiceFilter(queryset=Region.objects.all(), field_name="country__region", label="region")
 
     class Meta:
         model = GDACS
@@ -65,9 +57,7 @@ class GDACSFilterSet(django_filters.FilterSet):
 
 class MeteoSwissAggFilterSet(django_filters.FilterSet):
     iso3 = django_filters.CharFilter(field_name="country__iso3", lookup_expr="icontains", label="iso3")
-    region = django_filters.ModelMultipleChoiceFilter(
-        queryset=Region.objects.all(), field_name="country__region", label="region"
-    )
+    region = django_filters.ModelMultipleChoiceFilter(queryset=Region.objects.all(), field_name="country__region", label="region")
 
     class Meta:
         model = MeteoSwissAgg
@@ -76,9 +66,7 @@ class MeteoSwissAggFilterSet(django_filters.FilterSet):
 
 class GWISFilterSet(django_filters.FilterSet):
     iso3 = django_filters.CharFilter(field_name="country__iso3", lookup_expr="icontains", label="iso3")
-    region = django_filters.ModelMultipleChoiceFilter(
-        queryset=Region.objects.all(), field_name="country__region", label="region"
-    )
+    region = django_filters.ModelMultipleChoiceFilter(queryset=Region.objects.all(), field_name="country__region", label="region")
     year = django_filters.CharFilter(field_name="year", lookup_expr="icontains", label="year")
     dsr_type = django_filters.MultipleChoiceFilter(
         choices=GWIS.DSRTYPE.choices,

@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-
 from oddrin.scripts.create_exposure_population import create_exposure_population
 
 

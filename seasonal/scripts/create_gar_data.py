@@ -1,7 +1,7 @@
 import openpyxl
 
+from common.models import Country, HazardType
 from seasonal.models import GarHazardDisplacement
-from common.models import HazardType, Country
 
 
 def get_maximum_rows(*, sheet_object):

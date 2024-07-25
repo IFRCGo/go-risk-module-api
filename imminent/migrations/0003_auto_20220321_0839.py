@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('imminent', '0002_earthquake'),
+        ("imminent", "0002_earthquake"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='pdc',
-            name='pdc_created_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='pdc created at'),
+            model_name="pdc",
+            name="pdc_created_at",
+            field=models.DateTimeField(blank=True, null=True, verbose_name="pdc created at"),
         ),
         migrations.AddField(
-            model_name='pdc',
-            name='pdc_updated_at',
-            field=models.DateTimeField(blank=True, null=True, verbose_name='pdc updated at'),
+            model_name="pdc",
+            name="pdc_updated_at",
+            field=models.DateTimeField(blank=True, null=True, verbose_name="pdc updated at"),
         ),
     ]

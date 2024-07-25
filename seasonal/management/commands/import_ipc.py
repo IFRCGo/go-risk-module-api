@@ -1,13 +1,12 @@
 import datetime
 import logging
-import requests
 
+import requests
 from django.core.management.base import BaseCommand
 
-from common.models import HazardType, Country
+from common.models import Country, HazardType
 from common.utils import logging_response_context
 from seasonal.models import Ipc
-
 
 logger = logging.getLogger(__name__)
 

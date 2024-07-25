@@ -1,9 +1,8 @@
 import pandas as pd
-
 from django.core.management.base import BaseCommand
 
-from seasonal.models import Ipc, IpcMonthly, EstimationType
 from common.models import Country
+from seasonal.models import EstimationType, Ipc, IpcMonthly
 
 
 class Command(BaseCommand):

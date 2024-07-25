@@ -1,59 +1,58 @@
-import pandas as pd
-
-from rest_framework import viewsets, response, status
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.decorators import action
-
 from datetime import datetime
-from openpyxl import Workbook
-from django.http import HttpResponse
+
+import pandas as pd
 from django.db import models
+from django.http import HttpResponse
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from openpyxl import Workbook
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
+from rest_framework import response, status, viewsets
+from rest_framework.decorators import action
 
 from common.models import HazardType
-from seasonal.models import (
-    Idmc,
-    InformRisk,
-    IdmcSuddenOnset,
-    InformRiskSeasonal,
-    DisplacementData,
-    GarHazardDisplacement,
-    ThinkHazardInformation,
-    GlobalDisplacement,
-    PossibleEarlyActions,
-    PublishReport,
-    PossibleEarlyActionsSectors,
-    RiskScore,
-    GwisSeasonal
-)
-from seasonal.serializers import (
-    IdmcSerializer,
-    InformRiskSerializer,
-    IdmcSuddenOnsetSerializer,
-    InformRiskSeasonalSerializer,
-    DisplacementDataSerializer,
-    GarHazardDisplacementSerializer,
-    ThinkHazardInformationSerializer,
-    GlobalDisplacementSerializer,
-    PossibleEarlyActionsSerializer,
-    PublishReportSerializer,
-    RiskScoreSerializer,
-    SeasonalCountrySerializer,
-    InformScoreSerializer,
-    SeasonalSerializer,
-    PossibleEarlyActionOptionsSerializer,
-    CharKeyValueSerializer,
-    SeasonalCountryRequestSerializer,
-    SeasonalRequestSerializer,
-)
+from imminent.models import GWIS
 from seasonal.filter_set import (
     PossibleEarlyActionsFilterSet,
     PublishReportFilterSet,
     RiskScoreFilterSet,
 )
-from imminent.models import GWIS
+from seasonal.models import (
+    DisplacementData,
+    GarHazardDisplacement,
+    GlobalDisplacement,
+    GwisSeasonal,
+    Idmc,
+    IdmcSuddenOnset,
+    InformRisk,
+    InformRiskSeasonal,
+    PossibleEarlyActions,
+    PossibleEarlyActionsSectors,
+    PublishReport,
+    RiskScore,
+    ThinkHazardInformation,
+)
+from seasonal.serializers import (
+    CharKeyValueSerializer,
+    DisplacementDataSerializer,
+    GarHazardDisplacementSerializer,
+    GlobalDisplacementSerializer,
+    IdmcSerializer,
+    IdmcSuddenOnsetSerializer,
+    InformRiskSeasonalSerializer,
+    InformRiskSerializer,
+    InformScoreSerializer,
+    PossibleEarlyActionOptionsSerializer,
+    PossibleEarlyActionsSerializer,
+    PublishReportSerializer,
+    RiskScoreSerializer,
+    SeasonalCountryRequestSerializer,
+    SeasonalCountrySerializer,
+    SeasonalRequestSerializer,
+    SeasonalSerializer,
+    ThinkHazardInformationSerializer,
+)
 
 
 class IdmcViewSet(viewsets.ReadOnlyModelViewSet):
@@ -97,10 +96,7 @@ class ThinkHazardInformationViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @extend_schema_view(
-    list=extend_schema(
-        parameters=[SeasonalRequestSerializer],
-        responses=SeasonalSerializer(many=True)
-    ),
+    list=extend_schema(parameters=[SeasonalRequestSerializer], responses=SeasonalSerializer(many=True)),
 )
 class SeasonalViewSet(viewsets.ViewSet):
     filter_backends = (DjangoFilterBackend,)
@@ -134,16 +130,11 @@ class SeasonalViewSet(viewsets.ViewSet):
             "raster_displacement_data": raster_displacement_data_qs,
             "gwis_seasonal": gwis_seasonal_qs,
         }
-        return response.Response([
-            SeasonalSerializer(data).data]
-        )
+        return response.Response([SeasonalSerializer(data).data])
 
 
 @extend_schema_view(
-    list=extend_schema(
-        parameters=[SeasonalCountryRequestSerializer],
-        responses=SeasonalCountrySerializer(many=True)
-    ),
+    list=extend_schema(parameters=[SeasonalCountryRequestSerializer], responses=SeasonalCountrySerializer(many=True)),
 )
 class SeasonalCountryViewSet(viewsets.ViewSet):
 
@@ -152,7 +143,7 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
         iso3 = request.query_params.get("iso3")
         if iso3 is None:
             return response.Response(
-                {'message': 'Please provide iso3 in the query params'},
+                {"message": "Please provide iso3 in the query params"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -179,9 +170,7 @@ class SeasonalCountryViewSet(viewsets.ViewSet):
             # 'gar_loss': gar_loss,
         }
 
-        return response.Response([
-            SeasonalCountrySerializer(data).data
-        ])
+        return response.Response([SeasonalCountrySerializer(data).data])
 
 
 def generate_data(request):

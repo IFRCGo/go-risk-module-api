@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('imminent', '0007_adam_geojson'),
+        ("imminent", "0007_adam_geojson"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='adam',
-            name='event_details',
-            field=models.JSONField(blank=True, null=True, verbose_name='Event Details'),
+            model_name="adam",
+            name="event_details",
+            field=models.JSONField(blank=True, null=True, verbose_name="Event Details"),
         ),
         migrations.AlterField(
-            model_name='adam',
-            name='title',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Title'),
+            model_name="adam",
+            name="title",
+            field=models.CharField(blank=True, max_length=255, null=True, verbose_name="Title"),
         ),
     ]

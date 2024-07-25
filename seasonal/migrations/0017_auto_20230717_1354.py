@@ -6,31 +6,31 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0016_auto_20230404_0400'),
+        ("seasonal", "0016_auto_20230404_0400"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='displacementdata',
-            name='annual_average_displacement',
+            model_name="displacementdata",
+            name="annual_average_displacement",
         ),
         migrations.RemoveField(
-            model_name='idmc',
-            name='annual_average_displacement',
+            model_name="idmc",
+            name="annual_average_displacement",
         ),
         migrations.AddField(
-            model_name='displacementdata',
-            name='annual_average',
-            field=models.FloatField(blank=True, null=True, verbose_name='annual average'),
+            model_name="displacementdata",
+            name="annual_average",
+            field=models.FloatField(blank=True, null=True, verbose_name="annual average"),
         ),
         migrations.AddField(
-            model_name='idmc',
-            name='annual_average',
-            field=models.FloatField(blank=True, null=True, verbose_name='annual average'),
+            model_name="idmc",
+            name="annual_average",
+            field=models.FloatField(blank=True, null=True, verbose_name="annual average"),
         ),
         migrations.AddField(
-            model_name='informriskseasonal',
-            name='annual_average',
-            field=models.FloatField(blank=True, null=True, verbose_name='annual average'),
+            model_name="informriskseasonal",
+            name="annual_average",
+            field=models.FloatField(blank=True, null=True, verbose_name="annual average"),
         ),
     ]

@@ -1,14 +1,13 @@
-import logging
-import urllib3
 import json
-import pytz
+import logging
 from datetime import datetime
 
+import pytz
+import urllib3
 from django.core.management.base import BaseCommand
 
 from common.models import Country, HazardType
 from imminent.models import Adam
-
 
 logger = logging.getLogger()
 

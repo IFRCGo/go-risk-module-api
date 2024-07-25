@@ -1,6 +1,6 @@
 import openpyxl
 
-from common.models import HazardType, Country
+from common.models import Country, HazardType
 from seasonal.models import Idmc
 
 
