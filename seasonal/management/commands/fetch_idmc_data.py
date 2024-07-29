@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from seasonal.scripts.fetch_idmc_data import fetch_idmc_data
 
 

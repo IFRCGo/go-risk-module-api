@@ -1,11 +1,11 @@
 import logging
-import requests
 
+import requests
 from django.core.management.base import BaseCommand
 
 from common.models import Country
 from common.utils import logging_response_context
-from seasonal.models import PublishReportProgram, PublishReport
+from seasonal.models import PublishReport, PublishReportProgram
 
 logger = logging.getLogger(__name__)
 

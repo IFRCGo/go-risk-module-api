@@ -1,7 +1,7 @@
 import openpyxl
 
-from seasonal.models import DisplacementData
 from common.models import Country, HazardType
+from seasonal.models import DisplacementData
 
 
 def get_maximum_rows(*, sheet_object):
@@ -75,10 +75,7 @@ def create_global_displacment_data(file):
             december = None
 
         if country := Country.objects.filter(
-            iso3=iso3.lower(),
-            iso3__isnull=False,
-            record_type__isnull=False,
-            record_type=Country.CountryType.COUNTRY
+            iso3=iso3.lower(), iso3__isnull=False, record_type__isnull=False, record_type=Country.CountryType.COUNTRY
         ).first():
             data = {
                 "country": country,

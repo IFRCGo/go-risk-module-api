@@ -1,12 +1,11 @@
 import requests
-
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
-from imminent.models import Pdc
 from common.models import HazardType
+from imminent.models import Pdc
+from risk_module.sentry import SentryMonitor
 
 
 class Command(BaseCommand):

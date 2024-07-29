@@ -1,16 +1,15 @@
 from django.contrib import admin
 
-from imminent.models import (
+from imminent.models import (  # MeteoSwissFile,
+    GDACS,
+    GWIS,
+    Adam,
+    Earthquake,
+    MeteoSwiss,
+    MeteoSwissAgg,
     Oddrin,
     Pdc,
     PdcDisplacement,
-    Earthquake,
-    Adam,
-    # MeteoSwissFile,
-    GDACS,
-    MeteoSwiss,
-    MeteoSwissAgg,
-    GWIS,
 )
 
 

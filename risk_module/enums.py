@@ -1,16 +1,13 @@
 from rest_framework import serializers
 
-from imminent import enums as imminent_enums
 from common import enums as common_enums
+from imminent import enums as imminent_enums
 
-apps_enum_register = [
-    ('imminent', imminent_enums.enum_register),
-    ('common', common_enums.enum_register)
-]
+apps_enum_register = [("imminent", imminent_enums.enum_register), ("common", common_enums.enum_register)]
 
 
 def underscore_to_camel(text):
-    return text.replace('_', ' ').title().replace(' ', '')
+    return text.replace("_", " ").title().replace(" ", "")
 
 
 def generate_global_enum_register():
@@ -19,10 +16,10 @@ def generate_global_enum_register():
     for app_prefix, app_enum_register in apps_enum_register:
         for enum_field, enum in app_enum_register.items():
             # Change field dref_national_society_action_title -> DrefNationalSocietyActionTitle
-            _enum_field = f'{app_prefix}_{enum_field}'
-            enum_name = f'{underscore_to_camel(_enum_field)}EnumSerializer'
+            _enum_field = f"{app_prefix}_{enum_field}"
+            enum_name = f"{underscore_to_camel(_enum_field)}EnumSerializer"
             if enum_name in enum_names:
-                raise Exception(f'Duplicate enum_names found for {enum_name} in {enum_names}')
+                raise Exception(f"Duplicate enum_names found for {enum_name} in {enum_names}")
             enum_names.add(enum_name)
             enum_map[_enum_field] = (enum_name, enum)
     return enum_map
@@ -37,8 +34,8 @@ def generate_enum_global_serializer(name):
             enum_name,
             (serializers.Serializer,),
             {
-                'key': serializers.ChoiceField(enum.choices),
-                'value': serializers.CharField(),
+                "key": serializers.ChoiceField(enum.choices),
+                "value": serializers.CharField(),
             },
         )
 
@@ -48,15 +45,15 @@ def generate_enum_global_serializer(name):
     return type(name, (serializers.Serializer,), fields)
 
 
-GlobalEnumSerializer = generate_enum_global_serializer('GlobalEnumSerializer')
+GlobalEnumSerializer = generate_enum_global_serializer("GlobalEnumSerializer")
 
 
 def get_enum_values():
     enum_data = {
         enum_field: [
             {
-                'key': key,
-                'value': value,
+                "key": key,
+                "value": value,
             }
             for key, value in enum.choices
         ]

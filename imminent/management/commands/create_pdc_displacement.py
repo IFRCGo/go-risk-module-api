@@ -1,14 +1,14 @@
-import requests
 import logging
 
-from django.core.management.base import BaseCommand
+import requests
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
 from common.models import Country
 from common.utils import logging_response_context
 from imminent.models import Pdc, PdcDisplacement
+from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger()
 
@@ -52,11 +52,7 @@ class Command(BaseCommand):
 
             PdcDisplacement.objects.bulk_create(pdc_displacement_list)
 
-        uuids = (
-            Pdc.objects
-            .filter(status=Pdc.Status.ACTIVE)
-            .values_list("uuid", "hazard_type", "pdc_updated_at")
-        )
+        uuids = Pdc.objects.filter(status=Pdc.Status.ACTIVE).values_list("uuid", "hazard_type", "pdc_updated_at")
 
         for uuid, hazard_type, pdc_updated_at in uuids:
             if not PdcDisplacement.objects.filter(

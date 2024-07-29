@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0004_auto_20220324_0614'),
+        ("seasonal", "0004_auto_20220324_0614"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='garhazarddisplacement',
-            name='one_thousand_five_hundred_years',
-            field=models.JSONField(blank=True, default=None, null=True, verbose_name='One Thousand Five hundred years'),
+            model_name="garhazarddisplacement",
+            name="one_thousand_five_hundred_years",
+            field=models.JSONField(blank=True, default=None, null=True, verbose_name="One Thousand Five hundred years"),
         ),
     ]

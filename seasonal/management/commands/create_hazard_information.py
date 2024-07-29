@@ -1,12 +1,12 @@
-import requests
 import logging
 
+import requests
 from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
+from common.models import Country, HazardType
 from risk_module.sentry import SentryMonitor
 from seasonal.models import ThinkHazardCountry, ThinkHazardInformation
-from common.models import HazardType, Country
 
 logger = logging.getLogger()
 

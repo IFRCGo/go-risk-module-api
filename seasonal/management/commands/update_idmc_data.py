@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from seasonal.models import Idmc
 from common.models import HazardType
+from seasonal.models import Idmc
 
 
 class Command(BaseCommand):

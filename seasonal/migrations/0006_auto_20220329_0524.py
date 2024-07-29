@@ -6,53 +6,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0005_garhazarddisplacement_one_thousand_five_hundred_years'),
+        ("seasonal", "0005_garhazarddisplacement_one_thousand_five_hundred_years"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='fifty_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='Fifty years'),
+            model_name="garhazarddisplacement",
+            name="fifty_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="Fifty years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='five_hundred_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='Five Hundred years'),
+            model_name="garhazarddisplacement",
+            name="five_hundred_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="Five Hundred years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='hundred_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='Hundred years'),
+            model_name="garhazarddisplacement",
+            name="hundred_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="Hundred years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='one_thousand_five_hundred_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='One Thousand Five hundred years'),
+            model_name="garhazarddisplacement",
+            name="one_thousand_five_hundred_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="One Thousand Five hundred years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='one_thousand_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='One Thousand years'),
+            model_name="garhazarddisplacement",
+            name="one_thousand_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="One Thousand years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='ten_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='Ten years'),
+            model_name="garhazarddisplacement",
+            name="ten_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="Ten years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='twenty_five_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='Twenty five years'),
+            model_name="garhazarddisplacement",
+            name="twenty_five_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="Twenty five years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='twenty_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='Twenty years'),
+            model_name="garhazarddisplacement",
+            name="twenty_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="Twenty years"),
         ),
         migrations.AlterField(
-            model_name='garhazarddisplacement',
-            name='two_hundred_fifty_years',
-            field=models.JSONField(blank=True, default=dict, null=True, verbose_name='Two Hundred Fifty years'),
+            model_name="garhazarddisplacement",
+            name="two_hundred_fifty_years",
+            field=models.JSONField(blank=True, default=dict, null=True, verbose_name="Two Hundred Fifty years"),
         ),
     ]

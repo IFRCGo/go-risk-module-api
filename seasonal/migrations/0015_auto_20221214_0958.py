@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0014_riskscore'),
+        ("seasonal", "0014_riskscore"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='riskscore',
-            name='lcc',
-            field=models.FloatField(blank=True, null=True, verbose_name='llc'),
+            model_name="riskscore",
+            name="lcc",
+            field=models.FloatField(blank=True, null=True, verbose_name="llc"),
         ),
         migrations.AddField(
-            model_name='riskscore',
-            name='population_in_thousands',
-            field=models.FloatField(blank=True, null=True, verbose_name='population_in_thousands'),
+            model_name="riskscore",
+            name="population_in_thousands",
+            field=models.FloatField(blank=True, null=True, verbose_name="population_in_thousands"),
         ),
     ]

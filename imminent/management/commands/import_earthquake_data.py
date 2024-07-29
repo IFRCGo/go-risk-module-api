@@ -1,21 +1,19 @@
-import requests
+import csv
 import datetime
 import logging
-import csv
+
+import requests
 from dateutil.relativedelta import relativedelta
-
-from geopy.geocoders import Nominatim
-from geopy.extra.rate_limiter import RateLimiter
-
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+from geopy.extra.rate_limiter import RateLimiter
+from geopy.geocoders import Nominatim
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
 from common.models import Country
 from common.utils import logging_response_context
-
 from imminent.models import Earthquake
+from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger()
 
@@ -49,9 +47,7 @@ class Command(BaseCommand):
         seven_days_before = (now + relativedelta(days=-7)).date()
         logger.info("Starting data import")
         # NOTE: This is for the local test purpose only
-        url = (
-            f"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={seven_days_before}&endtime={today}"
-        )
+        url = f"https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime={seven_days_before}&endtime={today}"
         response = requests.get(url)
         if response.status_code != 200:
             logger.error(

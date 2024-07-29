@@ -1,11 +1,9 @@
-import openpyxl
 import datetime
 
-from common.models import HazardType, Country
-from seasonal.models import (
-    PossibleEarlyActions,
-    PossibleEarlyActionsSectors,
-)
+import openpyxl
+
+from common.models import Country, HazardType
+from seasonal.models import PossibleEarlyActions, PossibleEarlyActionsSectors
 
 
 def get_maximum_rows(*, sheet_object):

@@ -1,15 +1,14 @@
-import requests
-import logging
 import datetime
+import logging
 
-from django.core.management.base import BaseCommand
+import requests
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from common.models import HazardType, Country
+from common.models import Country, HazardType
 from common.utils import logging_response_context
 from imminent.models import Pdc, PdcDisplacement
-
 
 logger = logging.getLogger()
 
@@ -150,7 +149,8 @@ class Command(BaseCommand):
                 if not PdcDisplacement.objects.filter(
                     pdc__uuid=data["uuid"], pdc__hazard_type=hazard_type, pdc__pdc_updated_at=pdc_updated_at
                 ).exists():
-                    self.create_displacement_records(data["uuid"], hazard_type, pdc_updated_at,
-                                                     exposure_data.get("totalByCountry", []))
+                    self.create_displacement_records(
+                        data["uuid"], hazard_type, pdc_updated_at, exposure_data.get("totalByCountry", [])
+                    )
                 polygon_data = self.fetch_polygon_data(data["uuid"])
                 self.update_pdc_footprint(data["uuid"], polygon_data)

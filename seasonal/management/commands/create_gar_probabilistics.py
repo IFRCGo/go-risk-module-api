@@ -1,14 +1,12 @@
-import requests
 import logging
-import pandas as pd
-from bs4 import BeautifulSoup
 
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 from django.core.management.base import BaseCommand
 
-
-from common.models import HazardType, Country
+from common.models import Country, HazardType
 from seasonal.models import GarProbabilistic
-
 
 logger = logging.getLogger(__name__)
 

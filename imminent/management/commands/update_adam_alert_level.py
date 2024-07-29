@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
 from common.models import HazardType
 from imminent.models import Adam
+from risk_module.sentry import SentryMonitor
 
 
 # TODO: Not used
@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     @monitor(monitor_slug=SentryMonitor.UPDATE_ADAM_ALERT_LEVEL)
     def handle(self, *args, **kwargs):
-        adams = Adam.objects.filter(hazard_type=HazardType.EARTHQUAKE).only('id', 'event_details')
+        adams = Adam.objects.filter(hazard_type=HazardType.EARTHQUAKE).only("id", "event_details")
         for adam in adams:
             if adam.event_details is None:
                 continue

@@ -1,11 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.db import models
 
-from seasonal.models import (
-    IpcMonthly,
-    GlobalDisplacement,
-)
 from common.models import Country
+from seasonal.models import GlobalDisplacement, IpcMonthly
 
 
 class Command(BaseCommand):

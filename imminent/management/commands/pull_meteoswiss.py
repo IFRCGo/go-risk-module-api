@@ -1,17 +1,17 @@
-import boto3
-import logging
 import json
+import logging
 import os
-import pytz
 from datetime import datetime
 
-from django.core.management.base import BaseCommand
+import boto3
+import pytz
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
-from imminent.models import MeteoSwiss
 from common.models import Country, HazardType
+from imminent.models import MeteoSwiss
+from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +36,7 @@ class Command(BaseCommand):
         filename_splitted = filename.split("_")
         country_name = filename_splitted[4]
         model_name = filename_splitted[1]
-        country = Country.objects.filter(
-            name=country_name,
-            record_type=Country.CountryType.COUNTRY
-        ).first()
+        country = Country.objects.filter(name=country_name, record_type=Country.CountryType.COUNTRY).first()
 
         if country:
             details = obj.get()["Body"].read().decode("utf-8")
@@ -57,9 +54,7 @@ class Command(BaseCommand):
                 "model_name": model_name,
             }
             if not MeteoSwiss.objects.filter(country=country, folder_id=path, impact_type=impact_type).exists():
-                MeteoSwiss.objects.create(
-                    **data
-                )
+                MeteoSwiss.objects.create(**data)
 
     @monitor(monitor_slug=SentryMonitor.PULL_METEOSWISS)
     def handle(self, *args, **kwargs):

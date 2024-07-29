@@ -1,14 +1,15 @@
-import requests
-import pytz
 from datetime import datetime, timedelta
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+import pytz
+import requests
 from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
-from imminent.models import GDACS
 from common.models import Country, HazardType
+from imminent.models import GDACS
+from risk_module.sentry import SentryMonitor
 
 
 def get_timezone_aware_datetime(iso_format_datetime) -> datetime:
@@ -65,14 +66,10 @@ class Command(BaseCommand):
                     data["population_exposure"]["exposed_population"] = displacement_data.get(1, {}).get("Exposed population")
                 elif hazard_type_str == "FL":
                     data["population_exposure"]["death"] = (
-                        int(displacement_data.get(1, {}).get(1))
-                        if displacement_data.get(1, {}).get(1) != "-"
-                        else None
+                        int(displacement_data.get(1, {}).get(1)) if displacement_data.get(1, {}).get(1) != "-" else None
                     )
                     data["population_exposure"]["displaced"] = (
-                        int(displacement_data.get(1, {}).get(2))
-                        if displacement_data.get(1, {}).get(2) != "-"
-                        else None
+                        int(displacement_data.get(1, {}).get(2)) if displacement_data.get(1, {}).get(2) != "-" else None
                     )
                 elif hazard_type_str == "DR":
                     data["population_exposure"]["impact"] = displacement_data.get("Impact:")

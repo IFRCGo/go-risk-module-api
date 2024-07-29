@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0006_auto_20220329_0524'),
+        ("seasonal", "0006_auto_20220329_0524"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ipc',
-            name='second_projected_period_end_date',
-            field=models.DateField(blank=True, null=True, verbose_name='second projected period end date'),
+            model_name="ipc",
+            name="second_projected_period_end_date",
+            field=models.DateField(blank=True, null=True, verbose_name="second projected period end date"),
         ),
         migrations.AddField(
-            model_name='ipc',
-            name='second_projected_period_start_date',
-            field=models.DateField(blank=True, null=True, verbose_name='second projected period start date'),
+            model_name="ipc",
+            name="second_projected_period_start_date",
+            field=models.DateField(blank=True, null=True, verbose_name="second projected period start date"),
         ),
     ]

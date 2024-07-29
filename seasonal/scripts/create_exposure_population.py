@@ -1,5 +1,4 @@
 import openpyxl
-
 from oddrin.models import GarHazardDisplacement, HazardType
 
 

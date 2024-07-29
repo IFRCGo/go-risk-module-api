@@ -1,47 +1,46 @@
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
-from rest_framework import viewsets, response
-from rest_framework.decorators import action
+from django.db import models
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
+from rest_framework import response, viewsets
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 
-from django_filters.rest_framework import DjangoFilterBackend
-from django.db import models
-
 from common.models import HazardType
+from imminent.filter_set import (
+    AdamFilterSet,
+    EarthquakeFilterSet,
+    GDACSFilterSet,
+    GWISFilterSet,
+    MeteoSwissAggFilterSet,
+    PdcFilterSet,
+)
 from imminent.models import (
-    Oddrin,
-    PdcDisplacement,
-    Pdc,
-    Earthquake,
-    Adam,
     GDACS,
-    MeteoSwissAgg,
     GWIS,
+    Adam,
+    Earthquake,
+    MeteoSwissAgg,
+    Oddrin,
+    Pdc,
+    PdcDisplacement,
 )
 from imminent.serializers import (
+    AdamExposureSerializer,
+    AdamSerializer,
+    CountryImminentRequestSerializer,
+    CountryImminentSerializer,
+    EarthquakeSerializer,
+    GDACSExposureSerializer,
+    GDACSSeralizer,
+    GWISSerializer,
+    MeteoSwissAggSerializer,
+    MeteoSwissFootprintSerializer,
     OddrinSerializer,
     PdcDisplacementSerializer,
-    EarthquakeSerializer,
-    AdamSerializer,
-    PdcSerializer,
-    GDACSSeralizer,
-    MeteoSwissAggSerializer,
-    GWISSerializer,
     PdcExposureSerializer,
-    GDACSExposureSerializer,
-    AdamExposureSerializer,
-    MeteoSwissFootprintSerializer,
-    CountryImminentSerializer,
-    CountryImminentRequestSerializer
-)
-from imminent.filter_set import (
-    EarthquakeFilterSet,
-    AdamFilterSet,
-    PdcFilterSet,
-    GDACSFilterSet,
-    MeteoSwissAggFilterSet,
-    GWISFilterSet,
+    PdcSerializer,
 )
 
 
@@ -191,23 +190,27 @@ class AdamViewSet(viewsets.ReadOnlyModelViewSet):
         today = datetime.now().date()
         seven_days_before = today + timedelta(days=-7)
         three_days_before = today + timedelta(days=-3)
-        return Adam.objects.filter(
-            models.Q(
-                publish_date__gte=seven_days_before,
-                hazard_type=HazardType.FLOOD,
+        return (
+            Adam.objects.filter(
+                models.Q(
+                    publish_date__gte=seven_days_before,
+                    hazard_type=HazardType.FLOOD,
+                )
+                | models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.FLOOD, country__isnull=True)
+                | models.Q(
+                    publish_date__gte=seven_days_before,
+                    hazard_type=HazardType.CYCLONE,
+                )
+                | models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.CYCLONE, country__isnull=True)
+                | models.Q(
+                    publish_date__gte=three_days_before,
+                    hazard_type=HazardType.EARTHQUAKE,
+                )
+                | models.Q(publish_date__gte=three_days_before, hazard_type=HazardType.EARTHQUAKE, country__isnull=True)
             )
-            | models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.FLOOD, country__isnull=True)
-            | models.Q(
-                publish_date__gte=seven_days_before,
-                hazard_type=HazardType.CYCLONE,
-            )
-            | models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.CYCLONE, country__isnull=True)
-            | models.Q(
-                publish_date__gte=three_days_before,
-                hazard_type=HazardType.EARTHQUAKE,
-            )
-            | models.Q(publish_date__gte=three_days_before, hazard_type=HazardType.EARTHQUAKE, country__isnull=True)
-        ).order_by('event_id', '-publish_date').distinct('event_id')
+            .order_by("event_id", "-publish_date")
+            .distinct("event_id")
+        )
 
     @extend_schema(request=None, responses=AdamExposureSerializer)
     @action(detail=True, url_path="exposure")
@@ -286,11 +289,11 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
         if displacement_data.exists():
             population_exposure = displacement_data[0].population_exposure or None
             capital_exposure = displacement_data[0].capital_exposure or None
-            if population_exposure.get('total'):
+            if population_exposure.get("total"):
                 population_exposure = population_exposure
             else:
                 population_exposure = None
-            if capital_exposure.get('total'):
+            if capital_exposure.get("total"):
                 capital_exposure = capital_exposure
             else:
                 capital_exposure = None
@@ -382,19 +385,14 @@ class MeteoSwissViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         today = datetime.now().date()
         two_days_before = today + timedelta(days=-2)
-        return MeteoSwissAgg.objects.select_related("country").filter(
-            country__region__isnull=False,
-            updated_at__gte=two_days_before
-        ).distinct('country', 'hazard_name')
+        return (
+            MeteoSwissAgg.objects.select_related("country")
+            .filter(country__region__isnull=False, updated_at__gte=two_days_before)
+            .distinct("country", "hazard_name")
+        )
 
-    @extend_schema(
-        request=None,
-        responses=MeteoSwissFootprintSerializer
-    )
-    @action(
-        detail=True,
-        url_path="exposure"
-    )
+    @extend_schema(request=None, responses=MeteoSwissFootprintSerializer)
+    @action(detail=True, url_path="exposure")
     def get_displacement(self, request, pk):
         object = self.get_object()
         data = {
@@ -412,10 +410,7 @@ class GWISViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @extend_schema_view(
-    get=extend_schema(
-        parameters=[CountryImminentRequestSerializer],
-        responses=CountryImminentSerializer
-    ),
+    get=extend_schema(parameters=[CountryImminentRequestSerializer], responses=CountryImminentSerializer),
 )
 class CountryImminentViewSet(APIView):
     def get(self, request, *args, **kwargs):
@@ -425,93 +420,74 @@ class CountryImminentViewSet(APIView):
         two_days_before = today + timedelta(days=-2)
         iso3 = self.request.query_params.get("iso3")
         if iso3:
-            pdc_count = Pdc.objects.filter(
-                models.Q(
-                    status=Pdc.Status.ACTIVE,
-                    pdcdisplacement__country__iso3__icontains=iso3,
-                    start_date__gte=seven_days_before,
-                    hazard_type=HazardType.FLOOD,
+            pdc_count = (
+                Pdc.objects.filter(
+                    models.Q(
+                        status=Pdc.Status.ACTIVE,
+                        pdcdisplacement__country__iso3__icontains=iso3,
+                        start_date__gte=seven_days_before,
+                        hazard_type=HazardType.FLOOD,
+                    )
+                    | models.Q(
+                        status=Pdc.Status.ACTIVE,
+                        pdcdisplacement__country__iso3__icontains=iso3,
+                        start_date__gte=three_days_before,
+                        hazard_type=HazardType.EARTHQUAKE,
+                    )
+                    | models.Q(
+                        status=Pdc.Status.ACTIVE,
+                        pdcdisplacement__country__iso3__icontains=iso3,
+                        end_date__gte=today,
+                        hazard_type=HazardType.CYCLONE,
+                    )
+                    | models.Q(
+                        status=Pdc.Status.ACTIVE,
+                        pdcdisplacement__country__iso3__icontains=iso3,
+                        start_date__gte=three_days_before,
+                        hazard_type=HazardType.WILDFIRE,
+                    )
                 )
-                | models.Q(
-                    status=Pdc.Status.ACTIVE,
-                    pdcdisplacement__country__iso3__icontains=iso3,
-                    start_date__gte=three_days_before,
-                    hazard_type=HazardType.EARTHQUAKE,
+                .distinct()
+                .count()
+            )
+            meteoswiss_count = (
+                MeteoSwissAgg.objects.filter(
+                    country__region__isnull=False,
+                    latitude__isnull=False,
+                    longitude__isnull=False,
+                    updated_at__gte=two_days_before,
+                    country__iso3__icontains=iso3,
                 )
-                | models.Q(
-                    status=Pdc.Status.ACTIVE,
-                    pdcdisplacement__country__iso3__icontains=iso3,
-                    end_date__gte=today,
-                    hazard_type=HazardType.CYCLONE,
+                .distinct()
+                .count()
+            )
+            gdacs_count = (
+                GDACS.objects.filter(
+                    models.Q(end_date__gte=seven_days_before, hazard_type=HazardType.FLOOD, country__iso3__icontains=iso3)
+                    | models.Q(end_date__gte=three_days_before, hazard_type=HazardType.EARTHQUAKE, country__iso3__icontains=iso3)
+                    | models.Q(end_date__gte=seven_days_before, hazard_type=HazardType.CYCLONE, country__iso3__icontains=iso3)
+                    | models.Q(end_date__gte=three_days_before, hazard_type=HazardType.DROUGHT, country__iso3__icontains=iso3)
+                    | models.Q(end_date__gte=three_days_before, hazard_type=HazardType.WILDFIRE, country__iso3__icontains=iso3)
                 )
-                | models.Q(
-                    status=Pdc.Status.ACTIVE,
-                    pdcdisplacement__country__iso3__icontains=iso3,
-                    start_date__gte=three_days_before,
-                    hazard_type=HazardType.WILDFIRE,
+                .distinct()
+                .count()
+            )
+            adam_count = (
+                Adam.objects.filter(
+                    models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.FLOOD, country__iso3__icontains=iso3)
+                    | models.Q(publish_date__gte=seven_days_before, hazard_type=HazardType.CYCLONE, country__iso3__icontains=iso3)
+                    | models.Q(
+                        publish_date__gte=three_days_before, hazard_type=HazardType.EARTHQUAKE, country__iso3__icontains=iso3
+                    )
                 )
-            ).distinct().count()
-            meteoswiss_count = MeteoSwissAgg.objects.filter(
-                country__region__isnull=False,
-                latitude__isnull=False,
-                longitude__isnull=False,
-                updated_at__gte=two_days_before,
-                country__iso3__icontains=iso3
-            ).distinct().count()
-            gdacs_count = GDACS.objects.filter(
-                models.Q(
-                    end_date__gte=seven_days_before,
-                    hazard_type=HazardType.FLOOD,
-                    country__iso3__icontains=iso3
-                )
-                | models.Q(
-                    end_date__gte=three_days_before,
-                    hazard_type=HazardType.EARTHQUAKE,
-                    country__iso3__icontains=iso3
-                )
-                | models.Q(
-                    end_date__gte=seven_days_before,
-                    hazard_type=HazardType.CYCLONE,
-                    country__iso3__icontains=iso3
-                )
-                | models.Q(
-                    end_date__gte=three_days_before,
-                    hazard_type=HazardType.DROUGHT,
-                    country__iso3__icontains=iso3
-                )
-                | models.Q(
-                    end_date__gte=three_days_before,
-                    hazard_type=HazardType.WILDFIRE,
-                    country__iso3__icontains=iso3
-                )
-            ).distinct().count()
-            adam_count = Adam.objects.filter(
-                models.Q(
-                    publish_date__gte=seven_days_before,
-                    hazard_type=HazardType.FLOOD,
-                    country__iso3__icontains=iso3
-                )
-                | models.Q(
-                    publish_date__gte=seven_days_before,
-                    hazard_type=HazardType.CYCLONE,
-                    country__iso3__icontains=iso3
-                )
-                | models.Q(
-                    publish_date__gte=three_days_before,
-                    hazard_type=HazardType.EARTHQUAKE,
-                    country__iso3__icontains=iso3
-                )
-            ).distinct().count()
+                .distinct()
+                .count()
+            )
         else:
             pdc_count = 0
             gdacs_count = 0
             adam_count = 0
             meteoswiss_count = 0
 
-        data = {
-            "gdacs": gdacs_count,
-            "pdc": pdc_count,
-            "adam": adam_count,
-            "meteoswiss": meteoswiss_count
-        }
+        data = {"gdacs": gdacs_count, "pdc": pdc_count, "adam": adam_count, "meteoswiss": meteoswiss_count}
         return response.Response(CountryImminentSerializer(data).data)

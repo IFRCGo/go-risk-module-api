@@ -1,25 +1,25 @@
 from django.contrib import admin
 
 from seasonal.models import (
+    DisplacementData,
+    GarHazard,
+    GarHazardDisplacement,
+    GarProbabilistic,
+    GlobalDisplacement,
+    GwisSeasonal,
     Idmc,
     IdmcSuddenOnset,
     InformRisk,
     InformRiskSeasonal,
-    DisplacementData,
-    GarHazardDisplacement,
-    GarHazard,
-    GarProbabilistic,
     Ipc,
     IpcMonthly,
-    GlobalDisplacement,
-    ThinkHazardCountry,
-    ThinkHazardInformation,
     PossibleEarlyActions,
     PossibleEarlyActionsSectors,
     PublishReport,
     PublishReportProgram,
     RiskScore,
-    GwisSeasonal
+    ThinkHazardCountry,
+    ThinkHazardInformation,
 )
 
 

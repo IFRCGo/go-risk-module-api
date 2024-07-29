@@ -1,11 +1,7 @@
 import django_filters
 
 from common.models import HazardType
-from seasonal.models import (
-    PossibleEarlyActions,
-    PublishReport,
-    RiskScore,
-)
+from seasonal.models import PossibleEarlyActions, PublishReport, RiskScore
 
 
 class PossibleEarlyActionsFilterSet(django_filters.FilterSet):

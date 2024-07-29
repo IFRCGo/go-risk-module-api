@@ -6,24 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('seasonal', '0011_auto_20220519_0906'),
+        ("seasonal", "0011_auto_20220519_0906"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PossibleEarlyActionsSectors',
+            name="PossibleEarlyActionsSectors",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, verbose_name='name')),
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("name", models.CharField(max_length=255, verbose_name="name")),
             ],
         ),
         migrations.RemoveField(
-            model_name='possibleearlyactions',
-            name='sector',
+            model_name="possibleearlyactions",
+            name="sector",
         ),
         migrations.AddField(
-            model_name='possibleearlyactions',
-            name='sectors',
-            field=models.ManyToManyField(blank=True, to='seasonal.PossibleEarlyActionsSectors', verbose_name='Sectors'),
+            model_name="possibleearlyactions",
+            name="sectors",
+            field=models.ManyToManyField(blank=True, to="seasonal.PossibleEarlyActionsSectors", verbose_name="Sectors"),
         ),
     ]

@@ -1,17 +1,16 @@
-import logging
-import urllib3
 import json
-import pytz
+import logging
 from datetime import datetime
 
+import pytz
+import urllib3
 from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
 from common.models import Country, HazardType
 from common.utils import logging_response_context
 from imminent.models import Adam
-
+from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +30,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def is_response_valid(response, response_data) -> bool:
-        if (
-            response.status != 200 or
-            (
-                isinstance(response_data, dict) and
-                "features" not in response_data
-            )
-        ):
+        if response.status != 200 or (isinstance(response_data, dict) and "features" not in response_data):
             return False
         return True
 

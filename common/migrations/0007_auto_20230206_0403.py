@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('common', '0006_country_centroid'),
+        ("common", "0006_country_centroid"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='country',
-            name='independent',
-            field=models.BooleanField(default=None, help_text='Is this an independent country?', null=True),
+            model_name="country",
+            name="independent",
+            field=models.BooleanField(default=None, help_text="Is this an independent country?", null=True),
         ),
         migrations.AddField(
-            model_name='country',
-            name='is_deprecated',
-            field=models.BooleanField(default=False, help_text='Is this an active, valid country?'),
+            model_name="country",
+            name="is_deprecated",
+            field=models.BooleanField(default=False, help_text="Is this an active, valid country?"),
         ),
     ]

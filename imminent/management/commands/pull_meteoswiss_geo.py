@@ -1,17 +1,17 @@
-import boto3
-import logging
 import json
+import logging
 import os
-import pytz
 from datetime import datetime
 
-from django.core.management.base import BaseCommand
+import boto3
+import pytz
 from django.conf import settings
+from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from risk_module.sentry import SentryMonitor
-from imminent.models import MeteoSwiss
 from common.models import Country
+from imminent.models import MeteoSwiss
+from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger(__name__)
 
@@ -39,20 +39,17 @@ class Command(BaseCommand):
         country_name = filename_splitted[4]
         impact_type = "_".join(filename_splitted[5:8])
         country = Country.objects.filter(name=country_name).first()
-        initialization_date = self.parse_date(filename_splitted[2].replace('run', ''))
+        initialization_date = self.parse_date(filename_splitted[2].replace("run", ""))
         if country:
             meteoswiss = MeteoSwiss.objects.filter(
-                impact_type=impact_type,
-                folder_id=path,
-                country=country,
-                initialization_date=initialization_date
+                impact_type=impact_type, folder_id=path, country=country, initialization_date=initialization_date
             ).first()
 
             if meteoswiss:
                 details = obj.get()["Body"].read().decode("utf-8")
                 json_details = json.loads(details)
                 meteoswiss.footprint_geojson = json_details
-                meteoswiss.save(update_fields=['footprint_geojson'])
+                meteoswiss.save(update_fields=["footprint_geojson"])
 
     @monitor(monitor_slug=SentryMonitor.PULL_METEOSWISS_GEO)
     def handle(self, *args, **kwargs):
