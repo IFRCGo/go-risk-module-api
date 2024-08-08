@@ -1,6 +1,7 @@
 import csv
 import datetime
 import logging
+from functools import lru_cache
 
 import requests
 from dateutil.relativedelta import relativedelta
@@ -22,14 +23,18 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Import Earthquake geo-locations from external api"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        geolocator = Nominatim(user_agent="risk_module_earthquake")
+        self.reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
+
     def parse_timestamp(self, timestamp):
         # NOTE: all timestamp are in millisecond and with timezone `utc`
         return timezone.make_aware(datetime.datetime.utcfromtimestamp(timestamp / 1000))
 
+    @lru_cache(maxsize=1000)  # Simple cache. TODO: Look for better way
     def get_country(self, latitude, longitude):
-        geolocator = Nominatim(user_agent="risk_module_earthquake")
-        reverse = RateLimiter(geolocator.reverse, min_delay_seconds=1)
-        location = reverse((latitude, longitude), language="en", exactly_one=True)
+        location = self.reverse((latitude, longitude), language="en", exactly_one=True)
         if location and location.raw["address"].get("country"):
             return location.raw["address"]["country"]
 
@@ -80,8 +85,8 @@ class Command(BaseCommand):
                 logger.warning(f"Skipping data for event_id: {event_id}. {magnitude=} or {magnitude_type} is None")
                 continue
 
-            country = self.get_country(earthquake["geometry"]["coordinates"][1], earthquake["geometry"]["coordinates"][0])
-            if country := Country.objects.filter(name=country).first():
+            country_name = self.get_country(earthquake["geometry"]["coordinates"][1], earthquake["geometry"]["coordinates"][0])
+            if country := Country.objects.filter(name=country_name).first():
                 data = {
                     "country": country,
                     "event_id": event_id,
