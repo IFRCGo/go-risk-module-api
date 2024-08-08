@@ -7,7 +7,7 @@ from sentry_sdk.crons import monitor
 from imminent.models import Pdc
 from risk_module.sentry import SentryMonitor
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):

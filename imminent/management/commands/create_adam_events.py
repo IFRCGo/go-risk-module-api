@@ -9,7 +9,7 @@ from django.core.management.base import BaseCommand
 from common.models import Country, HazardType
 from imminent.models import Adam
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 def get_timezone_aware_datetime(iso_format_datetime) -> datetime:

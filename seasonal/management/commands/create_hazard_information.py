@@ -8,7 +8,7 @@ from common.models import Country, HazardType
 from risk_module.sentry import SentryMonitor
 from seasonal.models import ThinkHazardCountry, ThinkHazardInformation
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 # XXX: Not used right now

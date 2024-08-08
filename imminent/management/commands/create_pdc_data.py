@@ -12,7 +12,7 @@ from common.utils import logging_response_context
 from imminent.models import Pdc
 from risk_module.sentry import SentryMonitor
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
