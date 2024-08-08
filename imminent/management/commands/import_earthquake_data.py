@@ -72,10 +72,21 @@ class Command(BaseCommand):
         ]
         all_data = []
         for earthquake in earthquake_data["features"]:
+            event_id = earthquake["id"]
+            magnitude = earthquake["properties"]["mag"]
+            magnitude_type = earthquake["properties"]["magType"]
+
+            if magnitude is None or magnitude_type is None:
+                logger.warning(f"Skipping data for event_id: {event_id}. {magnitude=} or {magnitude_type} is None")
+                continue
+
             country = self.get_country(earthquake["geometry"]["coordinates"][1], earthquake["geometry"]["coordinates"][0])
-            if Country.objects.filter(name=country).exists():
+            if country := Country.objects.filter(name=country).first():
                 data = {
-                    "event_id": earthquake["id"],
+                    "country": country,
+                    "event_id": event_id,
+                    "magnitude": magnitude,
+                    "magnitude_type": magnitude_type,
                     "event_title": earthquake["properties"]["title"],
                     "event_place": earthquake["properties"]["place"],
                     "event_date": self.parse_timestamp(earthquake["properties"]["time"]),
@@ -83,9 +94,6 @@ class Command(BaseCommand):
                     "latitude": earthquake["geometry"]["coordinates"][1],
                     "longitude": earthquake["geometry"]["coordinates"][0],
                     "depth": earthquake["geometry"]["coordinates"][2],
-                    "magnitude": earthquake["properties"]["mag"],
-                    "magnitude_type": earthquake["properties"]["magType"],
-                    "country": Country.objects.filter(name=country).first(),
                 }
                 # lets create corresponding database field
                 Earthquake.objects.get_or_create(**data)
