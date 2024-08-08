@@ -56,7 +56,7 @@ jobs:
         env:
           DOCKER_IMAGE_SERVER: ${{ steps.prep.outputs.tagged_image }}
         run: |
-          docker-compose -f ./gh-docker-compose.yml run --rm server bash -c 'wait-for-it db:5432 && ./manage.py makemigrations --check --dry-run' || {
+          docker compose -f ./gh-docker-compose.yml run --rm server bash -c 'wait-for-it db:5432 && ./manage.py makemigrations --check --dry-run' || {
             echo 'There are some changes to be reflected in the migration. Make sure to run makemigrations';
             exit 1;
           }
@@ -65,7 +65,7 @@ jobs:
         env:
           DOCKER_IMAGE_SERVER: ${{ steps.prep.outputs.tagged_image }}
         run: |
-          docker-compose -f ./gh-docker-compose.yml run --rm server ./manage.py setup_sentry_cron_monitor --validate-only || {
+          docker compose -f ./gh-docker-compose.yml run --rm server ./manage.py setup_sentry_cron_monitor --validate-only || {
             echo 'There are some changes to be reflected in the SentryMonitor. Make sure to update SentryMonitor';
             exit 1;
           }
