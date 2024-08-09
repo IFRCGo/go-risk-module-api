@@ -1,12 +1,13 @@
-import json
 import logging
 from datetime import datetime
 
 import pytz
-import urllib3
+import requests
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from common.models import Country, HazardType
+from common.utils import logging_response_context
 from imminent.models import Adam
 
 logger = logging.getLogger(__name__)
@@ -35,12 +36,16 @@ class Command(BaseCommand):
     def parse_datetime(self, date):
         return datetime.strptime(date, "%Y-%m-%dT%HH:MM::SS").strftime("%Y-%m-%d")
 
-    def handle(self, *args, **options):
-        http = urllib3.PoolManager()
-        url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/feed"
-        response = http.request("GET", url)
-        data = response.data
-        values = json.loads(data)
+    def handle(self, **_):
+        response = requests.get(f"{settings.WFP_ADAM}/events/feed")
+        if response.status_code != 200:
+            logger.error(
+                "Error querying events feed data",
+                extra=logging_response_context(response),
+            )
+            return
+        values = response.json()
+
         for data in values:
             if data["eventType"] in ["Earthquake", "Flood", "Tropical Storm"]:
                 adam = {

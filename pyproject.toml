@@ -46,6 +46,9 @@ pytest-django = "*"
 django-stubs = "==4.2.6"  # NOTE: 4.2.7 is messing with TextChoices/IntergerChoices
 djangorestframework-stubs = { version = "*", allow-prereleases = true }
 
+[tool.django-stubs]
+django_settings_module = "main.settings"
+
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "risk_module.settings"
 log_cli = true

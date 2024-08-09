@@ -416,3 +416,6 @@ METEO_SWISS_S3_ENDPOINT_URL = env("METEOSWISS_S3_ENDPOINT_URL")
 METEO_SWISS_S3_BUCKET = env("METEOSWISS_S3_BUCKET")
 METEO_SWISS_S3_ACCESS_KEY = env("METEOSWISS_S3_ACCESS_KEY")
 METEO_SWISS_S3_SECRET_KEY = env("METEOSWISS_S3_SECRET_KEY")
+
+# Static configs - TODO: django settings don't have a type support, maybe define this somewhere else?
+WFP_ADAM = "https://exie6ocssxnczub3aslzanna540gfdjs.lambda-url.eu-west-1.on.aws"

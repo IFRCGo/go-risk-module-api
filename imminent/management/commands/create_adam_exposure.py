@@ -1,9 +1,11 @@
 import json
 import logging
+import typing
 from datetime import datetime
 
 import pytz
-import urllib3
+import requests
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
@@ -29,17 +31,24 @@ class Command(BaseCommand):
         return datetime.strptime(date, "%Y-%m-%dT%HH:MM::SS").strftime("%Y-%m-%d")
 
     @staticmethod
-    def is_response_valid(response, response_data) -> bool:
-        if response.status != 200 or (isinstance(response_data, dict) and "features" not in response_data):
-            return False
-        return True
+    def process_response(response: requests.Response) -> typing.Optional[dict]:
+        if response.status_code != 200:
+            return None
 
-    def process_earthquakes(self, http):
-        earthquake_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/earthquakes/"
-        response = http.request("GET", earthquake_url)
-        response_data = json.loads(response.data)
+        try:
+            data = response.json()
+        except json.JSONDecodeError:
+            return None
 
-        if not self.is_response_valid(response, response_data):
+        if isinstance(data, dict) and "features" not in data:
+            return None
+        return data
+
+    def process_earthquakes(self, http_session: requests.Session):
+        response = http_session.get(f"{settings.WFP_ADAM}/events/earthquakes/")
+        response_data = self.process_response(response)
+
+        if response_data is None:
             logger.error(
                 "Error querying Adam Earthquakes data",
                 extra=logging_response_context(response),
@@ -76,12 +85,11 @@ class Command(BaseCommand):
             )
             Adam.objects.get_or_create(**data)
 
-    def process_floods(self, http):
-        flood_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/floods/"
-        response = http.request("GET", flood_url)
-        response_data = json.loads(response.data)
+    def process_floods(self, http_session: requests.Session):
+        response = http_session.get(f"{settings.WFP_ADAM}/events/floods/")
+        response_data = self.process_response(response)
 
-        if not self.is_response_valid(response, response_data):
+        if response_data is None:
             logger.error(
                 "Error querying Adam Floods data",
                 extra=logging_response_context(response),
@@ -110,12 +118,11 @@ class Command(BaseCommand):
             )
             Adam.objects.get_or_create(**data)
 
-    def process_cyclones(self, http):
-        cyclone_url = "https://x8qclqysv7.execute-api.eu-west-1.amazonaws.com/dev/events/cyclones/"
-        response = http.request("GET", cyclone_url)
-        response_data = json.loads(response.data)
+    def process_cyclones(self, http_session: requests.Session):
+        response = http_session.get(f"{settings.WFP_ADAM}/events/cyclones/")
+        response_data = self.process_response(response)
 
-        if not self.is_response_valid(response, response_data):
+        if response_data is None:
             logger.error(
                 "Error querying Adam Cyclones data",
                 extra=logging_response_context(response),
@@ -144,8 +151,8 @@ class Command(BaseCommand):
                 Adam.objects.get_or_create(**data)
 
     @monitor(monitor_slug=SentryMonitor.CREATE_ADAM_EXPOSURE)
-    def handle(self, *args, **kwargs):
-        http = urllib3.PoolManager()
-        self.process_earthquakes(http)
-        self.process_floods(http)
-        self.process_cyclones(http)
+    def handle(self, **_):
+        http_session = requests.Session()
+        self.process_earthquakes(http_session)
+        self.process_floods(http_session)
+        self.process_cyclones(http_session)
