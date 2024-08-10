@@ -91,7 +91,7 @@ class Command(BaseCommand):
             GDACS.objects.create(**data)
 
     @monitor(monitor_slug=SentryMonitor.IMPORT_GDACS_DATA)
-    def handle(self, *args, **kwargs):
+    def handle(self, **_):
         self.import_hazard_data("EQ", HazardType.EARTHQUAKE)
         self.import_hazard_data("TC", HazardType.CYCLONE)
         self.import_hazard_data("FL", HazardType.FLOOD)

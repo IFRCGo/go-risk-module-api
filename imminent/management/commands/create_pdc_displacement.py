@@ -16,41 +16,43 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Import Hazard Exposure Data"
 
+    @staticmethod
+    def fetch_pdc_data(uuid):
+        url = f"https://sentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/"
+        headers = {"Authorization": f"Bearer {settings.PDC_ACCESS_TOKEN}"}
+        response = requests.get(url, headers=headers)
+
+        if response.status_code != 200:
+            logger.error(
+                "Error querying PDC Exposure data",
+                extra=logging_response_context(response),
+            )
+            return None
+
+        return response.json()
+
+    @staticmethod
+    def create_pdc_displacement(pdc, hazard_type, data):
+        pdc_displacement_list = []
+
+        for d in data:
+            iso3 = d["country"].lower()
+            country = Country.objects.filter(iso3=iso3).first()
+
+            if country:
+                c_data = {
+                    "country": country,
+                    "hazard_type": hazard_type,
+                    "population_exposure": d["population"],
+                    "capital_exposure": d["capital"],
+                    "pdc": pdc,
+                }
+                pdc_displacement_list.append(PdcDisplacement(**c_data))
+
+        PdcDisplacement.objects.bulk_create(pdc_displacement_list)
+
     @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DISPLACEMENT)
-    def handle(self, *args, **options):
-
-        def fetch_pdc_data(uuid, hazard_type, pdc_updated_at):
-            url = f"https://sentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/"
-            headers = {"Authorization": f"Bearer {settings.PDC_ACCESS_TOKEN}"}
-            response = requests.get(url, headers=headers)
-
-            if response.status_code != 200:
-                logger.error(
-                    "Error querying PDC Exposure data",
-                    extra=logging_response_context(response),
-                )
-                return None
-
-            return response.json()
-
-        def create_pdc_displacement(pdc, hazard_type, data):
-            pdc_displacement_list = []
-
-            for d in data:
-                iso3 = d["country"].lower()
-                country = Country.objects.filter(iso3=iso3).first()
-
-                if country:
-                    c_data = {
-                        "country": country,
-                        "hazard_type": hazard_type,
-                        "population_exposure": d["population"],
-                        "capital_exposure": d["capital"],
-                        "pdc": pdc,
-                    }
-                    pdc_displacement_list.append(PdcDisplacement(**c_data))
-
-            PdcDisplacement.objects.bulk_create(pdc_displacement_list)
+    def handle(self, **_):
 
         uuids = Pdc.objects.filter(status=Pdc.Status.ACTIVE).values_list("uuid", "hazard_type", "pdc_updated_at")
 
@@ -61,7 +63,7 @@ class Command(BaseCommand):
                 pdc__pdc_updated_at=pdc_updated_at,
             ).exists():
                 pdc = Pdc.objects.filter(uuid=uuid).last()
-                response_data = fetch_pdc_data(uuid, hazard_type, pdc_updated_at)
+                response_data = self.fetch_pdc_data(uuid)
 
                 if response_data:
-                    create_pdc_displacement(pdc, hazard_type, response_data.get("totalByCountry"))
+                    self.create_pdc_displacement(pdc, hazard_type, response_data.get("totalByCountry"))

@@ -138,7 +138,7 @@ class Command(BaseCommand):
             # check for countries here
             # using only iso3 here isn't suitable for extracting the population exposure
             countries_props = cyclone_event["properties"]["countries"].split(",")
-            for country in countries_props:
+            for country in countries_props:  # XXX: Why not just select the last countries_props?
                 data.update(
                     {
                         "country": Country.objects.filter(name__icontains=country.strip()).last(),

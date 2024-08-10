@@ -94,7 +94,7 @@ class Command(BaseCommand):
 
     def save_pdc_using_uuid(self, session, token_expires, uuid_list: typing.List[str]) -> bool:
         """
-        Query PDC data from Arc GIS: https://partners.pdc.org/arcgis/rest/services/partners/pdc_hazard_exposure/MapServer/27/query
+        Query and save pdc polygon data from Arc GIS for given uuids
         """
         if token_expires is None or datetime.datetime.now() >= token_expires:
             access_token, token_expires = self.get_access_token(session)
