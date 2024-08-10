@@ -18,23 +18,62 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = "Import Active Hazards"
 
-    def parse_timestamp(self, timestamp):
-        # NOTE: all timestamp are in millisecond and with timezone `utc`
-        return timezone.make_aware(datetime.datetime.utcfromtimestamp(int(timestamp) / 1000))
+    SEVERITY_MAP = {
+        "WARNING": Pdc.Severity.WARNING,
+        "WATCH": Pdc.Severity.WATCH,
+        "ADVISORY": Pdc.Severity.ADVISORY,
+        "INFORMATION": Pdc.Severity.INFORMATION,
+    }
 
-    def parse_severity(self, severity):
-        if severity == "WARNING":
-            severity = Pdc.Severity.WARNING
-        elif severity == "WATCH":
-            severity = Pdc.Severity.WATCH
-        elif severity == "ADVISORY":
-            severity = Pdc.Severity.ADVISORY
-        elif severity == "INFORMATION":
-            severity = Pdc.Severity.INFORMATION
-        return severity
+    HAZARD_TYPE_MAP = {
+        "FLOOD": HazardType.FLOOD,
+        "CYCLONE": HazardType.CYCLONE,
+        "STORM": HazardType.STORM,
+        "DROUGHT": HazardType.DROUGHT,
+        "WIND": HazardType.WIND,
+        "TSUNAMI": HazardType.TSUNAMI,
+        "EARTHQUAKE": HazardType.EARTHQUAKE,
+        "WILDFIRE": HazardType.WILDFIRE,
+    }
+
+    @staticmethod
+    def parse_timestamp(timestamp):
+        # NOTE: all timestamp are in millisecond and with timezone `utc`
+        return timezone.make_aware(
+            # FIXME: Using deprecated function
+            datetime.datetime.utcfromtimestamp(int(timestamp) / 1000)
+        )
+
+    def save_pdc_data(self, hazard_type: HazardType, data):
+        pdc_updated_at = self.parse_timestamp(data["last_Update"])
+
+        existing_qs = Pdc.objects.filter(
+            uuid=data["uuid"],
+            hazard_type=hazard_type,
+            pdc_updated_at=pdc_updated_at,
+        )
+        if existing_qs.exists():
+            return
+
+        pdc_data = {
+            "hazard_id": data["hazard_ID"],
+            "hazard_name": data["hazard_Name"],
+            "latitude": data["latitude"],
+            "longitude": data["longitude"],
+            "description": data["description"],
+            "hazard_type": hazard_type,
+            "uuid": data["uuid"],
+            "start_date": self.parse_timestamp(data["start_Date"]),
+            "end_date": self.parse_timestamp(data["end_Date"]),
+            "status": Pdc.Status.ACTIVE,
+            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
+            "pdc_updated_at": pdc_updated_at,
+            "severity": self.SEVERITY_MAP.get(data["severity_ID"].upper()),
+        }
+        Pdc.objects.get_or_create(**pdc_data)
 
     @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DATA)
-    def handle(self, *args, **options):
+    def handle(self, **_):
         # NOTE: Use the search hazard api for the information download
         # make sure to use filter the data
         url = "https://sentry.pdc.org/hp_srv/services/hazards/t/json/search_hazard"
@@ -54,193 +93,17 @@ class Command(BaseCommand):
                 "Error querying PDC data",
                 extra=logging_response_context(response),
             )
-            # TODO: return?
+            return
 
         response_data = response.json()
         for data in response_data:
             # NOTE: Filter the active hazard only
             # Update the hazard if it has expired
-            hazard_type = data["type_ID"]
             hazard_status = data["status"]
+
             if hazard_status == "E":
-                pdcs = Pdc.objects.filter(uuid=data["uuid"])
-                for pdc in pdcs:
-                    pdc.status = Pdc.Status.EXPIRED
-                    pdc.save(update_fields=["status"])
-            if hazard_status == "A":
-                if hazard_type == "FLOOD":
-                    hazard_type = HazardType.FLOOD
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": pdc_updated_at,
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
-                elif hazard_type == "CYCLONE":
-                    hazard_type = HazardType.CYCLONE
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
-                elif hazard_type == "STORM":
-                    hazard_type = HazardType.STORM
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
-                elif hazard_type == "DROUGHT":
-                    hazard_type = HazardType.DROUGHT
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
-                elif hazard_type == "WIND":
-                    hazard_type = HazardType.WIND
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
-                elif hazard_type == "TSUNAMI":
-                    hazard_type = HazardType.TSUNAMI
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
-                elif hazard_type == "EARTHQUAKE":
-                    hazard_type = HazardType.EARTHQUAKE
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
-                elif hazard_type == "WILDFIRE":
-                    hazard_type = HazardType.WILDFIRE
-                    pdc_updated_at = self.parse_timestamp(data["last_Update"])
-                    if Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-                        continue
-                    else:
-                        data = {
-                            "hazard_id": data["hazard_ID"],
-                            "hazard_name": data["hazard_Name"],
-                            "latitude": data["latitude"],
-                            "longitude": data["longitude"],
-                            "description": data["description"],
-                            "hazard_type": hazard_type,
-                            "uuid": data["uuid"],
-                            "start_date": self.parse_timestamp(data["start_Date"]),
-                            "end_date": self.parse_timestamp(data["end_Date"]),
-                            "status": Pdc.Status.ACTIVE,
-                            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
-                            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
-                            "severity": self.parse_severity(data["severity_ID"]),
-                        }
-                        Pdc.objects.get_or_create(**data)
+                Pdc.objects.filter(uuid=data["uuid"]).update(status=Pdc.Status.EXPIRED)
+
+            elif hazard_status == "A":
+                if hazard_type := self.HAZARD_TYPE_MAP.get(data["type_ID"].upper()):
+                    self.save_pdc_data(hazard_type, data)
