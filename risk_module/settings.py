@@ -313,7 +313,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "create_pdc_five_days_cou": {
         "task": "imminent.tasks.create_pdc_five_days_cou",
-        "schedule": crontab(minute=0, hour=4), # This task executes daily at 4 AM (UTC)
+        "schedule": crontab(minute=0, hour=4),  # This task executes daily at 4 AM (UTC)
     },
     "create_hazard_information": {
         "task": "seasonal.tasks.import_think_hazard_informations",

@@ -83,8 +83,12 @@ class Pdc(models.Model):
     end_date = models.DateField(null=True, blank=True, verbose_name=_("end_date"))
     footprint_geojson = models.JSONField(blank=True, null=True, default=None, verbose_name=_("Footprint Geojson"))
     storm_position_geojson = models.JSONField(blank=True, null=True, default=None, verbose_name=_("Storm Position Geojson"))
-    cyclone_three_days_cou = models.JSONField(blank=True, null=True, default=None, verbose_name=_("Cyclone Three Days Cone of Uncertainty"))
-    cyclone_five_days_cou = models.JSONField(blank=True, null=True, default=None, verbose_name=_("Cyclone Five Days Cone of Uncertainty"))
+    cyclone_three_days_cou = models.JSONField(
+        blank=True, null=True, default=None, verbose_name=_("Cyclone Three Days Cone of Uncertainty")
+    )
+    cyclone_five_days_cou = models.JSONField(
+        blank=True, null=True, default=None, verbose_name=_("Cyclone Five Days Cone of Uncertainty")
+    )
 
     def __str__(self):
         return f"{self.hazard_id} - {self.hazard_name}"
