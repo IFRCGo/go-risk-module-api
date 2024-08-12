@@ -62,6 +62,21 @@ def check_pdc_status():
             return
         call_command("check_pdc_status")
 
+@shared_task
+def create_pdc_three_days_cou():
+    with redis_lock(CacheKey.get_sm_lock(SentryMonitor.CREATE_PDC_THREE_DAYS_COU)) as acquired:
+        if not acquired:
+            logger.warning("CREATE_PDC_THREE_DAYS_COU is alreay running.....")
+            return
+        call_command("create_pdc_three_days_cou")
+
+@shared_task
+def create_pdc_five_days_cou():
+    with redis_lock(CacheKey.get_sm_lock(SentryMonitor.CREATE_PDC_FIVE_DAYS_COU)) as acquired:
+        if not acquired:
+            logger.warning("CREATE_PDC_FIVE_DAYS_COU is already running......")
+            return
+        call_command("create_pdc_five_days_cou")
 
 @shared_task
 def import_earthquake_data():
