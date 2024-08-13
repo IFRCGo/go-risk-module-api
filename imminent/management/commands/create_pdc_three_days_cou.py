@@ -21,7 +21,9 @@ class Command(BaseCommand):
         # arc-gis server of pdc
         # filtering only cyclone since they only have track of disaster path
 
-        uuids = Pdc.objects.filter(status=Pdc.Status.ACTIVE, hazard_type=HazardType.CYCLONE).values_list("uuid", flat=True)
+        uuids = (
+            Pdc.objects.filter(status=Pdc.Status.ACTIVE, hazard_type=HazardType.CYCLONE).values_list("uuid", flat=True).distinct()
+        )
 
         session = requests.Session()
         token_expires = None
