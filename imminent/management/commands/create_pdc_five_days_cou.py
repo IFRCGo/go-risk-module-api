@@ -48,4 +48,4 @@ class Command(BaseCommand):
 
             if arc_response.status_code == 200:
                 response_data = arc_response.json()
-                Pdc.objects.filter(uuid=uuid).update(cyclone_five_days_cou=response_data)
+                Pdc.objects.filter(uuid=uuid).update(cyclone_five_days_cou=response_data["features"])
