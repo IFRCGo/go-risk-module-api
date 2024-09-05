@@ -107,6 +107,9 @@ class SentryPdcSource:
             "stale_displacement": True,  # NOTE: Another cron job will update this data
         }
         # Create or update existing data
+        # TODO: Remove this later
+        if Pdc.objects.filter(uuid=uuid).count() > 1:
+            Pdc.objects.filter(uuid=uuid).delete()
         Pdc.objects.update_or_create(uuid=uuid, defaults=pdc_data)
 
 
