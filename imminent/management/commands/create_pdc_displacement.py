@@ -1,13 +1,13 @@
 import logging
 
 import requests
-from django.conf import settings
 from django.core.management.base import BaseCommand
 from sentry_sdk.crons import monitor
 
-from common.models import Country
 from common.utils import logging_response_context
 from imminent.models import Pdc, PdcDisplacement
+from imminent.sources.pdc import SentryPdcSource
+from imminent.sources.utils import CountryQuery
 from risk_module.sentry import SentryMonitor
 
 logger = logging.getLogger(__name__)
@@ -18,9 +18,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def fetch_pdc_data(uuid):
-        url = f"https://sentry.pdc.org/hp_srv/services/hazard/{uuid}/exposure/latest/"
-        headers = {"Authorization": f"Bearer {settings.PDC_ACCESS_TOKEN}"}
-        response = requests.get(url, headers=headers)
+        response = requests.get(
+            SentryPdcSource.URL.get_hazard_exposure_latest(uuid),
+            headers=SentryPdcSource.authorization_headers(),
+        )
 
         if response.status_code != 200:
             logger.error(
@@ -32,20 +33,18 @@ class Command(BaseCommand):
         return response.json()
 
     @staticmethod
-    def create_pdc_displacement(pdc, hazard_type, data):
+    def create_pdc_displacement(country_query: CountryQuery, pdc: Pdc, total_by_country_data):
         pdc_displacement_list = []
 
-        for d in data:
+        for d in total_by_country_data:
             iso3 = d["country"].lower()
-            country = Country.objects.filter(iso3=iso3).first()
-
-            if country:
+            if country := country_query.get_by_iso3(iso3):
                 c_data = {
                     "country": country,
-                    "hazard_type": hazard_type,
+                    "hazard_type": pdc.hazard_type,
+                    "pdc": pdc,
                     "population_exposure": d["population"],
                     "capital_exposure": d["capital"],
-                    "pdc": pdc,
                 }
                 pdc_displacement_list.append(PdcDisplacement(**c_data))
 
@@ -54,16 +53,15 @@ class Command(BaseCommand):
     @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DISPLACEMENT)
     def handle(self, **_):
 
-        uuids = Pdc.objects.filter(status=Pdc.Status.ACTIVE).values_list("uuid", "hazard_type", "pdc_updated_at")
+        country_query = CountryQuery()
+        pdc_qs = Pdc.objects.filter(
+            status=Pdc.Status.ACTIVE,
+            stale_displacement=True,
+        )
 
-        for uuid, hazard_type, pdc_updated_at in uuids:
-            if not PdcDisplacement.objects.filter(
-                pdc__uuid=uuid,
-                pdc__hazard_type=hazard_type,
-                pdc__pdc_updated_at=pdc_updated_at,
-            ).exists():
-                pdc = Pdc.objects.filter(uuid=uuid).last()
-                response_data = self.fetch_pdc_data(uuid)
-
-                if response_data:
-                    self.create_pdc_displacement(pdc, hazard_type, response_data.get("totalByCountry"))
+        for pdc in pdc_qs:
+            PdcDisplacement.objects.filter(pdc=pdc).delete()
+            if response_data := self.fetch_pdc_data(pdc.uuid):
+                self.create_pdc_displacement(country_query, pdc, response_data.get("totalByCountry"))
+            pdc.stale_displacement = False
+            pdc.save(update_fields=("stale_displacement",))

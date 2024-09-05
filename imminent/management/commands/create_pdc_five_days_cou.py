@@ -1,51 +1,57 @@
-import datetime
+import typing
 
-import requests
 from django.core.management.base import BaseCommand
+from django.db import models
 from sentry_sdk.crons import monitor
 
 from common.models import HazardType
 from imminent.models import Pdc
+from imminent.sources.pdc import ArcGisPdcSource
 from risk_module.sentry import SentryMonitor
 
-from .create_pdc_polygon import ARC_GIS_DEFAULT_PARAMS
-from .create_pdc_polygon import Command as CreatePdcDataCommand
 
-
-class Command(BaseCommand):
+class Command(ArcGisPdcSource.CommandMixin, BaseCommand):
     help = "Get PDC 5 days Cone of Uncertainty data"
 
-    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_FIVE_DAYS_COU)
-    def handle(self, *args, **kwargs):
-        # get all the uuids and use them to query to the
-        # arc-gis server of pdc
-        # filtering only cyclone since they only have track of disaster path
+    def get_pdc_queryset(self) -> models.QuerySet[Pdc]:
+        return super().get_pdc_queryset().filter(hazard_type=HazardType.CYCLONE)
 
-        uuids = (
-            Pdc.objects.filter(status=Pdc.Status.ACTIVE, hazard_type=HazardType.CYCLONE).values_list("uuid", flat=True).distinct()
-        )
-
-        session = requests.Session()
-        token_expires = None
-
-        arc_gis_url = (
+    def save_pdc_using_uuid(self, session, uuid_list: typing.List[str]) -> bool:
+        """
+        Query and save pdc polygon data from Arc GIS for given uuids
+        """
+        # Fetch data for multiple uuids
+        url = (
             "https://partners.pdc.org/arcgis/rest/services/partners/pdc_active_hazards_partners/MapServer/13/query"  # noqa: E501
         )
+        response = session.post(
+            url=url,
+            data={
+                **ArcGisPdcSource.ARC_GIS_DEFAULT_PARAMS,
+                # NOTE: Each new request has 6s+ response time, using where in query we reduce that latency
+                "where": self.generate_uuid_where_statement("uuid", uuid_list),
+                "outFields": (
+                    "uuid,"
+                    "hazard_name,storm_name,advisory_number,severity,objectid,shape,ESRI_OID,category_id,source,uuid,hazard_id"
+                ),
+            },
+        )
 
-        for uuid in uuids:
-            if token_expires is None or datetime.datetime.now() >= token_expires:
-                access_token, token_expires = CreatePdcDataCommand.get_access_token(session)
-                session.headers.update({"Authorization": f"Bearer {access_token}"})
+        # Save data for multiple uuids
+        response_data = response.json()
 
-            arc_response = session.post(
-                url=arc_gis_url,
-                data={
-                    **ARC_GIS_DEFAULT_PARAMS,
-                    "where": f"uuid='{uuid}'",
-                    "outFields": "hazard_name,storm_name,advisory_number,severity,objectid,shape,ESRI_OID,category_id,source,uuid,hazard_id",  # noqa: E501
-                },
+        is_valid = self.is_valid_arc_response(response_data)
+        if not is_valid:
+            return False
+
+        for feature in response_data["features"]:
+            # XXX: Multiple row has same uuid
+            _uuid = feature["properties"].pop("uuid")
+            Pdc.objects.filter(uuid=_uuid).update(
+                cyclone_five_days_cou=feature,
             )
+        return True
 
-            if arc_response.status_code == 200:
-                response_data = arc_response.json()
-                Pdc.objects.filter(uuid=uuid).update(cyclone_five_days_cou=response_data["features"])
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_FIVE_DAYS_COU)
+    def handle(self, **_):
+        self.process()

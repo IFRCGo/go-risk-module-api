@@ -9,10 +9,12 @@ from django.utils import timezone
 from common.models import Country, HazardType
 from common.utils import logging_response_context
 from imminent.models import Pdc, PdcDisplacement
+from imminent.sources.pdc import SentryPdcSource
 
 logger = logging.getLogger(__name__)
 
 
+# Deprecated: Not used
 class Command(BaseCommand):
     help = "Import Active Hazards"
 
@@ -84,24 +86,33 @@ class Command(BaseCommand):
     def create_or_update_pdc(self, data):
         hazard_type = HazardType.WILDFIRE
         pdc_updated_at = self.parse_timestamp(data["last_Update"])
-        if not Pdc.objects.filter(uuid=data["uuid"], hazard_type=hazard_type, pdc_updated_at=pdc_updated_at).exists():
-            Pdc.objects.get_or_create(
-                hazard_id=data["hazard_ID"],
-                hazard_name=data["hazard_Name"],
-                latitude=data["latitude"],
-                longitude=data["longitude"],
-                description=data["description"],
-                hazard_type=hazard_type,
-                uuid=data["uuid"],
-                start_date=self.parse_timestamp(data["start_Date"]),
-                end_date=self.parse_timestamp(data["end_Date"]),
-                status=Pdc.Status.ACTIVE,
-                pdc_created_at=self.parse_timestamp(data["create_Date"]),
-                pdc_updated_at=self.parse_timestamp(data["last_Update"]),
-                severity=self.parse_severity(data["severity_ID"]),
-            )
+        pdc_uuid = data["uuid"]
 
-    def create_displacement_records(self, uuid, hazard_type, pdc_updated_at, total_by_country):
+        existing_qs = Pdc.objects.filter(
+            uuid=pdc_uuid,
+            hazard_type=hazard_type,
+            pdc_updated_at=pdc_updated_at,
+        )
+        if existing_qs.exists():
+            return
+
+        pdc_data = {
+            "hazard_id": data["hazard_ID"],
+            "hazard_name": data["hazard_Name"],
+            "latitude": data["latitude"],
+            "longitude": data["longitude"],
+            "description": data["description"],
+            "hazard_type": hazard_type,
+            "start_date": self.parse_timestamp(data["start_Date"]),
+            "end_date": self.parse_timestamp(data["end_Date"]),
+            "status": Pdc.Status.ACTIVE,
+            "pdc_created_at": self.parse_timestamp(data["create_Date"]),
+            "pdc_updated_at": self.parse_timestamp(data["last_Update"]),
+            "severity": self.parse_severity(data["severity_ID"]),
+        }
+        Pdc.objects.update_or_create(uuid=pdc_uuid, defaults=pdc_data)
+
+    def create_displacement_records(self, uuid, hazard_type, total_by_country):
         for pdc in Pdc.objects.filter(uuid=uuid):
             for d in total_by_country:
                 iso3_country = d["country"].lower()
@@ -119,12 +130,9 @@ class Command(BaseCommand):
                 PdcDisplacement.objects.create(hazard_type=hazard_type, pdc=pdc)
 
     def update_pdc_footprint(self, uuid, footprint_geojson):
-        for pdc in Pdc.objects.filter(uuid=uuid):
-            pdc.footprint_geojson = footprint_geojson.get("features")
-            pdc.save(update_fields=["footprint_geojson"])
+        return Pdc.objects.filter(uuid=uuid).update(footprint_geojson=footprint_geojson.get("features"))
 
     def handle(self, *args, **options):
-        url = "https://sentry.pdc.org/hp_srv/services/hazards/t/json/search_hazard"
         now = datetime.datetime.now()
         today_timestamp = str(int(datetime.datetime.timestamp(now) * 1000))
         data = {
@@ -132,15 +140,13 @@ class Command(BaseCommand):
             "order": {"orderlist": {"updateDate": "DESC"}},
             "restrictions": [[{"searchType": "LESS_THAN", "updateDate": today_timestamp}]],
         }
-        response_data = self.fetch_data(url, data)
+        response_data = self.fetch_data(SentryPdcSource.URL.PDC_SEARCH_HAZARD, data)
 
         for data in response_data:
             hazard_status = data["status"]
             if hazard_status == "E":
-                pdcs = Pdc.objects.filter(uuid=data["uuid"])
-                for pdc in pdcs:
-                    pdc.status = Pdc.Status.EXPIRED
-                    pdc.save(update_fields=["status"])
+                Pdc.objects.filter(uuid=data["uuid"]).filter(status=Pdc.Status.EXPIRED)
+
             elif hazard_status == "A":
                 self.create_or_update_pdc(data)
                 exposure_data = self.fetch_exposure_data(data["uuid"])
@@ -150,7 +156,9 @@ class Command(BaseCommand):
                     pdc__uuid=data["uuid"], pdc__hazard_type=hazard_type, pdc__pdc_updated_at=pdc_updated_at
                 ).exists():
                     self.create_displacement_records(
-                        data["uuid"], hazard_type, pdc_updated_at, exposure_data.get("totalByCountry", [])
+                        data["uuid"],
+                        hazard_type,
+                        exposure_data.get("totalByCountry", []),
                     )
                 polygon_data = self.fetch_polygon_data(data["uuid"])
                 self.update_pdc_footprint(data["uuid"], polygon_data)
