@@ -1,4 +1,5 @@
 import typing
+from collections import defaultdict
 
 from django.core.management.base import BaseCommand
 from django.db import models
@@ -39,11 +40,16 @@ class Command(ArcGisPdcSource.CommandMixin, BaseCommand):
         if not is_valid:
             return False
 
+        # NOTE: Here multiple features are return per uuid as which are used as FeatureCollection in go-web-app
+        feature_by_uuid = defaultdict(list)
         for feature in response_data["features"]:
+            _uuid = feature["properties"]["uuid"]
+            feature_by_uuid[_uuid].append(feature)
+
+        for _uuid, features in feature_by_uuid.items():
             # XXX: Multiple row has same uuid
-            _uuid = feature["properties"].pop("uuid")
             Pdc.objects.filter(uuid=_uuid).update(
-                cyclone_three_days_cou=feature,
+                cyclone_three_days_cou=features,
             )
         return True
 
