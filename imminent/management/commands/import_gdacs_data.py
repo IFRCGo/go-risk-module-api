@@ -1,4 +1,5 @@
 import logging
+import typing
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -23,6 +24,14 @@ def get_timezone_aware_datetime(iso_format_datetime) -> datetime:
     return publish_date
 
 
+def get_as_int(value: typing.Optional[str]) -> typing.Optional[int]:
+    if value is None:
+        return
+    if value == "-":
+        return
+    return int(value)
+
+
 class Command(BaseCommand):
     help = "Import Active Hazards From GDACS"
 
@@ -30,23 +39,32 @@ class Command(BaseCommand):
         url = f"https://www.gdacs.org/report.aspx?eventid={event_id}&eventtype={hazard_type_str}"
         population_exposure = {}
         try:
+
             tables = pd.read_html(url)
-            displacement_data = tables[0].replace({np.nan: None}).to_dict()
+            displacement_data_raw = tables[0].replace({np.nan: None}).to_dict()
+            displacement_data = dict(
+                zip(
+                    displacement_data_raw[0].values(),  # First column are keys
+                    displacement_data_raw[1].values(),  # Second column are values
+                )
+            )
+
             if hazard_type_str == "EQ":
-                population_exposure["exposed_population"] = displacement_data.get(1, {}).get(5)
+                population_exposure["exposed_population"] = displacement_data.get("Exposed Population:")
+
             elif hazard_type_str == "TC":
-                population_exposure["exposed_population"] = displacement_data.get(1, {}).get("Exposed population")
+                population_exposure["exposed_population"] = displacement_data.get("Exposed population")
+
             elif hazard_type_str == "FL":
-                population_exposure["death"] = (
-                    int(displacement_data.get(1, {}).get(1)) if displacement_data.get(1, {}).get(1) != "-" else None
-                )
-                population_exposure["displaced"] = (
-                    int(displacement_data.get(1, {}).get(2)) if displacement_data.get(1, {}).get(2) != "-" else None
-                )
+                population_exposure["death"] = get_as_int(displacement_data.get("Death:"))
+                population_exposure["displaced"] = get_as_int(displacement_data.get("Displaced:"))
+
             elif hazard_type_str == "DR":
                 population_exposure["impact"] = displacement_data.get("Impact:")
+
             elif hazard_type_str == "WF":
-                population_exposure["people_affected"] = displacement_data.get(1, {}).get(4)
+                population_exposure["people_affected"] = displacement_data.get("People affected:")
+
         except Exception:
             logger.error(
                 "Error scraping data",
