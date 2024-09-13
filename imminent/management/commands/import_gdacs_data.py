@@ -125,7 +125,7 @@ class Command(BaseCommand):
             if footprint_response.status_code != 200:
                 logger.error(
                     "Error querying Footprint data",
-                    extra=logging_response_context(response),
+                    extra=logging_response_context(footprint_response),
                 )
                 continue
 
