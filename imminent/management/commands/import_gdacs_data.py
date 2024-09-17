@@ -132,7 +132,7 @@ class Command(BaseCommand):
             footprint_response_data = footprint_response.json()
             data["footprint_geojson"] = footprint_response_data
 
-            GDACS.objects.update_or_create(hazard_id=event_id, **data)
+            GDACS.objects.update_or_create(hazard_id=event_id, defaults=data)
 
     @monitor(monitor_slug=SentryMonitor.IMPORT_GDACS_DATA)
     def handle(self, **_):
