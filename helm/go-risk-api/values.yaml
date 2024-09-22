@@ -1,0 +1,81 @@
+image:
+  repository: ghcr.io/ifrcgo/go-risk-module-api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+global:
+  postgresql:
+    auth:
+      username: ""
+      database: ""
+      existingSecret: my-risk-module-secrets
+      secretKeys:
+        userPasswordKey: DATABASE_PASSWORD
+        adminPasswordKey: DATABASE_PASSWORD
+        replicationPasswordKey: DATABASE_PASSWORD
+    service:
+      ports:
+        postgresql: 5432
+
+postgresql:
+  enabled: true
+  fullnameOverride: ""
+
+externalDatabase:
+  host: ""
+  port: 5432
+  auth:
+    username:
+    database:
+    existingSecret:
+    secretKeys:
+      userPasswordKey:
+
+redis:
+  enabled: true
+
+externalRedis:
+  host: ""
+  port: 6379
+
+api:
+  django:
+    debug: "True"
+  meteoswiss:
+    s3Bucket: some-bucket
+    s3EndpointURL: "https://s3.amazonaws.com"
+  pdc:
+    username: pdc-username
+  riskEnvironment: development
+  riskAPIFQDN: "go-risk-module.ifrc.org"
+  imagePullSecrets:
+    - ghcr-secret
+
+azure:
+  aksSecretsProviderAvailable: false 
+  keyvault:
+    name: risk-module-key-vault
+    clientId: "jkl-asdfak-asdfasdf-asdfasd"
+    tenantId: "asdfa-asdfasd-asdfasdfadfas"
+
+secret:
+  name: ""
+  refs:
+    - DJANGO-SECRET-KEY
+    - DATABASE-PASSWORD
+    - PDC-PASSWORD
+    - PDC-ACCESS-TOKEN
+    - METEOSWISS-S3-BUCKET
+    - METEOSWISS-S3-ACCESS_KEY
+    - METEOSWISS-S3-SECRET_KEY
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  # Required when using workload identity to access Azure Key Vault Secrets
+  create: false
+  automount: true
+  annotations:
+    azure.workload.identity/client-id : <azure_client_id>
+  labels:
+    azure.workload.identity/use: "true"
+  name: ""
