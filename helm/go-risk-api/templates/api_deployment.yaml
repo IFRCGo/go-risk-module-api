@@ -2,83 +2,32 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    service: {{ .Release.Name }}-api
-  name: {{ .Release.Name }}-api
+    service: {{ include "application.fullname" . }}-api
+  name: {{ include "application.fullname" .}}-api
 spec:
   selector:
     matchLabels:
-      service: {{ .Release.Name }}-api
+      service: {{ include "application.fullname" . }}-api
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
-        service: {{ .Release.Name }}-api
+        app: {{ include "application.fullname" . }}-api
+        service: {{ include "application.fullname" . }}-api
     spec:
       containers:
         - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          name: {{ .Release.Name }}-api
-          serviceAccountName: {{ include "api.serviceAccountName" . }}
+          name: {{ include "application.fullname" . }}-api
           args:
             - bash
             - -c
             - /code/scripts/run_develop.sh
-          env:
-            - name: DATABASE_HOST
-              value: {{ if .Values.externalDatabase.host }}
-                      {{- .Values.externalDatabase.host }}
-                    {{ else }}
-                      {{- $postgresqlServiceName := .Values.postgresql.fullnameOverride | default (printf "%s-postgresql" .Release.Name) }}
-                      {{- $postgresqlServiceName | trunc 63 | trimSuffix "-" }}
-                    {{- end }}
-            - name: DATABASE_PORT
-              value: {{ if .Values.externalDatabase.host }}
-                      {{- .Values.externalDatabase.port | quote }}
-                    {{ else }}
-                      {{- .Values.global.postgresql.service.ports.postgresql | quote }}
-                    {{- end }}
-            - name: DATABASE_NAME
-              value: {{ if .Values.externalDatabase.host }}
-                      {{- .Values.externalDatabase.auth.database }}
-                    {{ else }}
-                      {{- .Values.global.postgresql.auth.database | default "postgres" }}
-                    {{- end }}
-            - name: DATABASE_USER
-              value: {{ if .Values.externalDatabase.host }}
-                      {{- .Values.externalDatabase.auth.username }}
-                    {{ else }}
-                      {{- .Values.global.postgresql.auth.username | default "postgres" }}
-                    {{- end }}
-            - name: DJANGO_DEBUG
-              value: {{ .Values.api.django.debug | quote }}
-            - name: CACHE_REDIS_URL
-              value: {{ if .Values.externalRedis.host }}
-                      {{- printf "redis://%s:%s/0" .Values.externalRedis.host (.Values.externalRedis.port | toString) }}
-                    {{ else }}
-                      {{- $redisServiceName := .Values.redis.fullnameOverride | default (printf "%s-redis-master" .Release.Name) }}
-                      {{- $redisServiceName := $redisServiceName | trunc 63 | trimSuffix "-" }}
-                      {{- printf "redis://%s:%s/0" $redisServiceName (.Values.externalRedis.port | toString) | quote }}
-                    {{- end }}
-            - name: CELERY_REDIS_URL
-              value: {{ if .Values.externalRedis.host }}
-                      {{- printf "redis://%s:%s/1" .Values.externalRedis.host (.Values.externalRedis.port | toString) }}
-                    {{ else }}
-                      {{- $redisServiceName := .Values.redis.fullnameOverride | default (printf "%s-redis-master" .Release.Name) }}
-                      {{- $redisServiceName := $redisServiceName | trunc 63 | trimSuffix "-" }}
-                      {{- printf "redis://%s:%s/1" $redisServiceName (.Values.externalRedis.port | toString) | quote }}
-                    {{- end }}
-            - name: RISK_API_FQDN
-              value: {{ .Values.api.riskAPIFQDN }}
-            - name: RISK_ENVIRONMENT
-              value: {{ .Values.api.riskEnvironment }}
-            - name: METEOSWISS_S3_BUCKET
-              value: {{ .Values.api.meteoswiss.s3Bucket }}
-            - name: METEOSWISS_S3_ENDPOINT_URL
-              value: {{ .Values.api.meteoswiss.s3EndpointURL }}
-            - name: PDC_USERNAME
-              value: {{ .Values.api.pdc.username }}
-            {{- include "api.secrets" . | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "application.fullname" . }}-app-config
+            - secretRef:
+                name: {{ include "application.secretname" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 9001
@@ -88,3 +37,4 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       restartPolicy: Always
+      serviceAccountName: {{ include "application.serviceAccountName" . }}

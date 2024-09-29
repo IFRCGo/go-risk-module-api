@@ -1,26 +1,62 @@
 image:
   repository: ghcr.io/ifrcgo/go-risk-module-api
   pullPolicy: IfNotPresent
-  tag: "latest"
+  tag: "test"
 
+nameOverride: ""
+fullnameOverride: ""
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+appConfig:
+  DJANGO_DEBUG: "True"
+  METEOSWISS_S3_BUCKET: some-bucket
+  METEOSWISS_S3_ENDPOINT_URL: "https://s3.amazonaws.com"
+  PDC_USERNAME: pdc-username
+  RISK_ENVIRONMENT: development
+  RISK_API_FQDN: "go-risk-module.ifrc.org"
+
+appSecret:
+  name: ""
+  keys:
+    - DATABASE_PASSWORD
+    - DJANGO_SECRET_KEY
+    - METEOSWISS_S3_ACCESS_KEY
+    - METEOSWISS_S3_BUCKET
+    - METEOSWISS_S3_SECRET_KEY
+    - PDC_ACCESS_TOKEN
+    - PDC_PASSWORD
+
+# Subchart configuration
+postgresql:
+  enabled: true
+  fullnameOverride: ""
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  architecture: standalone
+  replica:
+    replicaCount: 0
+
+# Global configurations are required for consistency across the chart and its subcharts
 global:
   postgresql:
     auth:
       username: ""
       database: ""
-      existingSecret: my-risk-module-secrets
+      existingSecret: some-risk-module-secret
       secretKeys:
         userPasswordKey: DATABASE_PASSWORD
         adminPasswordKey: DATABASE_PASSWORD
-        replicationPasswordKey: DATABASE_PASSWORD
+#        replicationPasswordKey: DATABASE_PASSWORD
     service:
       ports:
         postgresql: 5432
 
-postgresql:
-  enabled: true
-  fullnameOverride: ""
-
+# Connection parameters for external PostgreSQL database
 externalDatabase:
   host: ""
   port: 5432
@@ -31,43 +67,17 @@ externalDatabase:
     secretKeys:
       userPasswordKey:
 
-redis:
-  enabled: true
-
+# Connection parameters for external Redis
 externalRedis:
   host: ""
   port: 6379
 
-api:
-  django:
-    debug: "True"
-  meteoswiss:
-    s3Bucket: some-bucket
-    s3EndpointURL: "https://s3.amazonaws.com"
-  pdc:
-    username: pdc-username
-  riskEnvironment: development
-  riskAPIFQDN: "go-risk-module.ifrc.org"
-  imagePullSecrets:
-    - ghcr-secret
-
 azure:
-  aksSecretsProviderAvailable: false 
+  aksSecretsProviderAvailable: false
   keyvault:
     name: risk-module-key-vault
     clientId: "jkl-asdfak-asdfasdf-asdfasd"
     tenantId: "asdfa-asdfasd-asdfasdfadfas"
-
-secret:
-  name: ""
-  refs:
-    - DJANGO-SECRET-KEY
-    - DATABASE-PASSWORD
-    - PDC-PASSWORD
-    - PDC-ACCESS-TOKEN
-    - METEOSWISS-S3-BUCKET
-    - METEOSWISS-S3-ACCESS_KEY
-    - METEOSWISS-S3-SECRET_KEY
 
 serviceAccount:
   # Specifies whether a service account should be created
