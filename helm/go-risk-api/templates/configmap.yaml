@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "application.fullname" .}}-app-config
+data:
+  CACHE_REDIS_URL: {{ include "redis.cacheUrl" . | quote }}
+  CELERY_REDIS_URL: {{ include "redis.celeryUrl" . | quote }}
+  DATABASE_HOST: {{ include "database.host" . | quote }}
+  DATABASE_PORT: {{ include "database.port" . | quote }}
+  DATABASE_NAME: {{ include "database.name" . | quote }}
+  DATABASE_USER: {{ include "database.user" . | quote }}
+  DJANGO_DEBUG: {{ .Values.appConfig.DJANGO_DEBUG | quote }}
+  METEOSWISS_S3_BUCKET: {{ .Values.appConfig.METEOSWISS_S3_BUCKET | quote }}
+  METEOSWISS_S3_ENDPOINT_URL: {{ .Values.appConfig.METEOSWISS_S3_ENDPOINT_URL | quote }}
+  PDC_USERNAME: {{ .Values.appConfig.PDC_USERNAME | quote }}
+  RISK_API_FQDN: {{ .Values.appConfig.RISK_API_FQDN | quote }}
+  RISK_ENVIRONMENT: {{ .Values.appConfig.RISK_ENVIRONMENT | quote }}

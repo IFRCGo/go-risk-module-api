@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: {{ include "application.fullname" . }}-celery-beat
+  name: {{ include "application.fullname" .}}-celery-beat
+spec:
+  selector:
+    matchLabels:
+      service: {{ include "application.fullname" . }}-celery-beat
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ include "application.fullname" . }}-celery-beat
+        service: {{ include "application.fullname" . }}-celery-beat
+    spec:
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          name: {{ include "application.fullname" . }}-celery-beat
+          args:
+            - bash
+            - -c
+            - "celery -A risk_module beat --max-interval 3600 -l debug --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+          envFrom:
+            - configMapRef:
+                name: {{ include "application.fullname" . }}-app-config
+            - secretRef:
+                name: {{ include "application.secretname" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 9001
+              protocol: TCP
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      serviceAccountName: {{ include "application.serviceAccountName" . }}

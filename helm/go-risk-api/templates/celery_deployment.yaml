@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    service: {{ include "application.fullname" . }}-celery
+  name: {{ include "application.fullname" .}}-celery
+spec:
+  selector:
+    matchLabels:
+      service: {{ include "application.fullname" . }}-celery
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ include "application.fullname" . }}-celery
+        service: {{ include "application.fullname" . }}-celery
+    spec:
+      containers:
+        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          name: {{ include "application.fullname" . }}-celery
+          args:
+            - bash
+            - -c
+            - "celery -A risk_module worker --loglevel=info"
+          envFrom:
+            - configMapRef:
+                name: {{ include "application.fullname" . }}-app-config
+            - secretRef:
+                name: {{ include "application.secretname" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 9001
+              protocol: TCP
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      restartPolicy: Always
+      serviceAccountName: {{ include "application.serviceAccountName" . }}
