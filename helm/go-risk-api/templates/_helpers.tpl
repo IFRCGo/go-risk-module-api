@@ -42,26 +42,27 @@ Create the name of the secret to be used by the application
 {{- end -}}
 {{- end -}}
 
-
+{{/*
+The following two templates are required when creating the Azure SecretProviderClass
+*/}}
 {{- define "secrets.objects" -}}
-objects: |
-  array:
-  {{- range .Values.appSecret.keys }}
-  - |
-    objectName: {{ . }}
-    objectType: secret
-  {{- end }}
+    objects: |
+      array:
+    {{- range .Values.appSecret.keys }}
+        - |
+          objectName: {{ . | upper | replace "_" "-" }}
+          objectType: secret
+    {{- end }}
 {{- end -}}
-
 
 {{- define "secrets.secretObjects" -}}
 secretObjects:
-  - secretName: (include "application.secretname" .)
+  - secretName: {{ include "application.secretname" . }}
     type: Opaque
     data:
     {{- range $index, $name := .Values.appSecret.keys }}
-    - objectName: {{ $name }}
-      key: {{ $name | replace "-" "_" | upper }}
+      - objectName: {{ $name | replace "_" "-" | upper }}
+        key: {{ $name }}
     {{- end }}
 {{- end -}}
 
