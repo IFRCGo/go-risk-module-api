@@ -32,9 +32,20 @@ spec:
           ports:
             - containerPort: 9001
               protocol: TCP
+          volumeMounts:
+            - name: {{ include "application.secretname" . }}
+              mountPath: /mnt/secrets-store
+              readOnly: true
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ include "application.serviceAccountName" . }}
+      volumes:
+        - name: {{ include "application.secretname" . }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "application.fullname" . }}-secret-provider
