@@ -30,6 +30,7 @@ class Command(BaseCommand):
             SentryPdcSource.URL.PDC_SEARCH_HAZARD,
             headers=SentryPdcSource.authorization_headers(),
             json=data,
+            timeout=10 * 60,
         )
         if response.status_code != 200:
             logger.error(

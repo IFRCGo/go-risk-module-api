@@ -271,11 +271,15 @@ MEDIA_URL = "/media/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
+# https://docs.celeryq.dev/en/stable/userguide/configuration.html
 CELERY_REDIS_URL = env("CELERY_REDIS_URL")
 CELERY_BROKER_URL = CELERY_REDIS_URL
 CELERY_RESULT_BACKEND = CELERY_REDIS_URL
 CELERY_TIMEZONE = TIME_ZONE
 CELERY_ACKS_LATE = True
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_SOFT_TIME_LIMIT = 2 * 60 * 60  # 2 hours max (Used maxed runtime stats from sentry)
+CELERY_TASK_TIME_LIMIT = 2.5 * 60 * 60
 
 # TODO: Need to disable one of the tasks which doesn't work
 CELERY_BEAT_SCHEDULE = {
