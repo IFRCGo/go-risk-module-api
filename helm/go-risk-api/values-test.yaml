@@ -6,15 +6,16 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
-imagePullSecrets: []
+imagePullSecrets:
+  - name: ghcr-secret
 
 appConfig:
-  DJANGO_DEBUG: ""
-  METEOSWISS_S3_BUCKET: ""
-  METEOSWISS_S3_ENDPOINT_URL: ""
-  PDC_USERNAME: ""
-  RISK_ENVIRONMENT: ""
-  RISK_API_FQDN: ""
+  DJANGO_DEBUG: "True"
+  METEOSWISS_S3_BUCKET: some-bucket
+  METEOSWISS_S3_ENDPOINT_URL: "https://s3.amazonaws.com"
+  PDC_USERNAME: pdc-username
+  RISK_ENVIRONMENT: development
+  RISK_API_FQDN: "go-risk-module.ifrc.org"
 
 appSecret:
   name: ""
@@ -46,7 +47,7 @@ global:
     auth:
       username: ""
       database: ""
-      existingSecret: "<insert_application_secret_name_here"
+      existingSecret: my-risk-module-secret
       secretKeys:
         userPasswordKey: DATABASE_PASSWORD
         adminPasswordKey: DATABASE_PASSWORD
@@ -73,9 +74,9 @@ externalRedis:
 azure:
   aksSecretsProviderAvailable: true
   keyvault:
-    name: ""
-    clientId: ""
-    tenantId: ""
+    name: risk-module-playground-k
+    clientId: "1d64d996-002b-47c0-ad1f-b2a400d83d5c"
+    tenantId: "a2b53be5-734e-4e6c-ab0d-d184f60fd917"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -83,7 +84,7 @@ serviceAccount:
   create: true
   automount: true
   annotations:
-    azure.workload.identity/client-id : "<workload_identity_client_id>"
+    azure.workload.identity/client-id : "1d64d996-002b-47c0-ad1f-b2a400d83d5c"
   labels:
     azure.workload.identity/use: "true"
-  name: ""
+  name: "service-token-reader"
