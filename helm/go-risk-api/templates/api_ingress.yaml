@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: {{ include "application.fullname" . }}-ingress
 spec:
+  ingressClassName: webapprouting.kubernetes.azure.com
   rules:
   - host: risk-module.ifrc.org
     http:
