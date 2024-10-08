@@ -30,12 +30,12 @@ appSecret:
 
 api:
   resources:
-    limits:
-      cpu: 500m
-      memory: 1Gi
     requests:
-      cpu: 200m
+      cpu: 100m
       memory: 256Mi
+    limits:
+      cpu: 300m
+      memory: 500Mi
 
 # Subchart configuration
 postgresql:
