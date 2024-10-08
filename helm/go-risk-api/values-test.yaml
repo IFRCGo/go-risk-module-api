@@ -37,6 +37,12 @@ api:
       cpu: 300m
       memory: 500Mi
 
+celery:
+  resources: {}
+
+celeryBeat:
+  resources: {}
+
 # Subchart configuration
 postgresql:
   enabled: true

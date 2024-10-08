@@ -31,6 +31,12 @@ appSecret:
 api:
   resources: {}
 
+celery:
+  resources: {}
+
+celeryBeat:
+  resources: {}
+
 # Subchart configuration
 postgresql:
   enabled: true
