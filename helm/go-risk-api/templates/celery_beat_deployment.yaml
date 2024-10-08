@@ -32,6 +32,8 @@ spec:
           ports:
             - containerPort: 9001
               protocol: TCP
+          resources:
+            {{- toYaml .Values.celeryBeat.resources | nindent 12 }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
