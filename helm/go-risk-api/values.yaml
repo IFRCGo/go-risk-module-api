@@ -8,6 +8,7 @@ fullnameOverride: ""
 
 imagePullSecrets: []
 
+
 appConfig:
   DJANGO_DEBUG: ""
   METEOSWISS_S3_BUCKET: ""
@@ -26,6 +27,9 @@ appSecret:
     - METEOSWISS_S3_SECRET_KEY
     - PDC_ACCESS_TOKEN
     - PDC_PASSWORD
+
+api:
+  resources: {}
 
 # Subchart configuration
 postgresql:

@@ -28,6 +28,15 @@ appSecret:
     - PDC_ACCESS_TOKEN
     - PDC_PASSWORD
 
+api:
+  resources:
+    limits:
+      cpu: 500m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
 # Subchart configuration
 postgresql:
   enabled: true
