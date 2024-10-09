@@ -1,0 +1,40 @@
+{{- if .Values.redis.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "ifrcgo-risk-module.fullname" . }}-redis
+  labels:
+    component: redis-deployment
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "ifrcgo-risk-module.name" . }}
+      release: {{ .Release.Name }}
+      run: {{ .Release.Name }}-redis
+  template:
+    metadata:
+      labels:
+        app: {{ template "ifrcgo-risk-module.name" . }}
+        release: {{ .Release.Name }}
+        run: {{ .Release.Name }}-redis
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-redis
+          image: "redis:latest"
+          ports:
+            - name: http
+              containerPort: 6379
+              protocol: TCP
+          resources:
+            requests:
+              cpu: {{ .Values.redis.resources.requests.cpu }}
+              memory: {{ .Values.redis.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.redis.resources.limits.cpu }}
+              memory: {{ .Values.redis.resources.limits.memory }}
+
+{{- end }}

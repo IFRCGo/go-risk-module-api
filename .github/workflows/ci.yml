@@ -1,39 +1,73 @@
 name: 🤓 GH Action 🚧
 
 on:
+  workflow_call:
+    inputs:
+      push_docker_image:
+        type: string  # true or false
+        default: "false"
+    outputs:
+      docker_image_name:
+        description: "Only docker image name"
+        value: ${{ jobs.build_test.outputs.docker_image_name }}
+      docker_image_tag:
+        description: "Only docker image tag"
+        value: ${{ jobs.build_test.outputs.docker_image_tag }}
+      docker_image:
+        description: "docker image with tag"
+        value: ${{ jobs.build_test.outputs.docker_image }}
   pull_request:
-  push:
-    branches:
-      - main
+  # NOTE: For other, they should be run through helm github action ./helm-publish.yml
 
 jobs:
   build_test:
     name: 🚴 Build + Test 🚴  # Match the name below (8398a7/action-slack).
     runs-on: ubuntu-latest
-    permissions:
-      packages: write
-      contents: read
+
+    outputs:
+      docker_image_name: ${{ steps.prep.outputs.tagged_image_name }}
+      docker_image_tag: ${{ steps.prep.outputs.tag }}
+      docker_image: ${{ steps.prep.outputs.tagged_image }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
 
-      - name: Log in to registry
-        # This is where you will update the personal access token to GITHUB_TOKEN
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        if: ${{ inputs.push_docker_image }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🐳 Prepare Docker
         id: prep
+        env:
+          IMAGE_NAME: ghcr.io/${{ github.repository }}
         run: |
-          TAG=$(echo $GITHUB_SHA | head -c7)
-          IMAGE="ghcr.io/ifrcgo/go-risk-module-api"
-          echo "tagged_image=${IMAGE}:${TAG}" >> $GITHUB_OUTPUT
+          BRANCH_NAME=$(echo $GITHUB_REF_NAME | sed 's|:|-|' | tr '[:upper:]' '[:lower:]' | sed 's/_/-/g' | cut -c1-100 | sed 's/-*$//')
+
+          # XXX: Check if there is a slash in the BRANCH_NAME eg: project/add-docker
+          if [[ "$BRANCH_NAME" == *"/"* ]]; then
+              # XXX: Change the docker image package to -alpha
+              IMAGE_NAME="$IMAGE_NAME-alpha"
+              TAG="$(echo "$BRANCH_NAME" | sed 's|/|-|g').$(echo $GITHUB_SHA | head -c7)"
+          else
+              TAG="$BRANCH_NAME.$(echo $GITHUB_SHA | head -c7)"
+          fi
+
+          IMAGE_NAME=$(echo $IMAGE_NAME | tr '[:upper:]' '[:lower:]')
+          echo "tagged_image_name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
           echo "tag=${TAG}" >> $GITHUB_OUTPUT
+          echo "tagged_image=${IMAGE_NAME}:${TAG}" >> $GITHUB_OUTPUT
+          echo "::notice::Tagged docker image: ${IMAGE_NAME}:${TAG}"
+
       - name: 🐳 Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@master
+        uses: docker/setup-buildx-action@v3
 
       - name: 🐳 Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.ref }}
@@ -42,12 +76,13 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: 🐳 Docker build
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v6
         with:
           context: .
           builder: ${{ steps.buildx.outputs.name }}
           file: Dockerfile
           load: true
+          push: false
           tags: ${{ steps.prep.outputs.tagged_image }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
@@ -71,17 +106,33 @@ jobs:
           }
 
       - name: 🐳 Docker push
-        if: github.event_name == 'push'
-        uses: docker/build-push-action@v4
+        if: ${{ inputs.push_docker_image }}
+        uses: docker/build-push-action@v6
         with:
           tags: ${{ steps.prep.outputs.tagged_image }}
           push: true
 
-        # Temp fix
-        # https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md#github-cache
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
+      # Temp fix
+      # https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md#github-cache
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
       - name: 🐳 Move docker cache (🧙 Hack fix)
         run: |
           rm -rf /tmp/.buildx-cache
           mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  validate_helm:
+    name: 🚴 Validate Helm 🚴
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+
+      - name: 🐳 Helm lint
+        run: helm lint ./helm --values ./helm/values-test.yaml
+
+      - name: 🐳 Helm template
+        run: helm template ./helm --values ./helm/values-test.yaml

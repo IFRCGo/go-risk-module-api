@@ -1,8 +1,9 @@
 FROM python:3.8-slim-buster
 
 LABEL maintainer="IFRC"
+LABEL org.opencontainers.image.source="https://github.com/IFRCGo/go-risk-module-api"
 
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /code
 

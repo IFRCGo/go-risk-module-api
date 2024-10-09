@@ -22,6 +22,7 @@ from risk_module import sentry
 env = environ.Env(
     # Application info
     RISK_ENVIRONMENT=str,
+    RISK_RELEASE=(str, None),
     RISK_API_FQDN=str,
     # Django configs
     DJANGO_DEBUG=(bool, False),
@@ -367,6 +368,7 @@ SENTRY_DSN = env("SENTRY_DSN")
 SENTRY_TRACE_SAMPLE_RATE = env("SENTRY_TRACE_SAMPLE_RATE")
 SENTRY_PROFILE_SAMPLE_RATE = env("SENTRY_PROFILE_SAMPLE_RATE")
 RISK_ENVIRONMENT = env("RISK_ENVIRONMENT")
+RISK_RELEASE = env("RISK_RELEASE") or sentry.fetch_git_sha(BASE_DIR)
 RISK_API_FQDN = env("RISK_API_FQDN")
 
 SENTRY_CONFIG = {
@@ -374,7 +376,7 @@ SENTRY_CONFIG = {
     "send_default_pii": True,
     "traces_sample_rate": SENTRY_TRACE_SAMPLE_RATE,
     "profiles_sample_rate": SENTRY_PROFILE_SAMPLE_RATE,
-    "release": sentry.fetch_git_sha(BASE_DIR),
+    "release": RISK_RELEASE,
     "environment": RISK_ENVIRONMENT,
     "debug": DEBUG,
     "tags": {

@@ -1,0 +1,56 @@
+{{- if .Values.api.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "ifrcgo-risk-module.fullname" . }}-api
+  labels:
+    component: api-deployment
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+    # XXX: Add global lables?
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "ifrcgo-risk-module.name" . }}
+      release: {{ .Release.Name }}
+      run: {{ .Release.Name }}-api
+  template:
+    metadata:
+      annotations:
+        checksum/secret: {{ include (print .Template.BasePath "/config/secret.yaml") . | sha256sum }}
+        checksum/configmap: {{ include (print .Template.BasePath "/config/configmap.yaml") . | sha256sum }}
+      labels:
+        app: {{ template "ifrcgo-risk-module.name" . }}
+        release: {{ .Release.Name }}
+        run: {{ .Release.Name }}-api
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-api
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          command: ["bash", "/code/scripts/run_prod.sh"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.api.containerPort }}
+              protocol: TCP
+          # livenessProbe: # FIXME: Fix Liveness Probe
+          #   httpGet:
+          #     path: /api/  # Add custom health-check for pod instead of whole system
+          #     port: \{\{ .Values.api.containerPort }}
+          #   initialDelaySeconds: 10180  # TODO:?
+          #   periodSeconds: 5  # TODO:?
+          resources:
+            requests:
+              cpu: {{ .Values.api.resources.requests.cpu }}
+              memory: {{ .Values.api.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.api.resources.limits.cpu }}
+              memory: {{ .Values.api.resources.limits.memory }}
+          envFrom:
+            - secretRef:
+                name: {{ template "ifrcgo-risk-module.fullname" . }}-api-secret
+            - configMapRef:
+                name: {{ template "ifrcgo-risk-module.fullname" . }}-api-configmap
+
+{{- end }}

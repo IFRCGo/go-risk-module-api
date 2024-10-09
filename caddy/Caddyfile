@@ -11,7 +11,7 @@
     @notStatic {
         not path /static/* /media/*
     }
-    reverse_proxy @notStatic server:9007 {
+    reverse_proxy @notStatic server:80 {
         header_up X-Forwarded-Proto https
     }
     file_server
