@@ -36,10 +36,7 @@ class PdcSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Pdc
-        exclude = [
-            "footprint_geojson",
-            "storm_position_geojson",
-        ]
+        exclude = ["footprint_geojson", "storm_position_geojson", "cyclone_three_days_cou", "cyclone_five_days_cou"]
 
 
 class PdcDisplacementSerializer(serializers.ModelSerializer):
@@ -107,6 +104,8 @@ class GWISSerializer(serializers.ModelSerializer):
 class PdcExposureSerializer(serializers.Serializer):
     footprint_geojson = serializers.JSONField()
     storm_position_geojson = serializers.JSONField()
+    cyclone_three_days_cou = serializers.JSONField()
+    cyclone_five_days_cou = serializers.JSONField()
     population_exposure = serializers.JSONField()
     capital_exposure = serializers.JSONField()
 

@@ -12,7 +12,7 @@ from risk_module.sentry import SentryMonitor
 
 
 class Command(ArcGisPdcSource.CommandMixin, BaseCommand):
-    help = "Import polygon from `uuid` from pdc arc-gis"
+    help = "Get PDC 3 days Cone of Uncertainty data"
 
     def get_pdc_queryset(self) -> models.QuerySet[Pdc]:
         return super().get_pdc_queryset().filter(hazard_type=HazardType.CYCLONE)
@@ -22,18 +22,14 @@ class Command(ArcGisPdcSource.CommandMixin, BaseCommand):
         Query and save pdc polygon data from Arc GIS for given uuids
         """
         # Fetch data for multiple uuids
-        url = "https://partners.pdc.org/arcgis/rest/services/partners/pdc_active_hazards_partners/MapServer/9/query"
+        url = "https://partners.pdc.org/arcgis/rest/services/partners/pdc_active_hazards_partners/MapServer/12/query"
         response = session.post(
             url=url,
             data={
                 **ArcGisPdcSource.ARC_GIS_DEFAULT_PARAMS,
                 # NOTE: Each new request has 6s+ response time, using where in query we reduce that latency
                 "where": self.generate_uuid_where_statement("uuid", uuid_list),
-                "outFields": (
-                    "uuid,"
-                    "forecast_date_time,wind_speed_mph,severity,storm_name,track_heading,"
-                    "hazard_name,advisory_number,track_speed_mph,advisory_date,advisory_time"
-                ),
+                "outFields": "uuid,hazard_name,storm_name,advisory_number,objectid,ESRI_OID,category_id",
             },
         )
 
@@ -53,10 +49,10 @@ class Command(ArcGisPdcSource.CommandMixin, BaseCommand):
         for _uuid, features in feature_by_uuid.items():
             # XXX: Multiple row has same uuid
             Pdc.objects.filter(uuid=_uuid).update(
-                storm_position_geojson=features,
+                cyclone_three_days_cou=features,
             )
         return True
 
-    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_INTENSITY)
+    @monitor(monitor_slug=SentryMonitor.CREATE_PDC_THREE_DAYS_COU)
     def handle(self, **_):
         self.process()

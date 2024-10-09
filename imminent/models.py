@@ -37,6 +37,16 @@ class Oddrin(models.Model):
 
 
 class Pdc(models.Model):
+    """
+    Behavior from remote
+    - UUID is unique
+    - hazard_id doesn't change (Is this used?)
+    - **hazard_type** and Others fields can change
+
+    To view the overall information https://hazardbrief.pdc.org/PRODUCTION/ui/index.html?uuid=UUID
+    Where updated_at GET params is used to retrieved snapshot data
+    """
+
     class Status(models.TextChoices):
         ACTIVE = (
             "A",
@@ -56,6 +66,7 @@ class Pdc(models.Model):
         ADVISORY = "advisory", "Advisory"
         INFORMATION = "information", "Information"
 
+    stale_displacement = models.BooleanField(verbose_name=_("Requires displacement data update"), default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     # Adding following as to keep track of pdc create and update date
     pdc_created_at = models.DateTimeField(verbose_name=_("pdc created at"), null=True, blank=True)
@@ -83,6 +94,12 @@ class Pdc(models.Model):
     end_date = models.DateField(null=True, blank=True, verbose_name=_("end_date"))
     footprint_geojson = models.JSONField(blank=True, null=True, default=None, verbose_name=_("Footprint Geojson"))
     storm_position_geojson = models.JSONField(blank=True, null=True, default=None, verbose_name=_("Storm Position Geojson"))
+    cyclone_three_days_cou = models.JSONField(
+        blank=True, null=True, default=None, verbose_name=_("Cyclone Three Days Cone of Uncertainty")
+    )
+    cyclone_five_days_cou = models.JSONField(
+        blank=True, null=True, default=None, verbose_name=_("Cyclone Five Days Cone of Uncertainty")
+    )
 
     def __str__(self):
         return f"{self.hazard_id} - {self.hazard_name}"
@@ -188,9 +205,11 @@ class GDACS(models.Model):
     start_date = models.DateTimeField(verbose_name=_("start_date"), null=True, blank=True)
     end_date = models.DateTimeField(verbose_name=_("end_date"), null=True, blank=True)
     hazard_id = models.CharField(verbose_name=_("hazard id"), max_length=255)
+    episode_id = models.IntegerField(verbose_name=_("hazard episode id"), null=True, blank=True)
     hazard_name = models.CharField(verbose_name=_("hazard name"), max_length=255)
     hazard_type = models.CharField(max_length=100, verbose_name=_("hazard type"), choices=HazardType.choices, blank=True)
     alert_level = models.CharField(verbose_name=_("alert level"), null=True, blank=True, max_length=255)
+    # episodeid
     country = models.ForeignKey(
         Country,
         verbose_name=_("country"),

@@ -273,7 +273,7 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
                     start_date__gte=three_days_before,
                     hazard_type=HazardType.WILDFIRE,
                 )
-            )
+            )  # TODO: Also defer excluded field defined in serializer
             .order_by("uuid", "-created_at")
             .distinct("uuid")
         )
@@ -289,17 +289,19 @@ class PdcViewSet(viewsets.ReadOnlyModelViewSet):
         if displacement_data.exists():
             population_exposure = displacement_data[0].population_exposure or None
             capital_exposure = displacement_data[0].capital_exposure or None
-            if population_exposure.get("total"):
+            if population_exposure and population_exposure.get("total"):
                 population_exposure = population_exposure
             else:
                 population_exposure = None
-            if capital_exposure.get("total"):
+            if capital_exposure and capital_exposure.get("total"):
                 capital_exposure = capital_exposure
             else:
                 capital_exposure = None
         data = {
             "footprint_geojson": object.footprint_geojson or None,
             "storm_position_geojson": object.storm_position_geojson or None,
+            "cyclone_three_days_cou": object.cyclone_three_days_cou or None,
+            "cyclone_five_days_cou": object.cyclone_five_days_cou or None,
             "population_exposure": population_exposure,
             "capital_exposure": capital_exposure,
         }
