@@ -65,11 +65,14 @@ jobs:
     - name: Package Helm chart
       run: helm package helm/go-risk-api
 
+    - name: Set short SHA
+      run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
     - name: Publish Helm chart
       run: |
         helm plugin install https://github.com/chartmuseum/helm-push
         helm repo add --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} chartrepo ${{ env.REGISTRY }}/${{ github.repository_owner }}/charts
-        helm cm-push go-risk-api-${{ github.ref_name }}.tgz chartrepo
+        helm cm-push go-risk-api-${SHORT_SHA}.tgz chartrepo
 
     - name: Publish Helm chart
       run: |
