@@ -27,19 +27,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: 🐳 Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: 🐳 Cache Docker layers
-      uses: actions/cache@v2
-      with:
-        path: /tmp/.buildx-cache
-        key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-buildx-${{ github.ref }}
-          ${{ runner.os }}-buildx-
-
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v4
@@ -51,11 +38,8 @@ jobs:
       with:
         context: .
         push: true
-        tags: ghcr.io/ifrcgo/go-risk-module-api:${{ github.sha }}
+        tags: ghcr.io/ifrcgo/go-risk-module-api:test-old
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=local,src=/tmp/.buildx-cache
-        cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
-
     - name: Set up Helm
       uses: azure/setup-helm@v3
       with:
