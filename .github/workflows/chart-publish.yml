@@ -38,8 +38,9 @@ jobs:
       with:
         context: .
         push: true
-        tags: ghcr.io/ifrcgo/go-risk-module-api:test-old
+        tags: ghcr.io/ifrcgo/go-risk-module-api:dev
         labels: ${{ steps.meta.outputs.labels }}
+
     - name: Set up Helm
       uses: azure/setup-helm@v3
       with:
@@ -47,16 +48,28 @@ jobs:
 
     - name: Update Helm chart version and appVersion
       run: |
-        sed -i 's/version:.*/version: ${{ github.ref_name }}/' helm/go-risk-api/Chart.yaml
-        sed -i 's/appVersion:.*/appVersion: ${{ github.ref_name }}/' helm/go-risk-api/Chart.yaml
+        VERSION="${{ github.ref_name }}"
+        VERSION="${VERSION//\//\\/}"  # Escape forward slashes
+        sed -i "s/version:.*/version: ${VERSION}/" helm/go-risk-api/Chart.yaml
+        sed -i "s/appVersion:.*/appVersion: ${VERSION}/" helm/go-risk-api/Chart.yaml
 
     - name: Update Helm chart image
       run: |
-        sed -i 's|repository:.*|repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}|' helm/go-risk-api/values.yaml
-        sed -i 's/tag:.*/tag: ${{ github.ref_name }}/' helm/go-risk-api/values.yaml
+        REPO="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+        REPO="${REPO//\//\\/}"  # Escape forward slashes
+        VERSION="${{ github.ref_name }}"
+        VERSION="${VERSION//\//\\/}"  # Escape forward slashes
+        sed -i "s|repository:.*|repository: ${REPO}|" helm/go-risk-api/values.yaml
+        sed -i "s/tag:.*/tag: ${VERSION}/" helm/go-risk-api/values.yaml
 
     - name: Package Helm chart
-      run: helm package helm
+      run: helm package helm/go-risk-api
+
+    - name: Publish Helm chart
+      run: |
+        helm plugin install https://github.com/chartmuseum/helm-push
+        helm repo add --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} chartrepo ${{ env.REGISTRY }}/${{ github.repository_owner }}/charts
+        helm cm-push go-risk-api-${{ github.ref_name }}.tgz chartrepo
 
     - name: Publish Helm chart
       run: |
