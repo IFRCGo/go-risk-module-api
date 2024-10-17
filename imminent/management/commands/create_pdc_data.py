@@ -18,20 +18,24 @@ class Command(BaseCommand):
 
     @monitor(monitor_slug=SentryMonitor.CREATE_PDC_DATA)
     def handle(self, **_):
-        # NOTE: Make sure to use the datetime now and timestamp for the post data, current date and time
-        now = datetime.datetime.now()
-        today_timestmap = str(datetime.datetime.timestamp(now)).replace(".", "")
+        # Look for last updates for last X hours only
+        # NOTE: If we don't use GREATER_THAN filter, then PDC will take a lot of time to respond with the data.
+        # Ranging from few minutes to hours
+        now = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=48)
+        today_timestmap = now.strftime("%Y-%m-%dT%H:%M:%SZ")
         data = {
             "pagination": {"page": 1, "pagesize": 100},
             "order": {"orderlist": {"updateDate": "DESC"}},
-            "restrictions": [[{"searchType": "LESS_THAN", "updateDate": today_timestmap}]],
+            "restrictions": [[{"searchType": "GREATER_THAN", "updateDate": today_timestmap}]],
         }
+
         response = requests.post(
             SentryPdcSource.URL.PDC_SEARCH_HAZARD,
             headers=SentryPdcSource.authorization_headers(),
             json=data,
             timeout=10 * 60,
         )
+
         if response.status_code != 200:
             logger.error(
                 "Error querying PDC data",
