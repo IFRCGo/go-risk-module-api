@@ -1,0 +1,30 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ template "ifrcgo-risk-module.fullname" . }}-api-configmap
+  labels:
+    component: api-deployment
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
+data:
+  # Application info
+  RISK_RELEASE: {{ .Values.image.tag | quote }}
+  RISK_ENVIRONMENT: {{ .Values.environment | quote | upper }}
+  RISK_API_FQDN: {{ required "env.RISK_API_FQDN" .Values.env.RISK_API_FQDN | quote }}
+  # Django configs
+  DJANGO_DEBUG: {{ .Values.env.DJANGO_DEBUG | quote }}
+  DJANGO_ALLOWED_HOSTS: {{ .Values.env.DJANGO_ALLOWED_HOSTS | quote }}
+  TIME_ZONE: {{ .Values.env.TIME_ZONE | quote }}
+  # Redis
+  {{- if .Values.redis.enabled }}
+  CELERY_REDIS_URL: "redis://{{ template "ifrcgo-risk-module.fullname" . }}-redis:6379/0"
+  CACHE_REDIS_URL: "redis://{{ template "ifrcgo-risk-module.fullname" . }}-redis:6379/1"
+  {{- else }}
+  CELERY_REDIS_URL: {{ required "env.CELERY_REDIS_URL" .Values.env.CELERY_REDIS_URL | quote }}
+  CACHE_REDIS_URL: {{ required "env.CACHE_REDIS_URL" .Values.env.CACHE_REDIS_URL | quote }}
+  {{- end }}
+  # Sentry
+  SENTRY_TRACE_SAMPLE_RATE: {{ .Values.env.SENTRY_TRACE_SAMPLE_RATE | quote }}
+  SENTRY_PROFILE_SAMPLE_RATE: {{ .Values.env.SENTRY_PROFILE_SAMPLE_RATE | quote }}
+  # Logging
+  APPS_LOGGING_LEVEL: {{ .Values.env.APPS_LOGGING_LEVEL | quote }}

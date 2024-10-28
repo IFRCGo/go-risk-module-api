@@ -1,0 +1,44 @@
+environment: test
+
+fullnameOverride: ifrcgo-risk
+
+image:
+  name: ghcr.io/ifrcgo/go-risk-module-api
+  tag: test
+
+ingress:
+  enabled: true
+  host: go-risk-test.ifrc.org
+
+env:
+  # Application info
+  RISK_API_FQDN: go-risk-test.ifrc.org
+  # Django configs
+  DJANGO_DEBUG: false
+  DJANGO_ALLOWED_HOSTS: "*"
+  TIME_ZONE: "UTC"
+  # Sentry
+  SENTRY_TRACE_SAMPLE_RATE: "0.2"
+  SENTRY_PROFILE_SAMPLE_RATE: "0.2"
+  # Logging
+  APPS_LOGGING_LEVEL: "WARNING"
+
+secrets:
+  DJANGO_SECRET_KEY: test
+  # Database
+  DATABASE_NAME: test
+  DATABASE_USER: test
+  DATABASE_PASSWORD: test
+  DATABASE_HOST: test
+  DATABASE_PORT: 5432
+  # Sentry
+  SENTRY_DSN: "https://test.com/test"
+  # PDC
+  PDC_USERNAME: test
+  PDC_PASSWORD: test
+  PDC_ACCESS_TOKEN: test
+  # Meteoswiss
+  METEOSWISS_S3_ENDPOINT_URL: test
+  METEOSWISS_S3_BUCKET: test
+  METEOSWISS_S3_ACCESS_KEY: test
+  METEOSWISS_S3_SECRET_KEY: test

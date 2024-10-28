@@ -1,0 +1,45 @@
+{{- if .Values.worker.enabled }}
+
+{{- range $i, $job := .Values.worker.cronjobs }}
+
+{{- if $job.enabled }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $i | nospace | lower | replace "_" "-" }}"
+  labels:
+    component: api-jobs
+    environment: {{ $.Values.environment }}
+    release: {{ $.Release.Name }}
+spec:
+  schedule: {{ $job.schedule | quote }}
+  concurrencyPolicy: "Forbid"
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: {{ default 7200 $job.timeLimit }}  # 2 hours default TODO: Lower this
+      template:
+        spec:
+          restartPolicy: "Never"
+          containers:
+            - name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $i | nospace | lower | replace "_" "-" }}"
+              image: "{{ $.Values.image.name }}:{{ $.Values.image.tag }}"
+              command: ["./manage.py", "{{ $i }}"]
+              resources:
+                requests:
+                  cpu: {{ default $.Values.worker.defaultResources.requests.cpu $job.requestsCpu }}
+                  memory: {{ default $.Values.worker.defaultResources.requests.memory $job.requestsMemory }}
+                limits:
+                  cpu: {{ default $.Values.worker.defaultResources.limits.cpu $job.limitsCpu }}
+                  memory: {{ default $.Values.worker.defaultResources.limits.memory $job.limitsMemory }}
+              envFrom:
+                - secretRef:
+                    name: {{ template "ifrcgo-risk-module.fullname" $ }}-api-secret
+                - configMapRef:
+                    name: {{ template "ifrcgo-risk-module.fullname" $ }}-api-configmap
+
+{{- end }}
+
+{{- end }}
+
+{{- end }}
