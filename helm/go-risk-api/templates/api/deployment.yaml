@@ -1,38 +1,45 @@
+{{- if .Values.api.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
     reloader.stakater.com/auto: "true"
   labels:
-    service: {{ include "application.fullname" . }}-api
+    app.kubernetes.io/name: {{ include "application.fullname" . }}
+    app.kubernetes.io/component: {{ include "application.fullname" . }}-api
+    environment: {{ .Values.environment }}
+    release: {{ .Release.Name }}
   name: {{ include "application.fullname" .}}-api
 spec:
+  replicas: {{ .Values.api.replicaCount }}
   selector:
     matchLabels:
-      service: {{ include "application.fullname" . }}-api
+      app.kubernetes.io/name: {{ include "application.fullname" . }}
+      app.kubernetes.io/component: {{ include "application.fullname" . }}-api
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: {{ include "application.fullname" . }}-api
-        service: {{ include "application.fullname" . }}-api
+        app.kubernetes.io/name: {{ include "application.fullname" . }}
+        app.kubernetes.io/component: {{ include "application.fullname" . }}-api
     spec:
       containers:
-        - image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          name: {{ include "application.fullname" . }}-api
+        - name: {{ include "application.fullname" . }}-api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           args:
             - bash
             - -c
-            - /code/scripts/run_develop.sh
+            - /code/scripts/run_prod.sh
           envFrom:
             - configMapRef:
-                name: {{ include "application.fullname" . }}-app-config
+                name: {{ include "application.fullname" . }}-api-configmap
             - secretRef:
                 name: {{ include "application.secretname" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 9001
+            - name: http
+              containerPort: {{ .Values.api.containerPort }}
               protocol: TCP
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
@@ -53,3 +60,4 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: {{ include "application.fullname" . }}-secret-provider
+{{- end }}

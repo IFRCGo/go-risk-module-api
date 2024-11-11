@@ -1,17 +1,30 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "application.fullname" .}}-app-config
+  name: {{ include "application.fullname" .}}-api-configmap
 data:
-  CACHE_REDIS_URL: {{ include "redis.cacheUrl" . | quote }}
-  CELERY_REDIS_URL: {{ include "redis.celeryUrl" . | quote }}
+  # Logging
+  APPS_LOGGING_LEVEL: {{ .Values.env.APPS_LOGGING_LEVEL | quote }}
+
+  # Redis
+  CACHE_REDIS_URL: {{ include "application.cacheRedisUrl" . | quote }}
+  CELERY_REDIS_URL: {{ include "application.celeryRedisUrl" . | quote }}
+
   DATABASE_HOST: {{ include "database.host" . | quote }}
   DATABASE_PORT: {{ include "database.port" . | quote }}
   DATABASE_NAME: {{ include "database.name" . | quote }}
   DATABASE_USER: {{ include "database.user" . | quote }}
-  DJANGO_DEBUG: {{ .Values.appConfig.DJANGO_DEBUG | quote }}
-  METEOSWISS_S3_BUCKET: {{ .Values.appConfig.METEOSWISS_S3_BUCKET | quote }}
-  METEOSWISS_S3_ENDPOINT_URL: {{ .Values.appConfig.METEOSWISS_S3_ENDPOINT_URL | quote }}
-  PDC_USERNAME: {{ .Values.appConfig.PDC_USERNAME | quote }}
-  RISK_API_FQDN: {{ .Values.appConfig.RISK_API_FQDN | quote }}
-  RISK_ENVIRONMENT: {{ .Values.appConfig.RISK_ENVIRONMENT | quote }}
+
+  # Django Configs
+  DJANGO_DEBUG: {{ .Values.env.DJANGO_DEBUG | quote }}
+  DJANGO_ALLOWED_HOSTS: {{ .Values.env.DJANGO_ALLOWED_HOSTS | quote }}
+  TIME_ZONE: {{ .Values.env.TIME_ZONE | quote }}
+
+  # Application Info
+  RISK_API_FQDN: {{ required "env.RISK_API_FQDN" .Values.env.RISK_API_FQDN | quote }}
+  RISK_ENVIRONMENT: {{ .Values.environment | quote }}
+  RISK_RELEASE: {{ .Values.image.tag | quote }}
+
+  # Sentry
+  SENTRY_TRACE_SAMPLE_RATE: {{ .Values.env.SENTRY_TRACE_SAMPLE_RATE | quote }}
+  SENTRY_PROFILE_SAMPLE_RATE: {{ .Values.env.SENTRY_PROFILE_SAMPLE_RATE | quote }}

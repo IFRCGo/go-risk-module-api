@@ -27,7 +27,7 @@ spec:
             - "celery -A risk_module worker --loglevel=info"
           envFrom:
             - configMapRef:
-                name: {{ include "application.fullname" . }}-app-config
+                name: {{ include "application.fullname" . }}-api-configmap
             - secretRef:
                 name: {{ include "application.secretname" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}

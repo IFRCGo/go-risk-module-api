@@ -121,23 +121,23 @@ Redis service name
 {{- end -}}
 
 {{/*
-Redis cache URL
+Define CELERY_REDIS_URL
 */}}
-{{- define "redis.cacheUrl" -}}
-{{- if .Values.externalRedis.host -}}
-{{- printf "redis://%s:%s/0" .Values.externalRedis.host (.Values.externalRedis.port | toString) -}}
+{{- define "application.celeryRedisUrl" -}}
+{{- if .Values.redis.enabled -}}
+{{- printf "redis://%s:6379/0" (include "redis.serviceName" .) -}}
 {{- else -}}
-{{- printf "redis://%s:%s/0" (include "redis.serviceName" .) (.Values.externalRedis.port | toString) -}}
+{{- required "env.CELERY_REDIS_URL" .Values.env.CELERY_REDIS_URL -}}
 {{- end -}}
 {{- end -}}
 
 {{/*
-Redis Celery URL
+Define CACHE_REDIS_URL
 */}}
-{{- define "redis.celeryUrl" -}}
-{{- if .Values.externalRedis.host -}}
-{{- printf "redis://%s:%s/1" .Values.externalRedis.host (.Values.externalRedis.port | toString) -}}
+{{- define "application.cacheRedisUrl" -}}
+{{- if .Values.redis.enabled -}}
+{{- printf "redis://%s:6379/1" (include "redis.serviceName" .) -}}
 {{- else -}}
-{{- printf "redis://%s:%s/1" (include "redis.serviceName" .) (.Values.externalRedis.port | toString) -}}
+{{- required "env.CACHE_REDIS_URL" .Values.env.CACHE_REDIS_URL -}}
 {{- end -}}
 {{- end -}}

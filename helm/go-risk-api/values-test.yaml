@@ -1,3 +1,5 @@
+environment: sandbox
+
 image:
   repository: ghcr.io/ifrcgo/go-risk-module-api
   pullPolicy: Always
@@ -9,26 +11,38 @@ fullnameOverride: ""
 imagePullSecrets:
   - name: ghcr-secret
 
-appConfig:
+env:
+  APPS_LOGGING_LEVEL: "WARNING"
+  DJANGO_ALLOWED_HOSTS: "*"
   DJANGO_DEBUG: "True"
   METEOSWISS_S3_BUCKET: some-bucket
   METEOSWISS_S3_ENDPOINT_URL: "https://s3.amazonaws.com"
-  PDC_USERNAME: pdc-username
-  RISK_ENVIRONMENT: development
   RISK_API_FQDN: "go-risk-module.ifrc.org"
+  SENTRY_TRACE_SAMPLE_RATE: "0.2"
+  SENTRY_PROFILE_SAMPLE_RATE: "0.2"
+  TIMEZONE: "UTC"
 
 appSecret:
   name: ""
   keys:
     - DATABASE_PASSWORD
     - DJANGO_SECRET_KEY
+    - METEOSWISS_S3_BUCKET
+    - METEOSWISS_S3_ENDPOINT_URL
     - METEOSWISS_S3_ACCESS_KEY
     - METEOSWISS_S3_BUCKET
     - METEOSWISS_S3_SECRET_KEY
     - PDC_ACCESS_TOKEN
     - PDC_PASSWORD
+    - PDC_USERNAME
 
 api:
+  enabled: true
+  containerPort: 9001
+  ingress:
+    enabled: true
+    host: go-risk-test.ifrc.org
+  replicaCount: 1
   resources:
     requests:
       cpu: 100m
@@ -82,9 +96,9 @@ externalDatabase:
       userPasswordKey:
 
 # Connection parameters for external Redis
-externalRedis:
-  host: ""
-  port: 6379
+#externalRedis:
+#  host: ""
+#  port: 6379
 
 azure:
   aksSecretsProviderAvailable: true

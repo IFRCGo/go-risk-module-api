@@ -1,3 +1,5 @@
+environment: test
+
 image:
   repository: ghcr.io/ifrcgo/go-risk-module-api
   pullPolicy: IfNotPresent
@@ -8,27 +10,38 @@ fullnameOverride: ""
 
 imagePullSecrets: []
 
-
-appConfig:
+env:
+  APPS_LOGGING_LEVEL: "WARNING"
+  DJANGO_ALLOWED_HOSTS: "*"
   DJANGO_DEBUG: ""
   METEOSWISS_S3_BUCKET: ""
   METEOSWISS_S3_ENDPOINT_URL: ""
-  PDC_USERNAME: ""
-  RISK_ENVIRONMENT: ""
   RISK_API_FQDN: ""
+  SENTRY_TRACE_SAMPLE_RATE: "0.2"
+  SENTRY_PROFILE_SAMPLE_RATE: "0.2"
+  TIMEZONE: "UTC"
 
 appSecret:
   name: ""
   keys:
     - DATABASE_PASSWORD
     - DJANGO_SECRET_KEY
+    - METEOSWISS_S3_BUCKET
+    - METEOSWISS_S3_ENDPOINT_URL
     - METEOSWISS_S3_ACCESS_KEY
     - METEOSWISS_S3_BUCKET
     - METEOSWISS_S3_SECRET_KEY
     - PDC_ACCESS_TOKEN
     - PDC_PASSWORD
+    - PDC_USERNAME
 
 api:
+  ingress:
+    enabled: false
+    host:
+  enabled: true
+  containerPort: 9001
+  replicaCount: 1
   resources: {}
 
 celery:
@@ -76,12 +89,12 @@ externalDatabase:
       userPasswordKey:
 
 # Connection parameters for external Redis
-externalRedis:
-  host: ""
-  port: 6379
+#externalRedis:
+#  host: ""
+#  port: 6379
 
 azure:
-  aksSecretsProviderAvailable: true
+  aksSecretsProviderAvailable: false
   keyvault:
     name: ""
     clientId: ""
@@ -90,7 +103,7 @@ azure:
 serviceAccount:
   # Specifies whether a service account should be created
   # Required when using workload identity to access Azure Key Vault Secrets
-  create: true
+  create: false
   automount: true
   annotations:
     azure.workload.identity/client-id : "<workload_identity_client_id>"
