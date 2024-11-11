@@ -20,7 +20,7 @@ env:
   RISK_API_FQDN: "go-risk-module.ifrc.org"
   SENTRY_TRACE_SAMPLE_RATE: "0.2"
   SENTRY_PROFILE_SAMPLE_RATE: "0.2"
-  TIMEZONE: "UTC"
+  TIME_ZONE: "UTC"
 
 appSecret:
   name: ""
