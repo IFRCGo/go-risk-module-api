@@ -35,8 +35,8 @@ Create the name of the service account to use
 Create the name of the secret to be used by the application
 */}}
 {{- define "application.secretname" -}}
-{{- if .Values.appSecret.name }}
-  {{- .Values.appSecret.name -}}
+{{- if .Values.secrets.name }}
+  {{- .Values.secrets.name -}}
 {{- else }}
   {{- printf "%s-secret" (include "application.fullname" .) -}}
 {{- end -}}
@@ -48,7 +48,7 @@ The following two templates are required when creating the Azure SecretProviderC
 {{- define "secrets.objects" -}}
     objects: |
       array:
-    {{- range .Values.appSecret.keys }}
+    {{- range .Values.secrets.keys }}
         - |
           objectName: {{ . | upper | replace "_" "-" }}
           objectType: secret
@@ -60,7 +60,7 @@ secretObjects:
   - secretName: {{ include "application.secretname" . }}
     type: Opaque
     data:
-    {{- range $index, $name := .Values.appSecret.keys }}
+    {{- range $index, $name := .Values.secrets.keys }}
       - objectName: {{ $name | replace "_" "-" | upper }}
         key: {{ $name }}
     {{- end }}

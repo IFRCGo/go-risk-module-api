@@ -22,7 +22,7 @@ env:
   SENTRY_PROFILE_SAMPLE_RATE: "0.2"
   TIME_ZONE: "UTC"
 
-appSecret:
+secrets:
   name: ""
   keys:
     - DATABASE_PASSWORD
