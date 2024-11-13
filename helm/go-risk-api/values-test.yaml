@@ -13,6 +13,10 @@ imagePullSecrets:
 
 env:
   APPS_LOGGING_LEVEL: "WARNING"
+  DATABASE_HOST:
+  DATABASE_NAME:
+  DATABASE_PORT: 5432
+  DATABASE_USER:
   DJANGO_ALLOWED_HOSTS: "*"
   DJANGO_DEBUG: "True"
   METEOSWISS_S3_BUCKET: some-bucket
@@ -25,7 +29,11 @@ env:
 secrets:
   name: ""
   keys:
+    - DATABASE_NAME
+    - DATABASE_HOST
     - DATABASE_PASSWORD
+    - DATABASE_PORT
+    - DATABASE_USER
     - DJANGO_SECRET_KEY
     - METEOSWISS_S3_BUCKET
     - METEOSWISS_S3_ENDPOINT_URL
@@ -68,6 +76,7 @@ redis:
   auth:
     enabled: false
   architecture: standalone
+  fullnameOveride: ""
   replica:
     replicaCount: 0
 
@@ -84,22 +93,6 @@ global:
     service:
       ports:
         postgresql: 5432
-
-# Connection parameters for external PostgreSQL database
-externalDatabase:
-  host: ""
-  port: 5432
-  auth:
-    username:
-    database:
-    existingSecret:
-    secretKeys:
-      userPasswordKey:
-
-# Connection parameters for external Redis
-#externalRedis:
-#  host: ""
-#  port: 6379
 
 azure:
   aksSecretsProviderAvailable: true
@@ -118,3 +111,61 @@ serviceAccount:
   labels:
     azure.workload.identity/use: "true"
   name: "service-token-reader"
+
+worker:
+  enabled: true
+  defaultResources:
+    requests:
+      cpu: "1"
+      memory: 1Gi
+    limits:
+      cpu: "1"
+      memory: 2Gi
+  # NOTE: Application level configuration
+  cronjobs:
+    "import_earthquake_data":
+      schedule: "0 0 * * *"
+      enabled: true
+      # timeLimit: 7200
+    "create_pdc_data":
+      schedule: "0 */2 * * *"
+      enabled: true
+    "create_pdc_daily":
+      schedule: "0 5 * * *"
+      enabled: true
+    "create_pdc_displacement":
+      schedule: "0 */3 * * *"
+      enabled: true
+    "create_pdc_polygon":
+      schedule: "0 */6 * * *"
+      enabled: true
+    "create_pdc_intensity":
+      schedule: "0 */7 * * *"
+      enabled: true
+    "check_pdc_status":
+      schedule: "0 1 * * *"
+      enabled: true
+    "create_hazard_information":
+      schedule: "0 0 2 * *"
+      enabled: true
+    "create_adam_exposure":
+      schedule: "0 */4 * * *"
+      enabled: true
+    "update_adam_cyclone":
+      schedule: "0 */4 * * *"
+      enabled: true
+    "update_adam_alert_level":
+      schedule: "0 */4 * * *"
+      enabled: true
+    "import_gdacs_data":
+      schedule: "0 */4 * * *"
+      enabled: true
+    "pull_meteoswiss":
+      schedule: "0 */4 * * *"
+      enabled: true
+    "pull_meteoswiss_geo":
+      schedule: "0 */4 * * *"
+      enabled: true
+    "meteoswiss_agg":
+      schedule: "0 */4 * * *"
+      enabled: true

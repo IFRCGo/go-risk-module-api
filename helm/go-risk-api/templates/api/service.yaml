@@ -3,17 +3,17 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "application.fullname" .}}-api-svc
+  name: {{ include "ifrcgo-risk-module.fullname" .}}-api-svc
   labels:
-    app.kubernetes.io/name: {{ include "application.fullname" . }}
-    app.kubernetes.io/component: {{ include "application.fullname" . }}-api
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: {{ include "application.fullname" . }}
-    app.kubernetes.io/component: {{ include "application.fullname" . }}-api
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
   ports:
     - protocol: TCP
       port: 80

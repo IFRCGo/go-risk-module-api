@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart or use nameOverride if provided.
 */}}
-{{- define "application.name" -}}
+{{- define "ifrcgo-risk-module.name" -}}
 {{- default .Values.nameOverride .Chart.Name | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -9,7 +9,7 @@ Expand the name of the chart or use nameOverride if provided.
 Create a fully qualified app name using standard override scheme.
 If fullnameOverride is provided, use it; otherwise, combine release name and chart name.
 */}}
-{{- define "application.fullname" -}}
+{{- define "ifrcgo-risk-module.fullname" -}}
 {{- if .Values.fullnameOverride }}
   {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else if .Values.nameOverride }}
@@ -23,22 +23,22 @@ If fullnameOverride is provided, use it; otherwise, combine release name and cha
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "application.serviceAccountName" -}}
+{{- define "ifrcgo-risk-module.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "application.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "ifrcgo-risk-module.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
 {{/*
-Create the name of the secret to be used by the application
+Create the name of the secret to be used by the ifrcgo-risk-module
 */}}
-{{- define "application.secretname" -}}
+{{- define "ifrcgo-risk-module.secretname" -}}
 {{- if .Values.secrets.name }}
   {{- .Values.secrets.name -}}
 {{- else }}
-  {{- printf "%s-secret" (include "application.fullname" .) -}}
+  {{- printf "%s-secret" (include "ifrcgo-risk-module.fullname" .) -}}
 {{- end -}}
 {{- end -}}
 
@@ -57,59 +57,13 @@ The following two templates are required when creating the Azure SecretProviderC
 
 {{- define "secrets.secretObjects" -}}
 secretObjects:
-  - secretName: {{ include "application.secretname" . }}
+  - secretName: {{ include "ifrcgo-risk-module.secretname" . }}
     type: Opaque
     data:
     {{- range $index, $name := .Values.secrets.keys }}
       - objectName: {{ $name | replace "_" "-" | upper }}
         key: {{ $name }}
     {{- end }}
-{{- end -}}
-
-
-{{/*
-Database host
-*/}}
-{{- define "database.host" -}}
-{{- if .Values.externalDatabase.host -}}
-{{- .Values.externalDatabase.host -}}
-{{- else -}}
-{{- $postgresqlServiceName := .Values.postgresql.fullnameOverride | default (printf "%s-postgresql" .Release.Name) -}}
-{{- $postgresqlServiceName | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Database port
-*/}}
-{{- define "database.port" -}}
-{{- if .Values.externalDatabase.host -}}
-{{- .Values.externalDatabase.port -}}
-{{- else -}}
-{{- .Values.global.postgresql.service.ports.postgresql -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Database name
-*/}}
-{{- define "database.name" -}}
-{{- if .Values.externalDatabase.host -}}
-{{- .Values.externalDatabase.auth.database -}}
-{{- else -}}
-{{- .Values.global.postgresql.auth.database | default "postgres" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Database user
-*/}}
-{{- define "database.user" -}}
-{{- if .Values.externalDatabase.host -}}
-{{- .Values.externalDatabase.auth.username -}}
-{{- else -}}
-{{- .Values.global.postgresql.auth.username | default "postgres" -}}
-{{- end -}}
 {{- end -}}
 
 {{/*
@@ -123,7 +77,7 @@ Redis service name
 {{/*
 Define CELERY_REDIS_URL
 */}}
-{{- define "application.celeryRedisUrl" -}}
+{{- define "ifrcgo-risk-module.celeryRedisUrl" -}}
 {{- if .Values.redis.enabled -}}
 {{- printf "redis://%s:6379/0" (include "redis.serviceName" .) -}}
 {{- else -}}
@@ -134,7 +88,7 @@ Define CELERY_REDIS_URL
 {{/*
 Define CACHE_REDIS_URL
 */}}
-{{- define "application.cacheRedisUrl" -}}
+{{- define "ifrcgo-risk-module.cacheRedisUrl" -}}
 {{- if .Values.redis.enabled -}}
 {{- printf "redis://%s:6379/1" (include "redis.serviceName" .) -}}
 {{- else -}}

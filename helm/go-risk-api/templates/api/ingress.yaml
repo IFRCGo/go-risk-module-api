@@ -3,10 +3,10 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ include "application.fullname" . }}-ingress
+  name: {{ include "ifrcgo-risk-module.fullname" . }}-ingress
   labels:
-    app.kubernetes.io/name: {{ include "application.fullname" . }}
-    app.kubernetes.io/component: {{ include "application.fullname" . }}-api
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 spec:
@@ -19,7 +19,7 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: {{ include "application.fullname" . }}-api-svc
+            name: {{ include "ifrcgo-risk-module.fullname" . }}-api-svc
             port:
               number: 80
 

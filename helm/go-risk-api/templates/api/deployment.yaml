@@ -5,27 +5,27 @@ metadata:
   annotations:
     reloader.stakater.com/auto: "true"
   labels:
-    app.kubernetes.io/name: {{ include "application.fullname" . }}
-    app.kubernetes.io/component: {{ include "application.fullname" . }}-api
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
-  name: {{ include "application.fullname" .}}-api
+  name: {{ include "ifrcgo-risk-module.fullname" .}}-api
 spec:
   replicas: {{ .Values.api.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "application.fullname" . }}
-      app.kubernetes.io/component: {{ include "application.fullname" . }}-api
+      app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+      app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "application.fullname" . }}
-        app.kubernetes.io/component: {{ include "application.fullname" . }}-api
+        app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+        app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     spec:
       containers:
-        - name: {{ include "application.fullname" . }}-api
+        - name: {{ include "ifrcgo-risk-module.fullname" . }}-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           args:
             - bash
@@ -33,9 +33,9 @@ spec:
             - /code/scripts/run_prod.sh
           envFrom:
             - configMapRef:
-                name: {{ include "application.fullname" . }}-api-configmap
+                name: {{ include "ifrcgo-risk-module.fullname" . }}-api-configmap
             - secretRef:
-                name: {{ include "application.secretname" . }}
+                name: {{ include "ifrcgo-risk-module.secretname" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -44,7 +44,7 @@ spec:
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "application.secretname" . }}
+            - name: {{ include "ifrcgo-risk-module.secretname" . }}
               mountPath: /mnt/secrets-store
               readOnly: true
       {{- with .Values.imagePullSecrets }}
@@ -52,12 +52,14 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       restartPolicy: Always
-      serviceAccountName: {{ include "application.serviceAccountName" . }}
+      serviceAccountName: {{ include "ifrcgo-risk-module.serviceAccountName" . }}
+      {{- if .Values.azure.aksSecretsProviderAvailable }}
       volumes:
-        - name: {{ include "application.secretname" . }}
+        - name: {{ include "ifrcgo-risk-module.secretname" . }}
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: {{ include "application.fullname" . }}-secret-provider
+              secretProviderClass: {{ include "ifrcgo-risk-module.fullname" . }}-secret-provider
+      {{- end }}
 {{- end }}
