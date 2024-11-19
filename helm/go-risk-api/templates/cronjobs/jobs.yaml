@@ -16,10 +16,14 @@ spec:
   concurrencyPolicy: "Forbid"
   jobTemplate:
     spec:
-      activeDeadlineSeconds: {{ default 7200 $job.timeLimit }}  # 2 hours default TODO: Lower this
+      activeDeadlineSeconds: {{ default 7200 $job.timeLimit }} # 2 hours default TODO: Lower this
       template:
         spec:
           restartPolicy: "Never"
+          {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           containers:
             - name: "{{ include "ifrcgo-risk-module.fullname" $ }}-{{ $i | nospace | lower | replace "_" "-" }}"
               image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
