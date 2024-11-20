@@ -1,9 +1,10 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ template "ifrcgo-risk-module.fullname" . }}-api-configmap
+  name: {{ include "ifrcgo-risk-module.fullname" .}}-api-configmap
   labels:
-    component: api-deployment
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 data:

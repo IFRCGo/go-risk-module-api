@@ -3,54 +3,69 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "ifrcgo-risk-module.fullname" . }}-api
+  name: {{ include "ifrcgo-risk-module.fullname" . }}-api
   labels:
-    component: api-deployment
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
-    # XXX: Add global lables?
 spec:
   replicas: {{ .Values.api.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "ifrcgo-risk-module.name" . }}
-      release: {{ .Release.Name }}
-      run: {{ .Release.Name }}-api
+      app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+      app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
   template:
     metadata:
+      {{- if not .Values.azure.aksSecretsProviderAvailable }}
       annotations:
         checksum/secret: {{ include (print .Template.BasePath "/config/secret.yaml") . | sha256sum }}
         checksum/configmap: {{ include (print .Template.BasePath "/config/configmap.yaml") . | sha256sum }}
+      {{- end }}
       labels:
-        app: {{ template "ifrcgo-risk-module.name" . }}
-        release: {{ .Release.Name }}
-        run: {{ .Release.Name }}-api
+        app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+        app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     spec:
       containers:
-        - name: {{ .Chart.Name }}-api
+        - name: {{ include "ifrcgo-risk-module.fullname" . }}-api
           image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
           command: ["bash", "/code/scripts/run_prod.sh"]
           ports:
             - name: http
               containerPort: {{ .Values.api.containerPort }}
               protocol: TCP
-          # livenessProbe: # FIXME: Fix Liveness Probe
-          #   httpGet:
-          #     path: /api/  # Add custom health-check for pod instead of whole system
-          #     port: \{\{ .Values.api.containerPort }}
-          #   initialDelaySeconds: 10180  # TODO:?
-          #   periodSeconds: 5  # TODO:?
-          resources:
-            requests:
-              cpu: {{ .Values.api.resources.requests.cpu }}
-              memory: {{ .Values.api.resources.requests.memory }}
-            limits:
-              cpu: {{ .Values.api.resources.limits.cpu }}
-              memory: {{ .Values.api.resources.limits.memory }}
+          # livenessProbe: # TODO: Add Liveness Probe
           envFrom:
             - secretRef:
-                name: {{ template "ifrcgo-risk-module.fullname" . }}-api-secret
+                name: {{ template "ifrcgo-risk-module.secretname" . }}
             - configMapRef:
                 name: {{ template "ifrcgo-risk-module.fullname" . }}-api-configmap
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          {{- if .Values.azure.aksSecretsProviderAvailable }}
+          volumeMounts:
+            - name: {{ include "ifrcgo-risk-module.secretname" . }}
+              mountPath: /mnt/secrets-store
+              readOnly: true
+          {{- end }}
+
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "ifrcgo-risk-module.serviceAccountName" . }}
+      {{- end }}
+
+      {{- if .Values.azure.aksSecretsProviderAvailable }}
+      volumes:
+        - name: {{ include "ifrcgo-risk-module.secretname" . }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ include "ifrcgo-risk-module.fullname" . }}-secret-provider
+      {{- end }}
 
 {{- end }}
