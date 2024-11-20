@@ -31,7 +31,7 @@ spec:
                 {{- toYaml (default $.Values.worker.defaultResources $job.resources) | nindent 16 }}
               envFrom:
                 - secretRef:
-                    name: {{ template "ifrcgo-risk-module.fullname" $ }}-api-secret
+                    name: {{ include "ifrcgo-risk-module.secretname" $ }}
                 - configMapRef:
                     name: {{ template "ifrcgo-risk-module.fullname" $ }}-api-configmap
           {{- with $.Values.imagePullSecrets }}
