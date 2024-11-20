@@ -15,24 +15,30 @@ ingress:
 # For production use azure postgres server and provide credentials using azure keyvault
 postgresql:
   enabled: false
-  fullnameOverride: alert-hub-postgresql
+  fullnameOverride: ifrcgo-risk-module-postgresql
+  architecture: standalone
   auth:
     postgresPassword: "postgres"
     username: "postgres"
     password: "postgres"
     database: "risk"
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 8Gi
 
 redis:
   enabled: false
   architecture: standalone
-  fullnameOverride: alert-hub-redis
+  fullnameOverride: ifrcgo-risk-module-redis
   auth:
     enabled: false
   master:
     persistence:
       enabled: true
+      storageClass: ""
       size: .5Gi
-      storageClass: "longhorn"
 
 api:
   enabled: true
