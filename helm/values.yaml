@@ -8,15 +8,30 @@ ingress:
   enabled: false
   host:
 
+
+# Subchart configuration
+# XXX: This is for local/playground usages only.
+# For production use azure postgres server and provide credentials using azure keyvault
+postgresql:
+  enabled: false
+  fullnameOverride: alert-hub-postgresql
+  auth:
+    postgresPassword: "postgres"
+    username: "postgres"
+    password: "postgres"
+    database: "risk"
+
 redis:
-  enabled: true
-  resources:
-    requests:
-      cpu: "0.5"
-      memory: 100Mi
-    limits:
-      cpu: "1"
-      memory: 200Mi
+  enabled: false
+  architecture: standalone
+  fullnameOverride: alert-hub-redis
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: .5Gi
+      storageClass: "longhorn"
 
 api:
   enabled: true
@@ -122,3 +137,22 @@ worker:
     "meteoswiss_agg":
       schedule: "0 */4 * * *"
       enabled: true
+
+# Azure configurations
+azure:
+  aksSecretsProviderAvailable: false
+  keyvault:
+    name: ""
+    clientId: ""
+    tenantId: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  # Required when using workload identity to access Azure Key Vault Secrets
+  create: false
+  automount: true
+  annotations:
+    azure.workload.identity/client-id : "<workload_identity_client_id>"
+  labels:
+    azure.workload.identity/use: "true"
+  name: ""

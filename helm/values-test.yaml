@@ -10,6 +10,12 @@ ingress:
   enabled: true
   host: go-risk-test.ifrc.org
 
+postgresql:
+  enabled: true
+
+redis:
+  enabled: true
+
 env:
   # Application info
   RISK_API_FQDN: go-risk-test.ifrc.org
@@ -42,3 +48,22 @@ secrets:
   METEOSWISS_S3_BUCKET: test
   METEOSWISS_S3_ACCESS_KEY: test
   METEOSWISS_S3_SECRET_KEY: test
+
+
+azure:
+  aksSecretsProviderAvailable: true
+  keyvault:
+    name: risk-module-playground-k
+    clientId: "1d64d996-002b-47c0-ad1f-b2a400d83d5c"
+    tenantId: "a2b53be5-734e-4e6c-ab0d-d184f60fd917"
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  # Required when using workload identity to access Azure Key Vault Secrets
+  create: true
+  automount: true
+  annotations:
+    azure.workload.identity/client-id : "1d64d996-002b-47c0-ad1f-b2a400d83d5c"
+  labels:
+    azure.workload.identity/use: "true"
+  name: "service-token-reader"

@@ -30,3 +30,49 @@
 {{- define "ifrcgo-risk-module.chart" -}}
     {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "ifrcgo-risk-module.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "ifrcgo-risk-module.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the name of the secret to be used by the ifrcgo-risk-module
+*/}}
+{{- define "ifrcgo-risk-module.secretname" -}}
+{{- if .Values.secrets.name }}
+  {{- .Values.secrets.name -}}
+{{- else }}
+  {{- printf "%s-secret" (include "ifrcgo-risk-module.fullname" .) -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+The following two templates are required when creating the Azure SecretProviderClass
+*/}}
+{{- define "secrets.objects" -}}
+    objects: |
+      array:
+    {{- range .Values.secrets.keys }}
+        - |
+          objectName: {{ . | upper | replace "_" "-" }}
+          objectType: secret
+    {{- end }}
+{{- end -}}
+
+{{- define "secrets.secretObjects" -}}
+secretObjects:
+  - secretName: {{ include "ifrcgo-risk-module.secretname" . }}
+    type: Opaque
+    data:
+    {{- range $index, $name := .Values.secrets.keys }}
+      - objectName: {{ $name | replace "_" "-" | upper }}
+        key: {{ $name }}
+    {{- end }}
+{{- end -}}

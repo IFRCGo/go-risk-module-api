@@ -1,13 +1,14 @@
 {{- if .Values.worker.enabled }}
 
-{{- range $i, $job := .Values.worker.cronjobs }}
+{{- range $jobName, $job := .Values.worker.cronjobs }}
 
 {{- if $job.enabled }}
+
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $i | nospace | lower | replace "_" "-" }}"
+  name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $jobName | nospace | lower | replace "_" "-" }}"
   labels:
     component: api-jobs
     environment: {{ $.Values.environment }}
@@ -22,9 +23,9 @@ spec:
         spec:
           restartPolicy: "Never"
           containers:
-            - name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $i | nospace | lower | replace "_" "-" }}"
+            - name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $jobName | nospace | lower | replace "_" "-" }}"
               image: "{{ $.Values.image.name }}:{{ $.Values.image.tag }}"
-              command: ["./manage.py", "{{ $i }}"]
+              command: ["./manage.py", "{{ $jobName }}"]
               resources:
                 requests:
                   cpu: {{ default $.Values.worker.defaultResources.requests.cpu $job.requestsCpu }}
