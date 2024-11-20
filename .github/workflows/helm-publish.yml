@@ -5,6 +5,7 @@ on:
     branches:
       - develop
       - project/*
+      - feature/helm-chart-merge  # TODO: Remove this
     # XXX: To add tags: Update the -alpha logic
 
 permissions:
