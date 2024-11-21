@@ -7,7 +7,7 @@ image:
   tag: test
 
 imagePullSecrets:
-  - ghcr-secret
+  - name: ghcr-secret
 
 ingress:
   enabled: true
