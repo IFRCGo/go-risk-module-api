@@ -6,6 +6,9 @@ image:
   name: ghcr.io/ifrcgo/go-risk-module-api
   tag: test
 
+imagePullSecrets:
+  - name: ghcr-secret
+
 ingress:
   enabled: true
   host: go-risk-test.ifrc.org

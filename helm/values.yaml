@@ -4,6 +4,8 @@ image:
   name: SET-BY-CICD-IMAGE
   tag: SET-BY-CICD-TAG
 
+imagePullSecrets: []
+
 ingress:
   enabled: false
   className: webapprouting.kubernetes.azure.com
