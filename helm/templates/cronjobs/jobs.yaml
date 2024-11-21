@@ -1,15 +1,17 @@
 {{- if .Values.worker.enabled }}
 
-{{- range $i, $job := .Values.worker.cronjobs }}
+{{- range $jobName, $job := .Values.worker.cronjobs }}
 
 {{- if $job.enabled }}
+
 ---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $i | nospace | lower | replace "_" "-" }}"
+  name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $jobName | nospace | lower | replace "_" "-" }}"
   labels:
-    component: api-jobs
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" $ }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" $ }}-api-jobs
     environment: {{ $.Values.environment }}
     release: {{ $.Release.Name }}
 spec:
@@ -22,21 +24,20 @@ spec:
         spec:
           restartPolicy: "Never"
           containers:
-            - name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $i | nospace | lower | replace "_" "-" }}"
+            - name: "{{ template "ifrcgo-risk-module.fullname" $ }}-{{ $jobName | nospace | lower | replace "_" "-" }}"
               image: "{{ $.Values.image.name }}:{{ $.Values.image.tag }}"
-              command: ["./manage.py", "{{ $i }}"]
+              command: ["./manage.py", "{{ $jobName }}"]
               resources:
-                requests:
-                  cpu: {{ default $.Values.worker.defaultResources.requests.cpu $job.requestsCpu }}
-                  memory: {{ default $.Values.worker.defaultResources.requests.memory $job.requestsMemory }}
-                limits:
-                  cpu: {{ default $.Values.worker.defaultResources.limits.cpu $job.limitsCpu }}
-                  memory: {{ default $.Values.worker.defaultResources.limits.memory $job.limitsMemory }}
+                {{- toYaml (default $.Values.worker.defaultResources $job.resources) | nindent 16 }}
               envFrom:
                 - secretRef:
-                    name: {{ template "ifrcgo-risk-module.fullname" $ }}-api-secret
+                    name: {{ include "ifrcgo-risk-module.secretname" $ }}
                 - configMapRef:
                     name: {{ template "ifrcgo-risk-module.fullname" $ }}-api-configmap
+          {{- with $.Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
 
 {{- end }}
 

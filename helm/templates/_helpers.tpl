@@ -30,3 +30,25 @@
 {{- define "ifrcgo-risk-module.chart" -}}
     {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+
+{{/*
+Create the name of the service account to use
+*/}}
+{{- define "ifrcgo-risk-module.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "ifrcgo-risk-module.fullname" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
+
+{{/*
+Create the name of the secret to be used by the ifrcgo-risk-module
+*/}}
+{{- define "ifrcgo-risk-module.secretname" -}}
+{{- if .Values.secretsName }}
+  {{- .Values.secretsName -}}
+{{- else }}
+  {{- printf "%s-secret" (include "ifrcgo-risk-module.fullname" .) -}}
+{{- end -}}
+{{- end -}}

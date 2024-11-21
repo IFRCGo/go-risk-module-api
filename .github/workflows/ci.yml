@@ -131,6 +131,11 @@ jobs:
       - name: Install Helm
         uses: azure/setup-helm@v4
 
+      - name: 🐳 Helm dependency
+        run: |
+          yq --indent 0 '.dependencies | map(["helm", "repo", "add", .name, .repository] | join(" ")) | .[]' ./helm/Chart.lock  | sh --
+          helm dependency build ./helm
+
       - name: 🐳 Helm lint
         run: helm lint ./helm --values ./helm/values-test.yaml
 
