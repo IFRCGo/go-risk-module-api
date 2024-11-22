@@ -4,19 +4,43 @@ image:
   name: SET-BY-CICD-IMAGE
   tag: SET-BY-CICD-TAG
 
+imagePullSecrets: []
+
 ingress:
   enabled: false
+  className: webapprouting.kubernetes.azure.com
   host:
 
+
+# Subchart configuration
+# XXX: This is for local/playground usages only.
+# For production use azure postgres server and provide credentials using azure keyvault
+postgresql:
+  enabled: false
+  fullnameOverride: ifrcgo-risk-module-postgresql
+  architecture: standalone
+  auth:
+    postgresPassword: "postgres"
+    username: "postgres"
+    password: "postgres"
+    database: "risk"
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: 8Gi
+
 redis:
-  enabled: true
-  resources:
-    requests:
-      cpu: "0.5"
-      memory: 100Mi
-    limits:
-      cpu: "1"
-      memory: 200Mi
+  enabled: false
+  architecture: standalone
+  fullnameOverride: ifrcgo-risk-module-redis
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      storageClass: ""
+      size: .5Gi
 
 api:
   enabled: true
@@ -44,6 +68,7 @@ env:
   # Logging
   APPS_LOGGING_LEVEL: "WARNING"
 
+secretsName: ""
 secrets:
   DJANGO_SECRET_KEY:
   # Database
@@ -63,7 +88,6 @@ secrets:
   METEOSWISS_S3_BUCKET:
   METEOSWISS_S3_ACCESS_KEY:
   METEOSWISS_S3_SECRET_KEY:
-
 
 worker:
   enabled: true
@@ -122,3 +146,22 @@ worker:
     "meteoswiss_agg":
       schedule: "0 */4 * * *"
       enabled: true
+
+# Azure configurations
+azure:
+  aksSecretsProviderAvailable: false
+  keyvault:
+    name: ""
+    clientId: ""
+    tenantId: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  # Required when using workload identity to access Azure Key Vault Secrets
+  create: false
+  automount: true
+  annotations:
+    azure.workload.identity/client-id : "<workload_identity_client_id>"
+  labels:
+    azure.workload.identity/use: "true"
+  name: ""

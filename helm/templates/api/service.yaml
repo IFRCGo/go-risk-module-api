@@ -5,20 +5,19 @@ kind: Service
 metadata:
   name: {{ template "ifrcgo-risk-module.fullname" . }}-api-svc
   labels:
-    app: {{ template "ifrcgo-risk-module.name" . }}
-    component: api-service
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 spec:
+spec:
   type: ClusterIP
   selector:
-    app: {{ template "ifrcgo-risk-module.name" . }}
-    release: {{ .Release.Name }}
-    run: {{ .Release.Name }}-api
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
   ports:
     - protocol: TCP
       port: 80
       targetPort: {{ .Values.api.containerPort }}
-      nodePort: null
 
 {{- end }}

@@ -1,9 +1,10 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: {{ template "ifrcgo-risk-module.fullname" . }}-api-configmap
+  name: {{ include "ifrcgo-risk-module.fullname" .}}-api-configmap
   labels:
-    component: api-deployment
+    app.kubernetes.io/name: {{ include "ifrcgo-risk-module.fullname" . }}
+    app.kubernetes.io/component: {{ include "ifrcgo-risk-module.fullname" . }}-api
     environment: {{ .Values.environment }}
     release: {{ .Release.Name }}
 data:
@@ -17,8 +18,8 @@ data:
   TIME_ZONE: {{ .Values.env.TIME_ZONE | quote }}
   # Redis
   {{- if .Values.redis.enabled }}
-  CELERY_REDIS_URL: "redis://{{ template "ifrcgo-risk-module.fullname" . }}-redis:6379/0"
-  CACHE_REDIS_URL: "redis://{{ template "ifrcgo-risk-module.fullname" . }}-redis:6379/1"
+  CELERY_REDIS_URL: "redis://{{ printf "%s-master" (include "common.names.fullname" .Subcharts.redis) }}:6379/0"
+  CACHE_REDIS_URL: "redis://{{ printf "%s-master" (include "common.names.fullname" .Subcharts.redis) }}:6379/1"
   {{- else }}
   CELERY_REDIS_URL: {{ required "env.CELERY_REDIS_URL" .Values.env.CELERY_REDIS_URL | quote }}
   CACHE_REDIS_URL: {{ required "env.CACHE_REDIS_URL" .Values.env.CACHE_REDIS_URL | quote }}
