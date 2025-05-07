@@ -1,0 +1,3018 @@
+components:
+  schemas:
+    Adam:
+      properties:
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        event_details:
+          nullable: true
+        event_id:
+          maxLength: 255
+          nullable: true
+          type: string
+        geojson:
+          nullable: true
+          title: GeJson
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        publish_date:
+          format: date-time
+          type: string
+        title:
+          maxLength: 255
+          nullable: true
+          type: string
+      required:
+      - country_details
+      - hazard_type_display
+      - id
+      - publish_date
+      type: object
+    AdamExposure:
+      properties:
+        population_exposure:
+          $ref: '#/components/schemas/AdamPopulationExposure'
+        storm_position_geojson: {}
+      required:
+      - storm_position_geojson
+      type: object
+    AdamPopulationExposure:
+      properties:
+        exposure_120_kmh:
+          format: double
+          nullable: true
+          type: number
+        exposure_60_kmh:
+          format: double
+          nullable: true
+          type: number
+        exposure_90_kmh:
+          format: double
+          nullable: true
+          type: number
+      type: object
+    CharKeyValue:
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      required:
+      - key
+      - value
+      type: object
+    CommonHazardTypeEnum:
+      properties:
+        key:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        value:
+          type: string
+      required:
+      - key
+      - value
+      type: object
+    CommonHazardTypeEnumKey:
+      description: |-
+        * `EQ` - Earthquake
+        * `FL` - Flood
+        * `TC` - Cyclone
+        * `EP` - Epidemic
+        * `FI` - Food Insecurity
+        * `SS` - Storm Surge
+        * `DR` - Drought
+        * `TS` - Tsunami
+        * `CD` - Cyclonic Wind
+        * `WF` - WildFire
+      enum:
+      - EQ
+      - FL
+      - TC
+      - EP
+      - FI
+      - SS
+      - DR
+      - TS
+      - CD
+      - WF
+      type: string
+    ConfidenceTypeEnum:
+      description: |-
+        * `high` - High
+        * `medium` - Medium
+        * `low` - Low
+        * `undefined` - Undefined
+      enum:
+      - high
+      - medium
+      - low
+      - undefined
+      type: string
+    Country:
+      properties:
+        id:
+          readOnly: true
+          type: integer
+        iso:
+          maxLength: 2
+          nullable: true
+          title: Iso2
+          type: string
+        iso3:
+          maxLength: 3
+          nullable: true
+          type: string
+        name:
+          maxLength: 255
+          nullable: true
+          type: string
+        region:
+          nullable: true
+          type: integer
+      required:
+      - id
+      type: object
+    CountryImminent:
+      properties:
+        adam:
+          type: integer
+        gdacs:
+          type: integer
+        meteoswiss:
+          type: integer
+        pdc:
+          type: integer
+      type: object
+    DisplacementData:
+      properties:
+        annual_average:
+          format: double
+          nullable: true
+          type: number
+        april:
+          format: double
+          nullable: true
+          type: number
+        august:
+          format: double
+          nullable: true
+          type: number
+        country:
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        december:
+          format: double
+          nullable: true
+          type: number
+        february:
+          format: double
+          nullable: true
+          type: number
+        hazard_type:
+          allOf:
+          - $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+          nullable: true
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        iso3:
+          maxLength: 3
+          nullable: true
+          type: string
+        january:
+          format: double
+          nullable: true
+          type: number
+        july:
+          format: double
+          nullable: true
+          type: number
+        june:
+          format: double
+          nullable: true
+          type: number
+        march:
+          format: double
+          nullable: true
+          type: number
+        may:
+          format: double
+          nullable: true
+          type: number
+        note:
+          nullable: true
+          type: string
+        november:
+          format: double
+          nullable: true
+          type: number
+        october:
+          format: double
+          nullable: true
+          type: number
+        september:
+          format: double
+          nullable: true
+          type: number
+      required:
+      - country
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    Earthquake:
+      properties:
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        depth:
+          format: double
+          type: number
+        event_date:
+          format: date-time
+          nullable: true
+          type: string
+        event_id:
+          maxLength: 100
+          type: string
+        event_place:
+          maxLength: 255
+          nullable: true
+          type: string
+        event_title:
+          maxLength: 255
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        latitude:
+          format: double
+          type: number
+        longitude:
+          format: double
+          type: number
+        magnitude:
+          format: double
+          type: number
+        magnitude_type:
+          $ref: '#/components/schemas/ImminentEarthquakeMagnitudeTypeEnumKey'
+        updated_at:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - country_details
+      - depth
+      - event_id
+      - event_title
+      - id
+      - latitude
+      - longitude
+      - magnitude
+      - magnitude_type
+      type: object
+    EstimationTypeEnum:
+      description: |-
+        * `current` - Current
+        * `first_projection` - First Projection
+        * `second_projection` - Second Projection
+      enum:
+      - current
+      - first_projection
+      - second_projection
+      type: string
+    FileTypeEnum:
+      description: |-
+        * `raster` - Raster
+        * `vector` - Vector
+      enum:
+      - raster
+      - vector
+      type: string
+    GDACSExposure:
+      properties:
+        footprint_geojson: {}
+        population_exposure: {}
+      required:
+      - footprint_geojson
+      - population_exposure
+      type: object
+    GDACSSeralizer:
+      properties:
+        alert_level:
+          maxLength: 255
+          nullable: true
+          type: string
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        created_at:
+          format: date-time
+          readOnly: true
+          type: string
+        end_date:
+          format: date-time
+          nullable: true
+          type: string
+        episode_id:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          title: Hazard episode id
+          type: integer
+        event_details:
+          nullable: true
+        hazard_id:
+          maxLength: 255
+          type: string
+        hazard_name:
+          maxLength: 255
+          type: string
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        latitude:
+          format: double
+          nullable: true
+          type: number
+        longitude:
+          format: double
+          nullable: true
+          type: number
+        start_date:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - country_details
+      - created_at
+      - hazard_id
+      - hazard_name
+      - hazard_type_display
+      - id
+      type: object
+    GWIS:
+      properties:
+        country:
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        dsr:
+          format: double
+          nullable: true
+          type: number
+        dsr_avg:
+          format: double
+          nullable: true
+          type: number
+        dsr_max:
+          format: double
+          nullable: true
+          type: number
+        dsr_min:
+          format: double
+          nullable: true
+          type: number
+        dsr_type:
+          $ref: '#/components/schemas/ImminentGwisDsrTypeEnumKey'
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        month:
+          maxLength: 255
+          type: string
+        year:
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+      required:
+      - country
+      - country_details
+      - hazard_type_display
+      - id
+      - month
+      - year
+      type: object
+    GarHazardDisplacement:
+      properties:
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        fifty_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        five_hundred_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        hundred_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        id:
+          readOnly: true
+          type: integer
+        one_thousand_five_hundred_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        one_thousand_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        ten_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        twenty_five_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        twenty_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+        two_hundred_fifty_years:
+          $ref: '#/components/schemas/GarHazardDisplacementJson'
+      required:
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    GarHazardDisplacementJson:
+      properties:
+        economic_loss:
+          type: integer
+        population_displacement:
+          type: integer
+        population_exposure:
+          type: integer
+      type: object
+    GlobalDisplacement:
+      properties:
+        analysis_date:
+          format: date
+          nullable: true
+          type: string
+        country:
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        estimation_type:
+          $ref: '#/components/schemas/EstimationTypeEnum'
+        estimation_type_display:
+          type: string
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        month:
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+        total_displacement:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        year:
+          maximum: 2147483647
+          minimum: -2147483648
+          type: integer
+      required:
+      - country
+      - country_details
+      - estimation_type_display
+      - hazard_type_display
+      - id
+      - month
+      - year
+      type: object
+    GlobalEnum:
+      properties:
+        common_hazard_type:
+          items:
+            $ref: '#/components/schemas/CommonHazardTypeEnum'
+          type: array
+        imminent_earthquake_magnitude_type:
+          items:
+            $ref: '#/components/schemas/ImminentEarthquakeMagnitudeTypeEnum'
+          type: array
+        imminent_gwis_dsr_type:
+          items:
+            $ref: '#/components/schemas/ImminentGwisDsrTypeEnum'
+          type: array
+        imminent_pdc_severity:
+          items:
+            $ref: '#/components/schemas/ImminentPdcSeverityEnum'
+          type: array
+        imminent_pdc_status:
+          items:
+            $ref: '#/components/schemas/ImminentPdcStatusEnum'
+          type: array
+      type: object
+    GwisSeasonal:
+      properties:
+        april:
+          format: double
+          nullable: true
+          type: number
+        august:
+          format: double
+          nullable: true
+          type: number
+        country:
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        december:
+          format: double
+          nullable: true
+          type: number
+        february:
+          format: double
+          nullable: true
+          type: number
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        january:
+          format: double
+          nullable: true
+          type: number
+        july:
+          format: double
+          nullable: true
+          type: number
+        june:
+          format: double
+          nullable: true
+          type: number
+        march:
+          format: double
+          nullable: true
+          type: number
+        may:
+          format: double
+          nullable: true
+          type: number
+        november:
+          format: double
+          nullable: true
+          type: number
+        october:
+          format: double
+          nullable: true
+          type: number
+        september:
+          format: double
+          nullable: true
+          type: number
+        yearly_sum:
+          format: double
+          nullable: true
+          type: number
+      required:
+      - country
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    Idmc:
+      properties:
+        annual_average:
+          format: double
+          nullable: true
+          type: number
+        april:
+          format: double
+          nullable: true
+          type: number
+        august:
+          format: double
+          nullable: true
+          type: number
+        confidence_type:
+          $ref: '#/components/schemas/ConfidenceTypeEnum'
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        december:
+          format: double
+          nullable: true
+          type: number
+        february:
+          format: double
+          nullable: true
+          type: number
+        hazard_type:
+          allOf:
+          - $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+          nullable: true
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        iso3:
+          maxLength: 3
+          nullable: true
+          type: string
+        january:
+          format: double
+          nullable: true
+          type: number
+        july:
+          format: double
+          nullable: true
+          type: number
+        june:
+          format: double
+          nullable: true
+          type: number
+        march:
+          format: double
+          nullable: true
+          type: number
+        may:
+          format: double
+          nullable: true
+          type: number
+        note:
+          nullable: true
+          type: string
+        november:
+          format: double
+          nullable: true
+          type: number
+        october:
+          format: double
+          nullable: true
+          type: number
+        september:
+          format: double
+          nullable: true
+          type: number
+      required:
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    ImminentEarthquakeMagnitudeTypeEnum:
+      properties:
+        key:
+          $ref: '#/components/schemas/ImminentEarthquakeMagnitudeTypeEnumKey'
+        value:
+          type: string
+      required:
+      - key
+      - value
+      type: object
+    ImminentEarthquakeMagnitudeTypeEnumKey:
+      description: |-
+        * `2` - 2
+        * `4` - 4
+        * `fa` - fa
+        * `H` - H
+        * `lg` - lg
+        * `m` - m
+        * `ma` - ma
+        * `mb` - mb
+        * `MbLg` - MbLg
+        * `Mb_lg` - Mb_lg
+        * `mc` - mc
+        * `md` - md
+        * `mdl` - mdl
+        * `Me` - Me
+        * `mfa` - mfa
+        * `mh` - mh
+        * `Mi` - Mi
+        * `mint` - mint
+        * `ml` - ml
+        * `mlg` - mlg
+        * `mlr` - mlr
+        * `mlv` - mlv
+        * `Ms` - Ms
+        * `ms_20` - ms_20
+        * `Mt` - Mt
+        * `mun` - mun
+        * `mw` - mw
+        * `mwb` - mwb
+        * `mwc` - mwc
+        * `mwp` - mwp
+        * `mwr` - mwr
+        * `mwm` - mwm
+        * `no` - no
+        * `uk` - uk
+        * `Unknown` - Unknown
+      enum:
+      - '2'
+      - '4'
+      - fa
+      - H
+      - lg
+      - m
+      - ma
+      - mb
+      - MbLg
+      - Mb_lg
+      - mc
+      - md
+      - mdl
+      - Me
+      - mfa
+      - mh
+      - Mi
+      - mint
+      - ml
+      - mlg
+      - mlr
+      - mlv
+      - Ms
+      - ms_20
+      - Mt
+      - mun
+      - mw
+      - mwb
+      - mwc
+      - mwp
+      - mwr
+      - mwm
+      - 'no'
+      - uk
+      - Unknown
+      type: string
+    ImminentGwisDsrTypeEnum:
+      properties:
+        key:
+          $ref: '#/components/schemas/ImminentGwisDsrTypeEnumKey'
+        value:
+          type: string
+      required:
+      - key
+      - value
+      type: object
+    ImminentGwisDsrTypeEnumKey:
+      description: |-
+        * `monthly` - Monthly
+        * `cumulative` - Cummulative
+      enum:
+      - monthly
+      - cumulative
+      type: string
+    ImminentPdcSeverityEnum:
+      properties:
+        key:
+          $ref: '#/components/schemas/ImminentPdcSeverityEnumKey'
+        value:
+          type: string
+      required:
+      - key
+      - value
+      type: object
+    ImminentPdcSeverityEnumKey:
+      description: |-
+        * `warning` - Warning
+        * `watch` - Watch
+        * `advisory` - Advisory
+        * `information` - Information
+      enum:
+      - warning
+      - watch
+      - advisory
+      - information
+      type: string
+    ImminentPdcStatusEnum:
+      properties:
+        key:
+          $ref: '#/components/schemas/ImminentPdcStatusEnumKey'
+        value:
+          type: string
+      required:
+      - key
+      - value
+      type: object
+    ImminentPdcStatusEnumKey:
+      description: |-
+        * `A` - Active
+        * `E` - Expired
+      enum:
+      - A
+      - E
+      type: string
+    InformRisk:
+      properties:
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        risk_score:
+          format: double
+          nullable: true
+          type: number
+      required:
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    InformRiskSeasonal:
+      properties:
+        annual_average:
+          format: double
+          nullable: true
+          type: number
+        april:
+          format: double
+          nullable: true
+          type: number
+        august:
+          format: double
+          nullable: true
+          type: number
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        december:
+          format: double
+          nullable: true
+          type: number
+        february:
+          format: double
+          nullable: true
+          type: number
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        january:
+          format: double
+          nullable: true
+          type: number
+        july:
+          format: double
+          nullable: true
+          type: number
+        june:
+          format: double
+          nullable: true
+          type: number
+        march:
+          format: double
+          nullable: true
+          type: number
+        may:
+          format: double
+          nullable: true
+          type: number
+        november:
+          format: double
+          nullable: true
+          type: number
+        october:
+          format: double
+          nullable: true
+          type: number
+        september:
+          format: double
+          nullable: true
+          type: number
+      required:
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    InformScore:
+      properties:
+        april:
+          format: double
+          type: number
+        august:
+          format: double
+          type: number
+        country:
+          $ref: '#/components/schemas/MiniCountry'
+        december:
+          format: double
+          type: number
+        february:
+          format: double
+          type: number
+        hazard_type:
+          items: {}
+          readOnly: true
+          type: array
+        january:
+          format: double
+          type: number
+        july:
+          format: double
+          type: number
+        june:
+          format: double
+          type: number
+        march:
+          format: double
+          type: number
+        may:
+          format: double
+          type: number
+        november:
+          format: double
+          type: number
+        october:
+          format: double
+          type: number
+        september:
+          format: double
+          type: number
+      required:
+      - april
+      - august
+      - country
+      - december
+      - february
+      - hazard_type
+      - january
+      - july
+      - june
+      - march
+      - may
+      - november
+      - october
+      - september
+      type: object
+    MeteoSwissAgg:
+      properties:
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        event_details:
+          nullable: true
+        hazard_name:
+          maxLength: 255
+          type: string
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        latitude:
+          format: double
+          nullable: true
+          type: number
+        longitude:
+          format: double
+          nullable: true
+          type: number
+        model_name:
+          maxLength: 255
+          nullable: true
+          type: string
+        start_date:
+          format: date-time
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated date
+          type: string
+      required:
+      - country_details
+      - hazard_name
+      - hazard_type_display
+      - id
+      - start_date
+      - updated_at
+      type: object
+    MeteoSwissFootprint:
+      properties:
+        footprint_geojson: {}
+      type: object
+    MiniCountry:
+      properties:
+        iso3:
+          maxLength: 3
+          nullable: true
+          type: string
+        name:
+          maxLength: 255
+          nullable: true
+          type: string
+      type: object
+    Oddrin:
+      properties:
+        buildings_exposed:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        cog_file:
+          format: uri
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          readOnly: true
+          type: string
+        file:
+          format: uri
+          nullable: true
+          type: string
+        file_type:
+          $ref: '#/components/schemas/FileTypeEnum'
+        file_type_display:
+          readOnly: true
+          type: string
+        glide_number:
+          maxLength: 100
+          nullable: true
+          type: string
+        hazard_title:
+          maxLength: 255
+          type: string
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          readOnly: true
+          type: string
+        higher_displacement:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        id:
+          readOnly: true
+          type: integer
+        iso3:
+          maxLength: 3
+          nullable: true
+          type: string
+        latitude:
+          format: double
+          nullable: true
+          type: number
+        longitude:
+          format: double
+          nullable: true
+          type: number
+        lower_displacement:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        modified_at:
+          format: date-time
+          readOnly: true
+          type: string
+        people_displaced:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        people_exposed:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        source_type:
+          $ref: '#/components/schemas/SourceTypeEnum'
+        uuid:
+          maxLength: 128
+          nullable: true
+          type: string
+      required:
+      - created_at
+      - file_type_display
+      - hazard_title
+      - hazard_type_display
+      - id
+      - modified_at
+      type: object
+    PaginatedAdamList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Adam'
+          type: array
+      type: object
+    PaginatedEarthquakeList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Earthquake'
+          type: array
+      type: object
+    PaginatedGDACSSeralizerList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/GDACSSeralizer'
+          type: array
+      type: object
+    PaginatedGWISList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/GWIS'
+          type: array
+      type: object
+    PaginatedMeteoSwissAggList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/MeteoSwissAgg'
+          type: array
+      type: object
+    PaginatedOddrinList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Oddrin'
+          type: array
+      type: object
+    PaginatedPdcList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/Pdc'
+          type: array
+      type: object
+    PaginatedPossibleEarlyActionsList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/PossibleEarlyActions'
+          type: array
+      type: object
+    PaginatedPublishReportList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/PublishReport'
+          type: array
+      type: object
+    PaginatedRiskScoreList:
+      properties:
+        count:
+          example: 123
+          type: integer
+        next:
+          example: http://api.example.org/accounts/?offset=400&limit=100
+          format: uri
+          nullable: true
+          type: string
+        previous:
+          example: http://api.example.org/accounts/?offset=200&limit=100
+          format: uri
+          nullable: true
+          type: string
+        results:
+          items:
+            $ref: '#/components/schemas/RiskScore'
+          type: array
+      type: object
+    PatchedOddrin:
+      properties:
+        buildings_exposed:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        cog_file:
+          format: uri
+          nullable: true
+          type: string
+        created_at:
+          format: date-time
+          readOnly: true
+          type: string
+        file:
+          format: uri
+          nullable: true
+          type: string
+        file_type:
+          $ref: '#/components/schemas/FileTypeEnum'
+        file_type_display:
+          readOnly: true
+          type: string
+        glide_number:
+          maxLength: 100
+          nullable: true
+          type: string
+        hazard_title:
+          maxLength: 255
+          type: string
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          readOnly: true
+          type: string
+        higher_displacement:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        id:
+          readOnly: true
+          type: integer
+        iso3:
+          maxLength: 3
+          nullable: true
+          type: string
+        latitude:
+          format: double
+          nullable: true
+          type: number
+        longitude:
+          format: double
+          nullable: true
+          type: number
+        lower_displacement:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        modified_at:
+          format: date-time
+          readOnly: true
+          type: string
+        people_displaced:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        people_exposed:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        source_type:
+          $ref: '#/components/schemas/SourceTypeEnum'
+        uuid:
+          maxLength: 128
+          nullable: true
+          type: string
+      type: object
+    Pdc:
+      properties:
+        created_at:
+          format: date-time
+          readOnly: true
+          type: string
+        description:
+          type: string
+        end_date:
+          format: date
+          nullable: true
+          type: string
+        hazard_id:
+          maxLength: 255
+          type: string
+        hazard_name:
+          maxLength: 255
+          type: string
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        id:
+          readOnly: true
+          type: integer
+        latitude:
+          format: double
+          nullable: true
+          type: number
+        longitude:
+          format: double
+          nullable: true
+          type: number
+        pdc_created_at:
+          format: date-time
+          nullable: true
+          type: string
+        pdc_updated_at:
+          format: date-time
+          nullable: true
+          type: string
+        severity:
+          allOf:
+          - $ref: '#/components/schemas/ImminentPdcSeverityEnumKey'
+          nullable: true
+        severity_display:
+          readOnly: true
+          type: string
+        stale_displacement:
+          title: Requires displacement data update
+          type: boolean
+        start_date:
+          format: date
+          nullable: true
+          type: string
+        status:
+          $ref: '#/components/schemas/ImminentPdcStatusEnumKey'
+        status_display:
+          readOnly: true
+          type: string
+        uuid:
+          format: uuid
+          nullable: true
+          type: string
+      required:
+      - created_at
+      - hazard_id
+      - hazard_name
+      - id
+      - severity_display
+      - status_display
+      type: object
+    PdcExposure:
+      properties:
+        capital_exposure: {}
+        cyclone_five_days_cou: {}
+        cyclone_three_days_cou: {}
+        footprint_geojson: {}
+        population_exposure: {}
+        storm_position_geojson: {}
+      required:
+      - capital_exposure
+      - cyclone_five_days_cou
+      - cyclone_three_days_cou
+      - footprint_geojson
+      - population_exposure
+      - storm_position_geojson
+      type: object
+    PossibelEarlyActionsSector:
+      properties:
+        id:
+          readOnly: true
+          type: integer
+        name:
+          maxLength: 255
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    PossibleEarlyActionOptions:
+      properties:
+        hazard_type:
+          items:
+            $ref: '#/components/schemas/CharKeyValue'
+          type: array
+        sectors:
+          items:
+            $ref: '#/components/schemas/PossibleEarlyActionSectors'
+          type: array
+      required:
+      - hazard_type
+      - sectors
+      type: object
+    PossibleEarlyActionSectors:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+      required:
+      - id
+      - name
+      type: object
+    PossibleEarlyActions:
+      properties:
+        budget:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        cost:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        country:
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        cross_cutting:
+          nullable: true
+          type: string
+        early_actions:
+          nullable: true
+          title: Possible Early Actions
+          type: string
+        effective_time:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        effective_time_raw:
+          maxLength: 255
+          nullable: true
+          type: string
+        evidence_of_sucess:
+          nullable: true
+          type: string
+        exist_in_hub:
+          nullable: true
+          type: boolean
+        hazard_name:
+          maxLength: 255
+          nullable: true
+          type: string
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        impact_action:
+          nullable: true
+          type: string
+        implementation_date:
+          format: date
+          nullable: true
+          type: string
+        implementation_date_raw:
+          maxLength: 255
+          nullable: true
+          type: string
+        intended_purpose:
+          nullable: true
+          type: string
+        link_to_resources:
+          maxLength: 255
+          nullable: true
+          type: string
+        location:
+          nullable: true
+          title: Location Description
+          type: string
+        number_of_people_at_risk:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        number_of_people_covered:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        organization:
+          maxLength: 255
+          nullable: true
+          type: string
+        resource:
+          nullable: true
+          type: string
+        resources_used:
+          nullable: true
+          type: string
+        scalability:
+          maxLength: 255
+          nullable: true
+          type: string
+        sectors:
+          items:
+            type: integer
+          type: array
+        sectors_details:
+          items:
+            $ref: '#/components/schemas/PossibelEarlyActionsSector'
+          type: array
+        timeframe:
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+          type: integer
+        timeframe_raw:
+          maxLength: 255
+          nullable: true
+          type: string
+      required:
+      - country
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    PublishReport:
+      properties:
+        attachment:
+          maxLength: 255
+          nullable: true
+          type: string
+        attachment_name:
+          maxLength: 255
+          nullable: true
+          type: string
+        attachment_url:
+          maxLength: 255
+          nullable: true
+          type: string
+        description:
+          nullable: true
+          type: string
+        email:
+          maxLength: 255
+          nullable: true
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        program:
+          title: Program Name
+          type: integer
+        program_display:
+          allOf:
+          - $ref: '#/components/schemas/PublishReportProgram'
+          readOnly: true
+        publish_report_id:
+          maxLength: 255
+          nullable: true
+          title: Publish Report
+          type: string
+        report_name:
+          maxLength: 255
+          type: string
+      required:
+      - id
+      - program
+      - program_display
+      - report_name
+      type: object
+    PublishReportProgram:
+      properties:
+        accuracy_level:
+          maxLength: 255
+          nullable: true
+          title: Accuracy
+          type: string
+        area:
+          maxLength: 255
+          nullable: true
+          type: string
+        bread_cumbs:
+          nullable: true
+          type: string
+        communities:
+          nullable: true
+          type: string
+        community_engagement:
+          nullable: true
+          type: string
+        community_vca:
+          nullable: true
+          type: string
+        country:
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        description:
+          nullable: true
+          type: string
+        end_date:
+          format: date-time
+          nullable: true
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        inactive:
+          nullable: true
+          type: boolean
+        measurement_assignment:
+          nullable: true
+          type: string
+        program_manager:
+          maxLength: 255
+          type: string
+        program_name:
+          maxLength: 255
+          type: string
+        start_date:
+          format: date-time
+          nullable: true
+          type: string
+      required:
+      - country
+      - country_details
+      - id
+      - program_manager
+      - program_name
+      type: object
+    RiskScore:
+      properties:
+        april:
+          format: double
+          nullable: true
+          type: number
+        august:
+          format: double
+          nullable: true
+          type: number
+        country:
+          nullable: true
+          type: integer
+        country_details:
+          allOf:
+          - $ref: '#/components/schemas/Country'
+          readOnly: true
+        december:
+          format: double
+          nullable: true
+          type: number
+        february:
+          format: double
+          nullable: true
+          type: number
+        hazard_type:
+          $ref: '#/components/schemas/CommonHazardTypeEnumKey'
+        hazard_type_display:
+          type: string
+        id:
+          readOnly: true
+          type: integer
+        january:
+          format: double
+          nullable: true
+          type: number
+        july:
+          format: double
+          nullable: true
+          type: number
+        june:
+          format: double
+          nullable: true
+          type: number
+        lcc:
+          format: double
+          nullable: true
+          title: Llc
+          type: number
+        march:
+          format: double
+          nullable: true
+          type: number
+        may:
+          format: double
+          nullable: true
+          type: number
+        november:
+          format: double
+          nullable: true
+          type: number
+        october:
+          format: double
+          nullable: true
+          type: number
+        population_in_thousands:
+          format: double
+          nullable: true
+          type: number
+        september:
+          format: double
+          nullable: true
+          type: number
+        vulnerability:
+          format: double
+          nullable: true
+          type: number
+        yearly_sum:
+          format: double
+          nullable: true
+          type: number
+      required:
+      - country_details
+      - hazard_type_display
+      - id
+      type: object
+    Seasonal:
+      properties:
+        gwis_seasonal:
+          items:
+            $ref: '#/components/schemas/GwisSeasonal'
+          nullable: true
+          type: array
+        idmc:
+          items:
+            $ref: '#/components/schemas/Idmc'
+          nullable: true
+          type: array
+        ipc_displacement_data:
+          items:
+            $ref: '#/components/schemas/GlobalDisplacement'
+          nullable: true
+          type: array
+        raster_displacement_data:
+          items:
+            $ref: '#/components/schemas/DisplacementData'
+          nullable: true
+          type: array
+      required:
+      - gwis_seasonal
+      - idmc
+      - ipc_displacement_data
+      - raster_displacement_data
+      type: object
+    SeasonalCountry:
+      properties:
+        gwis:
+          items:
+            $ref: '#/components/schemas/GWIS'
+          nullable: true
+          type: array
+        gwis_seasonal:
+          items:
+            $ref: '#/components/schemas/GwisSeasonal'
+          nullable: true
+          type: array
+        idmc:
+          items:
+            $ref: '#/components/schemas/Idmc'
+          nullable: true
+          type: array
+        inform:
+          items:
+            $ref: '#/components/schemas/InformRisk'
+          nullable: true
+          type: array
+        inform_seasonal:
+          items:
+            $ref: '#/components/schemas/InformRiskSeasonal'
+          nullable: true
+          type: array
+        ipc_displacement_data:
+          items:
+            $ref: '#/components/schemas/GlobalDisplacement'
+          nullable: true
+          type: array
+        raster_displacement_data:
+          items:
+            $ref: '#/components/schemas/DisplacementData'
+          nullable: true
+          type: array
+        return_period_data:
+          items:
+            $ref: '#/components/schemas/GarHazardDisplacement'
+          nullable: true
+          type: array
+      required:
+      - gwis
+      - gwis_seasonal
+      - idmc
+      - inform
+      - inform_seasonal
+      - ipc_displacement_data
+      - raster_displacement_data
+      - return_period_data
+      type: object
+    SourceTypeEnum:
+      description: |-
+        * `oddrin` - Oddrin
+        * `pdc` - Pdc
+      enum:
+      - oddrin
+      - pdc
+      type: string
+  securitySchemes:
+    basicAuth:
+      scheme: basic
+      type: http
+    cookieAuth:
+      in: cookie
+      name: sessionid
+      type: apiKey
+info:
+  description: IFRC-GO RISK API Documenation
+  title: IFRC-GO RISK API
+  version: 1.0.0
+openapi: 3.0.3
+paths:
+  /api/v1/adam-exposure/:
+    get:
+      operationId: api_v1_adam_exposure_list
+      parameters:
+      - description: |-
+          * `EQ` - Earthquake
+          * `FL` - Flood
+          * `TC` - Cyclone
+          * `EP` - Epidemic
+          * `FI` - Food Insecurity
+          * `SS` - Storm Surge
+          * `DR` - Drought
+          * `TS` - Tsunami
+          * `CD` - Cyclonic Wind
+          * `WF` - WildFire
+        explode: true
+        in: query
+        name: hazard_type
+        schema:
+          items:
+            enum:
+            - CD
+            - DR
+            - EP
+            - EQ
+            - FI
+            - FL
+            - SS
+            - TC
+            - TS
+            - WF
+            type: string
+          type: array
+        style: form
+      - explode: true
+        in: query
+        name: country
+        schema:
+          items:
+            type: integer
+          type: array
+        style: form
+      - in: query
+        name: iso3
+        schema:
+          type: string
+      - description: region
+        explode: true
+        in: query
+        name: region
+        schema:
+          items:
+            type: integer
+          type: array
+        style: form
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdamList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/adam-exposure/{id}/:
+    get:
+      operationId: api_v1_adam_exposure_retrieve
+      parameters:
+      - description: A unique integer value identifying this adam.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Adam'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/adam-exposure/{id}/exposure/:
+    get:
+      operationId: api_v1_adam_exposure_exposure_retrieve
+      parameters:
+      - description: A unique integer value identifying this adam.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdamExposure'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/country-imminent-counts/:
+    get:
+      operationId: api_v1_country_imminent_counts_retrieve
+      parameters:
+      - in: query
+        name: iso3
+        schema:
+          minLength: 1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CountryImminent'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/country-seasonal/:
+    get:
+      operationId: api_v1_country_seasonal_list
+      parameters:
+      - in: query
+        name: iso3
+        schema:
+          minLength: 1
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/SeasonalCountry'
+                type: array
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/early-actions/:
+    get:
+      operationId: api_v1_early_actions_list
+      parameters:
+      - in: query
+        name: iso3
+        schema:
+          type: string
+      - in: query
+        name: region
+        schema:
+          type: integer
+      - description: |-
+          * `EQ` - Earthquake
+          * `FL` - Flood
+          * `TC` - Cyclone
+          * `EP` - Epidemic
+          * `FI` - Food Insecurity
+          * `SS` - Storm Surge
+          * `DR` - Drought
+          * `TS` - Tsunami
+          * `CD` - Cyclonic Wind
+          * `WF` - WildFire
+        explode: true
+        in: query
+        name: hazard_type
+        schema:
+          items:
+            enum:
+            - CD
+            - DR
+            - EP
+            - EQ
+            - FI
+            - FL
+            - SS
+            - TC
+            - TS
+            - WF
+            type: string
+          type: array
+        style: form
+      - in: query
+        name: sectors
+        schema:
+          type: string
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPossibleEarlyActionsList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/early-actions/options/:
+    get:
+      operationId: api_v1_early_actions_options_retrieve
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PossibleEarlyActionOptions'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/early-actions/{id}/:
+    get:
+      operationId: api_v1_early_actions_retrieve
+      parameters:
+      - description: A unique integer value identifying this possible early actions.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PossibleEarlyActions'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/earthquake/:
+    get:
+      operationId: api_v1_earthquake_list
+      parameters:
+      - in: query
+        name: country
+        schema:
+          type: string
+      - in: query
+        name: event_date__lte
+        schema:
+          format: date
+          type: string
+      - in: query
+        name: event_date__gte
+        schema:
+          format: date
+          type: string
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedEarthquakeList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/earthquake/{id}/:
+    get:
+      operationId: api_v1_earthquake_retrieve
+      parameters:
+      - description: A unique integer value identifying this earthquake.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Earthquake'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/gdacs/:
+    get:
+      operationId: api_v1_gdacs_list
+      parameters:
+      - description: iso3
+        in: query
+        name: iso3
+        schema:
+          type: string
+      - description: region
+        explode: true
+        in: query
+        name: region
+        schema:
+          items:
+            type: integer
+          type: array
+        style: form
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGDACSSeralizerList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/gdacs/{id}/:
+    get:
+      operationId: api_v1_gdacs_retrieve
+      parameters:
+      - description: A unique integer value identifying this gdacs.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GDACSSeralizer'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/gdacs/{id}/exposure/:
+    get:
+      operationId: api_v1_gdacs_exposure_retrieve
+      parameters:
+      - description: A unique integer value identifying this gdacs.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GDACSExposure'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/global-enums/:
+    get:
+      description: Return a list of all enums.
+      operationId: api_v1_global_enums_retrieve
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlobalEnum'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/global-exposure-data/:
+    get:
+      operationId: api_v1_global_exposure_data_list
+      parameters:
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOddrinList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+    post:
+      operationId: api_v1_global_exposure_data_create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Oddrin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Oddrin'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Oddrin'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oddrin'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/global-exposure-data/{id}/:
+    delete:
+      operationId: api_v1_global_exposure_data_destroy
+      parameters:
+      - description: A unique integer value identifying this oddrin.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: No response body
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+    get:
+      operationId: api_v1_global_exposure_data_retrieve
+      parameters:
+      - description: A unique integer value identifying this oddrin.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oddrin'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+    patch:
+      operationId: api_v1_global_exposure_data_partial_update
+      parameters:
+      - description: A unique integer value identifying this oddrin.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOddrin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedOddrin'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedOddrin'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oddrin'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+    put:
+      operationId: api_v1_global_exposure_data_update
+      parameters:
+      - description: A unique integer value identifying this oddrin.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Oddrin'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Oddrin'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Oddrin'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Oddrin'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/gwis/:
+    get:
+      operationId: api_v1_gwis_list
+      parameters:
+      - description: iso3
+        in: query
+        name: iso3
+        schema:
+          type: string
+      - description: region
+        explode: true
+        in: query
+        name: region
+        schema:
+          items:
+            type: integer
+          type: array
+        style: form
+      - description: year
+        in: query
+        name: year
+        schema:
+          type: string
+      - description: |-
+          * `monthly` - Monthly
+          * `cumulative` - Cummulative
+        explode: true
+        in: query
+        name: dsr_type
+        schema:
+          items:
+            enum:
+            - cumulative
+            - monthly
+            type: string
+          type: array
+        style: form
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGWISList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/gwis/{id}/:
+    get:
+      operationId: api_v1_gwis_retrieve
+      parameters:
+      - description: A unique integer value identifying this gwis.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GWIS'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/inform-score/:
+    get:
+      operationId: api_v1_inform_score_list
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/InformScore'
+                type: array
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/meteoswiss/:
+    get:
+      operationId: api_v1_meteoswiss_list
+      parameters:
+      - description: iso3
+        in: query
+        name: iso3
+        schema:
+          type: string
+      - description: region
+        explode: true
+        in: query
+        name: region
+        schema:
+          items:
+            type: integer
+          type: array
+        style: form
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMeteoSwissAggList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/meteoswiss/{id}/:
+    get:
+      operationId: api_v1_meteoswiss_retrieve
+      parameters:
+      - description: A unique integer value identifying this meteo swiss agg.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeteoSwissAgg'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/meteoswiss/{id}/exposure/:
+    get:
+      operationId: api_v1_meteoswiss_exposure_retrieve
+      parameters:
+      - description: A unique integer value identifying this meteo swiss agg.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeteoSwissFootprint'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/pdc/:
+    get:
+      operationId: api_v1_pdc_list
+      parameters:
+      - description: iso3
+        in: query
+        name: iso3
+        schema:
+          type: string
+      - description: region
+        explode: true
+        in: query
+        name: region
+        schema:
+          items:
+            type: integer
+          type: array
+        style: form
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPdcList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/pdc/{id}/:
+    get:
+      operationId: api_v1_pdc_retrieve
+      parameters:
+      - description: A unique integer value identifying this pdc.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pdc'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/pdc/{id}/exposure/:
+    get:
+      operationId: api_v1_pdc_exposure_retrieve
+      parameters:
+      - description: A unique integer value identifying this pdc.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PdcExposure'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/publish-report/:
+    get:
+      operationId: api_v1_publish_report_list
+      parameters:
+      - in: query
+        name: iso3
+        schema:
+          type: string
+      - in: query
+        name: region
+        schema:
+          type: integer
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPublishReportList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/publish-report/{id}/:
+    get:
+      operationId: api_v1_publish_report_retrieve
+      parameters:
+      - description: A unique integer value identifying this publish report.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublishReport'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/risk-score/:
+    get:
+      operationId: api_v1_risk_score_list
+      parameters:
+      - in: query
+        name: iso3
+        schema:
+          type: string
+      - in: query
+        name: region
+        schema:
+          type: integer
+      - description: Number of results to return per page.
+        in: query
+        name: limit
+        required: false
+        schema:
+          type: integer
+      - description: The initial index from which to return the results.
+        in: query
+        name: offset
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRiskScoreList'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/risk-score/{id}/:
+    get:
+      operationId: api_v1_risk_score_retrieve
+      parameters:
+      - description: A unique integer value identifying this risk score.
+        in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskScore'
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api
+  /api/v1/seasonal/:
+    get:
+      operationId: api_v1_seasonal_list
+      parameters:
+      - in: query
+        name: iso3
+        schema:
+          minLength: 1
+          type: string
+      - in: query
+        name: region
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Seasonal'
+                type: array
+          description: ''
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      tags:
+      - api

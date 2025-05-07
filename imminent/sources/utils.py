@@ -8,10 +8,7 @@ from common.models import Country
 
 def parse_timestamp(timestamp):
     # NOTE: all timestamp are in millisecond and with timezone `utc`
-    return timezone.make_aware(
-        # FIXME: Using deprecated function
-        datetime.datetime.utcfromtimestamp(int(timestamp) / 1000)
-    )
+    return timezone.make_aware(datetime.datetime.fromtimestamp(int(timestamp) / 1000, tz=datetime.timezone.utc))
 
 
 class CountryQuery:
