@@ -54,7 +54,7 @@ class Command(BaseCommand):
         df1 = inform_score_dataframe
         df1["ISO3"] = df1["ISO3"].str.upper()
         # latest inform score data
-        df2 = pd.read_excel(file1, sheet_name="INFORM Risk 2024 (a-z)", skiprows=(0, 2), usecols="A, B, S, AE", engine="openpyxl")
+        df2 = pd.read_excel(file1, sheet_name="INFORM Risk 2025 (a-z)", skiprows=(0, 2), usecols="A, B, S, AE", engine="openpyxl")
         df2.rename(
             {"VULNERABILITY": "Vulnerability", "LACK OF COPING CAPACITY": "LCC"},
             axis=1,
