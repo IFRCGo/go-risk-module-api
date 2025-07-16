@@ -26,7 +26,7 @@ def fetch_inform_seasonal(file):
     workbook = openpyxl.load_workbook(file)
     worksheet = workbook.get_sheet_by_name("Sheet1")
     max_rows = get_maximum_rows(sheet_object=worksheet)
-    hazard_list = [HazardType.CYCLONE, HazardType.DROUGHT, HazardType.FLOOD]
+    hazard_list = [HazardType.CYCLONE.value, HazardType.DROUGHT.value, HazardType.FLOOD.value]
     for i in range(2, max_rows + 1):
         iso3 = worksheet.cell(row=i, column=1).value
         hazard_type = parse_hazard_type(worksheet.cell(row=i, column=2).value)
