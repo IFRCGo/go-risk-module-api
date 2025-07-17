@@ -15,7 +15,7 @@ def get_maximum_rows(*, sheet_object):
 def fetch_inform_data(file):
     # NOTE: set `data_only=True` to read cell value instead of formula
     workbook = openpyxl.load_workbook(file, data_only=True)
-    worksheet = workbook.get_sheet_by_name("INFORM Risk 2022 (a-z)")
+    worksheet = workbook.get_sheet_by_name("INFORM Risk 2025 (a-z)")
     max_rows = get_maximum_rows(sheet_object=worksheet)
     # Iterate the loop to read the cell values
     data_all = []
