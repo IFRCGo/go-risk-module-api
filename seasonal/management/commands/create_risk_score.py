@@ -118,7 +118,7 @@ class Command(BaseCommand):
             )
             risk_score_data = {
                 "country": Country.objects.filter(
-                    iso3__icontains=row["ISO3"],
+                    name=row["name"],
                     iso3__isnull=False,
                     record_type__isnull=False,
                     record_type=Country.CountryType.COUNTRY,
@@ -141,4 +141,5 @@ class Command(BaseCommand):
                 "population_in_thousands": row["Population_in_thousands"],
                 "vulnerability": row["Vulnerability"],
             }
-            RiskScore.objects.create(**risk_score_data)
+            if risk_score_data["country"]:
+                RiskScore.objects.create(**risk_score_data)
