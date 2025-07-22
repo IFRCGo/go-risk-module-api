@@ -1,4 +1,3 @@
-name: 🤓 GH Action 🚧
 name: Python check
 
 on:
@@ -21,9 +20,40 @@ on:
   # NOTE: For other, they should be run through helm github action ./helm-publish.yml
 
 jobs:
+  pre_commit_checks:
+    name: Pre-Commit checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: '.python-version'
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: gdal-bin libgdal-dev
+
+      - name: Setup uv python environment
+        run: uv venv
+
+      - name: uv lock check
+        run: uv lock --locked --offline
+
+      - name: uv sync
+        run: uv sync --all-extras
+
+      - uses: pre-commit/action@main
+
   build_test:
     name: Test
     runs-on: ubuntu-latest
+    needs: pre_commit_checks
 
     outputs:
       docker_image_name: ${{ steps.prep.outputs.tagged_image_name }}
