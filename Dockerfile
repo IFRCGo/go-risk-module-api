@@ -1,4 +1,4 @@
-FROM python:3.8-slim-bookworm AS base
+FROM python:3.9-slim-bookworm AS base
 COPY --from=ghcr.io/astral-sh/uv:0.7.4 /uv /uvx /bin/
 
 LABEL maintainer="IFRC"
