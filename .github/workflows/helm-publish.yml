@@ -1,4 +1,4 @@
-name: Builds and pushes Docker Images and Helm charts to Github Registry
+name: Helm publish
 
 on:
   workflow_dispatch:
