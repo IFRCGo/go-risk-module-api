@@ -48,7 +48,7 @@ class Command(BaseCommand):
                     map_hazard_type = HazadTypeList[1]
                 elif hazard_type == "DR":
                     map_hazard_type = HazadTypeList[2]
-                if map_hazard_type:
+                if not map_hazard_type:
                     continue
 
                 url = f"https://thinkhazard.org/en/report/{country_id}/{hazard_type}.json"

@@ -54,7 +54,7 @@ class Command(BaseCommand):
         df1 = inform_score_dataframe
         df1["ISO3"] = df1["ISO3"].str.upper()
         # latest inform score data
-        df2 = pd.read_excel(file1, sheet_name="INFORM Risk 2024 (a-z)", skiprows=(0, 2), usecols="A, B, S, AE", engine="openpyxl")
+        df2 = pd.read_excel(file1, sheet_name="INFORM Risk 2025 (a-z)", skiprows=(0, 2), usecols="A, B, S, AE", engine="openpyxl")
         df2.rename(
             {"VULNERABILITY": "Vulnerability", "LACK OF COPING CAPACITY": "LCC"},
             axis=1,
@@ -118,7 +118,7 @@ class Command(BaseCommand):
             )
             risk_score_data = {
                 "country": Country.objects.filter(
-                    iso3__icontains=row["ISO3"],
+                    name=row["name"],
                     iso3__isnull=False,
                     record_type__isnull=False,
                     record_type=Country.CountryType.COUNTRY,
@@ -141,4 +141,5 @@ class Command(BaseCommand):
                 "population_in_thousands": row["Population_in_thousands"],
                 "vulnerability": row["Vulnerability"],
             }
-            RiskScore.objects.create(**risk_score_data)
+            if risk_score_data["country"]:
+                RiskScore.objects.create(**risk_score_data)

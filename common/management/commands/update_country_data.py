@@ -17,16 +17,15 @@ class Command(BaseCommand):
                 independent = data["independent"]
                 is_deprecated = data["is_deprecated"]
                 record_type = data["record_type"]
-                print(record_type)
                 iso3 = data["iso3"]
                 if iso3:
                     country = Country.objects.filter(iso3=iso3.lower())
                     if country.exists():
-                        country = country.last()
-                        country.independent = independent
-                        country.is_deprecated = is_deprecated
-                        country.record_type = record_type
-                        country.save(update_fields=["independent", "is_deprecated", "record_type"])
+                        for country_item in country:
+                            country_item.independent = independent
+                            country_item.is_deprecated = is_deprecated
+                            country_item.record_type = record_type
+                            country_item.save(update_fields=["independent", "is_deprecated", "record_type"])
             cluster_country_name = [
                 "West Africa Country Cluster",
                 "Tunis Country Cluster",

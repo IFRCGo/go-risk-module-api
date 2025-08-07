@@ -42,7 +42,7 @@ class Command(BaseCommand):
         new_df = new_df.replace(np.nan, None)
         country_groups = new_df.groupby("country")
         for country_name, group in country_groups:
-            gwis_data = {"country": Country.objects.filter(name__icontains=country_name).first()}
+            gwis_data = {"country": Country.objects.filter(name=country_name).first()}
             for month in month_mapping.values():
                 gwis_data[month] = (
                     group.loc[group["month"] == month, "dsr_avg"].values[0] if month in group["month"].values else None
