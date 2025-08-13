@@ -6,6 +6,10 @@ image:
 
 imagePullSecrets: []
 
+global:
+  security:
+    allowInsecureImage: true
+
 ingress:
   enabled: false
   className: webapprouting.kubernetes.azure.com
@@ -17,6 +21,8 @@ ingress:
 # For production use azure postgres server and provide credentials using azure keyvault
 postgresql:
   enabled: false
+  image:
+    repository: bitnamilegacy/postgresql
   fullnameOverride: ifrcgo-risk-module-postgresql
   architecture: standalone
   auth:
@@ -32,6 +38,8 @@ postgresql:
 
 redis:
   enabled: false
+  image:
+    repository: bitnamilegacy/redis
   architecture: standalone
   fullnameOverride: ifrcgo-risk-module-redis
   auth:
