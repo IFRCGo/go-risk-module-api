@@ -394,6 +394,15 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "IFRC-GO RISK API Documenation",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "ENUM_ADD_EXPLICIT_BLANK_NULL_CHOICE": False,
+    "ENUM_NAME_OVERRIDES": {},
+    # "DEFAULT_GENERATOR_CLASS": "main.utils.OrderedSchemaGenerator",
+    "SORT_OPERATION_PARAMETERS": False,
+    "SORT_OPERATIONS": False,
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "common.utils.postprocess_schema",
+    ],
 }
 
 # Health-check config
