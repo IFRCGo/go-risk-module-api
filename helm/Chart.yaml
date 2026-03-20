@@ -1,0 +1,13 @@
+apiVersion: v2
+name: ifrcgo-risk-module-helm
+description: "Helm Chart to deploy the IFRC GO Risk Module Infrastructure"
+type: application
+version: 0.0.1-SET-BY-CICD
+sources:
+  - https://github.com/IFRCGo/go-risk-module-api
+
+dependencies:
+  - name: toggle-django-helm
+    alias: app
+    version: 0.2.5
+    repository: oci://ghcr.io/toggle-corp

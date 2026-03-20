@@ -1,0 +1,4 @@
+tests:
+  alpha-1.yaml:
+    - values/operators.yaml
+    - values/alpha.yaml

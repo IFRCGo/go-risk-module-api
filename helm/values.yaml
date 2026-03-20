@@ -1,0 +1,157 @@
+app:
+  environment: PROD
+  nameOverride: ifrcgo-risk-module
+
+  appTypeEnvName: "DJANGO_APP_TYPE"
+
+  # Global Image
+  image:
+    name: SET-BY-CICD-IMAGE
+    tag: SET-BY-CICD-TAG
+    imagePullPolicy: IfNotPresent
+
+  ingress:
+    enabled: true
+    className:
+    host:
+
+  rabbitmq:
+    enabled: false
+
+  # XXX: This is for local/playground usages only.
+  postgresql:
+    enabled: false
+    fullnameOverride: ifrcgo-risk-module-pg
+    architecture: standalone
+    auth:
+      postgresPassword: ""
+      username: ""
+      password: ""
+      database: ""
+    primary:
+      persistence:
+        enabled: true
+        storageClass: ""
+        size: 8Gi
+
+  redis:
+    enabled: false
+    architecture: standalone
+    fullnameOverride: ifrcgo-risk-module-redis
+    auth:
+      enabled: false
+    master:
+      persistence:
+        enabled: true
+        storageClass: ""
+        size: .5Gi
+
+  minio:
+    enabled: false
+
+  api:
+    enabled: true
+    replicaCount: 1
+    containerPort: 80
+    command: ["gunicorn", "risk_module.wsgi:application", "--bind", "0.0.0.0:80"]
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 2Gi
+
+  worker:
+    enabled: true
+    flower:
+      enabled: false
+    beat:
+      command:
+        - celery
+        - --app=risk_module
+        - beat
+        - --max-interval=3600
+        - --loglevel=info
+        - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+      resources:
+        requests:
+          cpu: "0.1"
+          memory: 0.2Gi
+        limits:
+          cpu: "1"
+          memory: 0.5Gi
+    queueDefaultResources:
+      requests:
+        cpu: "0.1"
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 2Gi
+    queueCommandPrefix:
+      - celery
+      - --app=risk_module
+      - worker
+      - --loglevel=INFO
+    queues:
+      # NOTE: Make sure keys are lowercase
+      default:
+        enabled: true
+        replicaCount: 1
+        celeryArgs: ["--queues=celery", "--max-tasks-per-child=20"]
+        resources:
+          requests:
+            memory: 4Gi
+          limits:
+            memory: 4Gi
+
+  argoHook:
+    enabled: true
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 1Gi
+    hooks:
+      # NOTE: Make sure keys are lowercase
+      db-migrate:
+        enabled: true
+        hook: PostSync
+        preserveHistory: true
+        command: ["./manage.py", "migrate"]
+      collect-static:
+        enabled: true
+        hook: PostSync
+        command: ["./manage.py", "collectstatic", "--noinput"]
+
+  env:
+    # Application info
+    RISK_RELEASE: "{{ $.Values.image.tag }}"
+    RISK_ENVIRONMENT: "{{ $.Values.environment }}"
+    RISK_API_FQDN: "{{ required \".app.secrets.EOAPI_STAC_API\" nil }}"
+    # Django configs
+    DJANGO_DEBUG: "false"
+    DJANGO_TIME_ZONE: UTC
+    DJANGO_ALLOWED_HOSTS: "*"
+    TIME_ZONE: "UTC"
+    # Sentry
+    SENTRY_TRACE_SAMPLE_RATE: "0.2"
+    SENTRY_PROFILE_SAMPLE_RATE: "0.2"
+    # Logging
+    APPS_LOGGING_LEVEL: "WARNING"
+
+  secrets:
+    DJANGO_SECRET_KEY: "{{ required \".app.secrets.DJANGO_SECRET_KEY\" nil }}"
+    # Sentry
+    SENTRY_DSN: "{{ required \".app.secrets.SENTRY_DSN\" nil }}"
+    # PDC
+    PDC_USERNAME: "{{ required \".app.secrets.PDC_USERNAME\" nil }}"
+    PDC_PASSWORD: "{{ required \".app.secrets.PDC_PASSWORD\" nil }}"
+    PDC_ACCESS_TOKEN: "{{ required \".app.secrets.PDC_ACCESS_TOKEN\" nil }}"
+    # Meteoswiss
+    METEOSWISS_S3_ENDPOINT_URL: "{{ required \".app.secrets.METEOSWISS_S3_ENDPOINT_URL\" nil }}"
+    METEOSWISS_S3_BUCKET: "{{ required \".app.secrets.METEOSWISS_S3_BUCKET\" nil }}"
+    METEOSWISS_S3_ACCESS_KEY: "{{ required \".app.secrets.METEOSWISS_S3_ACCESS_KEY\" nil }}"
+    METEOSWISS_S3_SECRET_KEY: "{{ required \".app.secrets.METEOSWISS_S3_SECRET_KEY\" nil }}"

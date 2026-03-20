@@ -1,0 +1,72 @@
+app:
+  environment: ALPHA-1
+  fullnameOverride: risk-1
+
+  image:
+    name: local.git.com/ifrcgo/risk
+    tag: develop.xxxxxxxx
+
+  ingress:
+    host: risk-1.ifrcgo.local.example.com
+
+  postgresql:
+    auth:
+      postgresPassword: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+      password: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    primary:
+      nodeSelector:
+        kubernetes.io/hostname: "desktop-01"
+      persistence:
+        storageClass: "local-path"
+        size: 2Gi
+      extraEnvVars:
+        - name: DUMP_REGISTRY_URL
+          value: https://user:password@secure-dump.com
+        - name: DUMP_FILENAME
+          value: /risk/k8s-alpha-init-db.dump
+
+  minio:
+    nodeSelector:
+      kubernetes.io/hostname: "desktop-01"
+    global:
+      defaultStorageClass: "local-path"
+    apiIngress:
+      hostname: risk-minio-1.ifrcgo.local.example.com
+    auth:
+      rootPassword: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    persistence:
+      size: 0.5Gi
+
+  env:
+    # App Domain
+    RISK_API_FQDN: "risk-api-1.ifrcgo.local.example.com"
+
+  secrets:
+    DJANGO_SECRET_KEY: xyz
+    SENTRY_DSN: https://xyz@sentry.local.example.com/14
+    # PDC
+    PDC_USERNAME: "dummy-username"
+    PDC_PASSWORD: "dummy-password"
+    PDC_ACCESS_TOKEN: "dummy-token"
+    # Meteoswiss
+    METEOSWISS_S3_ENDPOINT_URL: "https://dummy.endpoint"
+    METEOSWISS_S3_BUCKET: "dummy-bucket"
+    METEOSWISS_S3_ACCESS_KEY: "dummy-access-key"
+    METEOSWISS_S3_SECRET_KEY: "dummy-secret-key"
+
+  argoHook:
+    enabled: true
+    hooks:
+      # NOTE: Make sure keys are lowercase
+      create-users:
+        enabled: true
+        hook: PostSync
+        env:
+          ADMIN_USER_EMAIL_PASSWORD_SET: "IFRC:Admin:admin@ifrc.org:password_hash"
+
+  extraManifests:
+    dragonflydb-cluster:
+      spec:
+        snapshot:
+          persistentVolumeClaimSpec:
+            storageClassName: local-path

@@ -1,0 +1,1402 @@
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: fircgo-risk-module-minio
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: minio
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    # Allow inbound connections
+    - ports:
+        - port: 9001
+        - port: 9000
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/provisioning-networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: fircgo-risk-module-minio-provisioning
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: minio-provisioning
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/primary/networkpolicy.yaml
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: ifrcgo-risk-module-pg
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+    app.kubernetes.io/component: primary
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/component: primary
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  ingress:
+    - ports:
+        - port: 5432
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fircgo-risk-module-minio
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: minio
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/primary/pdb.yaml
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: ifrcgo-risk-module-pg
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+    app.kubernetes.io/component: primary
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/component: primary
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: fircgo-risk-module-minio
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+automountServiceAccountToken: false
+secrets:
+  - name: fircgo-risk-module-minio
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ifrcgo-risk-module-pg
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+automountServiceAccountToken: false
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: fircgo-risk-module-minio
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+type: Opaque
+data:
+  root-user: "cmlzay1tb2R1bGU="
+  root-password: "WFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFg="
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/secrets.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ifrcgo-risk-module-pg
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+type: Opaque
+data:
+  postgres-password: "WFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFg="
+  password: "WFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFg="
+  # We don't auto-generate LDAP password when it's not provided as we do for other passwords
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/config/secret.yaml
+kind: Secret
+apiVersion: v1
+metadata:
+  name: risk-1-secret
+  labels:
+    app: risk-1
+    environment: ALPHA-1
+    release: release-name
+type: Opaque
+stringData:
+  # secrets
+  AWS_S3_ACCESS_KEY_ID: "risk-module"
+  AWS_S3_BUCKET_NAME: "risk-module-storage"
+  AWS_S3_ENDPOINT_URL: "https://risk-minio-1.ifrcgo.local.example.com/"
+  AWS_S3_REGION: "us-east-1"
+  AWS_S3_SECRET_ACCESS_KEY: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  DATABASE_HOST: "ifrcgo-risk-module-pg"
+  DATABASE_NAME: "risk-module"
+  DATABASE_PASSWORD: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  DATABASE_PORT: "5432"
+  DATABASE_USER: "postgres"
+  DJANGO_SECRET_KEY: "xyz"
+  METEOSWISS_S3_ACCESS_KEY: "dummy-access-key"
+  METEOSWISS_S3_BUCKET: "dummy-bucket"
+  METEOSWISS_S3_ENDPOINT_URL: "https://dummy.endpoint"
+  METEOSWISS_S3_SECRET_KEY: "dummy-secret-key"
+  PDC_ACCESS_TOKEN: "dummy-token"
+  PDC_PASSWORD: "dummy-password"
+  PDC_USERNAME: "dummy-username"
+  SENTRY_DSN: "https://xyz@sentry.local.example.com/14"
+  USE_S3_BUCKET: "true"
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/provisioning-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fircgo-risk-module-minio-provisioning
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+    app.kubernetes.io/component: minio-provisioning
+data:
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/primary/initialization-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ifrcgo-risk-module-pg-init-scripts
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+data:
+  my_init_script.sh: |
+    #!/bin/sh -e
+    DATABASE_DUMP_URL="$DUMP_REGISTRY_URL$DUMP_FILENAME"
+    # Don't have curl here
+    /usr/lib/apt/apt-helper download-file -o "Acquire::https::Verify-Peer=false" "$DATABASE_DUMP_URL" /tmp/db.dump
+    du -sh /tmp/db.dump
+    PGPASSWORD="${POSTGRES_PASSWORD}" PGUSER=$POSTGRES_USER pg_restore -v --no-owner --no-privileges -d "$POSTGRES_DATABASE" < /tmp/db.dump
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/config/configmap.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: risk-1-env-name
+  labels:
+    app: risk-1
+    environment: ALPHA-1
+    release: release-name
+data:
+  # Configs
+  APPS_LOGGING_LEVEL: "WARNING"
+  DJANGO_ALLOWED_HOSTS: "*"
+  DJANGO_DEBUG: "false"
+  DJANGO_TIME_ZONE: "UTC"
+  RISK_API_FQDN: "risk-api-1.ifrcgo.local.example.com"
+  RISK_ENVIRONMENT: "ALPHA-1"
+  RISK_RELEASE: "develop.xxxxxxxx"
+  SENTRY_PROFILE_SAMPLE_RATE: "0.8"
+  SENTRY_TRACE_SAMPLE_RATE: "0.8"
+  TIME_ZONE: "UTC"
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/pvc.yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: fircgo-risk-module-minio
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage: "0.5Gi"
+  storageClassName: local-path
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fircgo-risk-module-minio
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+spec:
+  type: ClusterIP
+  ports:
+    - name: minio-api
+      port: 9000
+      targetPort: minio-api
+      nodePort: null
+    - name: minio-console
+      port: 9001
+      targetPort: minio-console
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: minio
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/primary/svc-headless.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ifrcgo-risk-module-pg-hl
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+    app.kubernetes.io/component: primary
+  annotations:
+spec:
+  type: ClusterIP
+  clusterIP: None
+  # We want all pods in the StatefulSet to have their addresses published for
+  # the sake of the other Postgresql pods even before they're ready, since they
+  # have to be able to talk to each other in order to become ready.
+  publishNotReadyAddresses: true
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+  selector:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/component: primary
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/primary/svc.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: ifrcgo-risk-module-pg
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+    app.kubernetes.io/component: primary
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+    - name: tcp-postgresql
+      port: 5432
+      targetPort: tcp-postgresql
+      nodePort: null
+  selector:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/component: primary
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-1-api
+  labels:
+    app: risk-1
+    component: api
+    environment: ALPHA-1
+    release: release-name
+spec:
+  type: ClusterIP
+  selector:
+    app: risk-1
+    component: api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/standalone/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fircgo-risk-module-minio
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: minio
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: minio
+        app.kubernetes.io/version: 2024.12.18
+        helm.sh/chart: minio-14.10.5
+      annotations:
+        checksum/credentials-secret: d53dea05c271cd688f9b9ef0a04ebb5f9b883ab2ae43b121274a9c9b4d3f9934
+    spec:
+      
+      serviceAccountName: fircgo-risk-module-minio
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: release-name
+                    app.kubernetes.io/name: minio
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      nodeSelector:
+        kubernetes.io/hostname: desktop-01
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+        supplementalGroups: []
+        sysctls: []
+      containers:
+        - name: minio
+          image: docker.io/bitnamilegacy/minio:2024.12.18-debian-12-r1
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: MINIO_SCHEME
+              value: "http"
+            - name: MINIO_FORCE_NEW_KEYS
+              value: "yes"
+            - name: MINIO_API_PORT_NUMBER
+              value: "9000"
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: fircgo-risk-module-minio
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fircgo-risk-module-minio
+                  key: root-password
+            - name: MINIO_DEFAULT_BUCKETS
+              value: risk-module-storage
+            - name: MINIO_BROWSER
+              value: "off"
+            - name: MINIO_PROMETHEUS_AUTH_TYPE
+              value: "public"
+            - name: MINIO_CONSOLE_PORT_NUMBER
+              value: "9001"
+            - name: MINIO_DATA_DIR
+              value: "/bitnami/minio/data"
+          envFrom:
+          ports:
+            - name: minio-api
+              containerPort: 9000
+              protocol: TCP
+            - name: minio-console
+              containerPort: 9001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: minio-api
+              scheme: "HTTP"
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            tcpSocket:
+              port: minio-api
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: "4"
+              memory: 256Mi
+            requests:
+              cpu: "0.1"
+              memory: 128Mi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/minio/tmp
+              subPath: app-tmp-dir
+            - name: empty-dir
+              mountPath: /.mc
+              subPath: app-mc-dir
+            - name: data
+              mountPath: /bitnami/minio/data
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: fircgo-risk-module-minio
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-1-api
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: risk-1
+    component: api
+    environment: ALPHA-1
+    release: release-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: risk-1
+      component: api
+  template:
+    metadata:
+      annotations:
+        checksum/secret: a5d73225a01c3e24b1530c338a0a44cf07ab77dc8646dc0562caada4bbc1b61f
+        checksum/configmap: f00be2c6cf51cc19c80358f167f85af68caa5a8c2405a310fc0fab05dfb0a0c8
+      labels:
+        app: risk-1
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
+          imagePullPolicy: IfNotPresent
+          command:
+            - gunicorn
+            - risk_module.wsgi:application
+            - --bind
+            - 0.0.0.0:80
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          # TODO: livenessProbe
+          resources:
+            limits:
+              cpu: "4"
+              memory: 2Gi
+            requests:
+              cpu: "0.1"
+              memory: 2Gi
+          envFrom:
+            - secretRef:
+                name: risk-1-secret
+            - configMapRef:
+                name: risk-1-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "web"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/worker-beat/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-1-worker-beat
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: risk-1
+    component: worker-beat
+    environment: ALPHA-1
+    release: release-name
+spec:
+  replicas: 1  # This should only 1
+  selector:
+    matchLabels:
+      app: risk-1
+      component: worker-beat
+  template:
+    metadata:
+      annotations:
+        checksum/secret: a5d73225a01c3e24b1530c338a0a44cf07ab77dc8646dc0562caada4bbc1b61f
+        checksum/configmap: f00be2c6cf51cc19c80358f167f85af68caa5a8c2405a310fc0fab05dfb0a0c8
+      labels:
+        app: risk-1
+        component: worker-beat
+    spec:
+      containers:
+        - name: worker-beat
+          image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
+          imagePullPolicy: IfNotPresent
+          command:
+            - celery
+            - --app=risk_module
+            - beat
+            - --max-interval=3600
+            - --loglevel=info
+            - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+          # TODO: livenessProbe
+          resources:
+            limits:
+              cpu: "4"
+              memory: 0.5Gi
+            requests:
+              cpu: "0.1"
+              memory: 0.2Gi
+          envFrom:
+            - secretRef:
+                name: risk-1-secret
+            - configMapRef:
+                name: risk-1-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "worker"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/worker/deployment.yaml
+# Queue: default
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-1-worker-default
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: risk-1
+    component: worker
+    queue: default
+    environment: ALPHA-1
+    release: release-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: risk-1
+      component: worker
+      queue: default
+  template:
+    metadata:
+      annotations:
+        checksum/secret: a5d73225a01c3e24b1530c338a0a44cf07ab77dc8646dc0562caada4bbc1b61f
+        checksum/configmap: f00be2c6cf51cc19c80358f167f85af68caa5a8c2405a310fc0fab05dfb0a0c8
+      labels:
+        app: risk-1
+        component: worker
+        queue: default
+    spec:
+      containers:
+        - name: worker
+          command:
+            - celery
+            - --app=risk_module
+            - worker
+            - --loglevel=INFO
+            - --queues=celery
+            - --max-tasks-per-child=20
+          image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
+          imagePullPolicy: IfNotPresent
+          # TODO: livenessProbe
+          resources:
+            limits:
+              cpu: "4"
+              memory: 4Gi
+            requests:
+              cpu: "0.1"
+              memory: 4Gi
+          envFrom:
+            - secretRef:
+                name: risk-1-secret
+            - configMapRef:
+                name: risk-1-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "worker"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/postgresql/templates/primary/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ifrcgo-risk-module-pg
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/version: 17.2.0
+    helm.sh/chart: postgresql-16.4.5
+    app.kubernetes.io/component: primary
+spec:
+  replicas: 1
+  serviceName: ifrcgo-risk-module-pg-hl
+  updateStrategy:
+    rollingUpdate: {}
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: release-name
+      app.kubernetes.io/name: postgresql
+      app.kubernetes.io/component: primary
+  template:
+    metadata:
+      name: ifrcgo-risk-module-pg
+      labels:
+        app.kubernetes.io/instance: release-name
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/name: postgresql
+        app.kubernetes.io/version: 17.2.0
+        helm.sh/chart: postgresql-16.4.5
+        app.kubernetes.io/component: primary
+    spec:
+      serviceAccountName: ifrcgo-risk-module-pg
+      
+      automountServiceAccountToken: false
+      affinity:
+        podAffinity:
+          
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app.kubernetes.io/instance: release-name
+                    app.kubernetes.io/name: postgresql
+                    app.kubernetes.io/component: primary
+                topologyKey: kubernetes.io/hostname
+              weight: 1
+        nodeAffinity:
+          
+      nodeSelector:
+        kubernetes.io/hostname: desktop-01
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      hostNetwork: false
+      hostIPC: false
+      containers:
+        - name: postgresql
+          image: docker.io/bitnamilegacy/postgresql:17.2.0-debian-12-r8
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          env:
+            - name: BITNAMI_DEBUG
+              value: "false"
+            - name: POSTGRESQL_PORT_NUMBER
+              value: "5432"
+            - name: POSTGRESQL_VOLUME_DIR
+              value: "/bitnami/postgresql"
+            - name: PGDATA
+              value: "/bitnami/postgresql/data"
+            # Authentication
+            - name: POSTGRES_USER
+              value: "risk-module"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ifrcgo-risk-module-pg
+                  key: password
+            - name: POSTGRES_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ifrcgo-risk-module-pg
+                  key: postgres-password
+            - name: POSTGRES_DATABASE
+              value: "risk-module"
+            # LDAP
+            - name: POSTGRESQL_ENABLE_LDAP
+              value: "no"
+            # TLS
+            - name: POSTGRESQL_ENABLE_TLS
+              value: "no"
+            # Audit
+            - name: POSTGRESQL_LOG_HOSTNAME
+              value: "false"
+            - name: POSTGRESQL_LOG_CONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_LOG_DISCONNECTIONS
+              value: "false"
+            - name: POSTGRESQL_PGAUDIT_LOG_CATALOG
+              value: "off"
+            # Others
+            - name: POSTGRESQL_CLIENT_MIN_MESSAGES
+              value: "error"
+            - name: POSTGRESQL_SHARED_PRELOAD_LIBRARIES
+              value: "pgaudit"
+            - name: DUMP_REGISTRY_URL
+              value: https://user:password@secure-dump.com
+            - name: DUMP_FILENAME
+              value: /risk/k8s-alpha-init-db.dump
+          ports:
+            - name: tcp-postgresql
+              containerPort: 5432
+          livenessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - exec pg_isready -U "risk-module" -d "dbname=risk-module" -h 127.0.0.1 -p 5432
+          readinessProbe:
+            failureThreshold: 6
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - -e
+                - |
+                  exec pg_isready -U "risk-module" -d "dbname=risk-module" -h 127.0.0.1 -p 5432
+          resources:
+            limits:
+              cpu: "4"
+            requests:
+              cpu: "0.2"
+              memory: 1Gi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/postgresql/conf
+              subPath: app-conf-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/postgresql/tmp
+              subPath: app-tmp-dir
+            - name: custom-init-scripts
+              mountPath: /docker-entrypoint-initdb.d/
+            - name: dshm
+              mountPath: /dev/shm
+            - name: data
+              mountPath: /bitnami/postgresql
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: custom-init-scripts
+          configMap:
+            name: ifrcgo-risk-module-pg-init-scripts
+        - name: dshm
+          emptyDir:
+            medium: Memory
+  volumeClaimTemplates:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: data
+      spec:
+        accessModes:
+          - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "2Gi"
+        storageClassName: local-path
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/argo-hooks/hook-job.yaml
+# Hook: collect-static
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: risk-1-collect-static
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    metadata:
+      annotations:
+        checksum/secret: a5d73225a01c3e24b1530c338a0a44cf07ab77dc8646dc0562caada4bbc1b61f
+        checksum/configmap: f00be2c6cf51cc19c80358f167f85af68caa5a8c2405a310fc0fab05dfb0a0c8
+      labels:
+        app: risk-1
+        component: argo-hooks
+    spec:
+      restartPolicy: "Never"
+      containers:
+        - name: collect-static
+          image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
+          imagePullPolicy: IfNotPresent
+          command: 
+            - ./manage.py
+            - collectstatic
+            - --noinput
+          resources:
+            limits:
+              cpu: "4"
+              memory: 1Gi
+            requests:
+              cpu: "0.1"
+              memory: 1Gi
+          envFrom:
+            - secretRef:
+                name: risk-1-secret
+            - configMapRef:
+                name: risk-1-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "hook"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/argo-hooks/hook-job.yaml
+# Hook: create-users
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: risk-1-create-users
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    metadata:
+      annotations:
+        checksum/secret: a5d73225a01c3e24b1530c338a0a44cf07ab77dc8646dc0562caada4bbc1b61f
+        checksum/configmap: f00be2c6cf51cc19c80358f167f85af68caa5a8c2405a310fc0fab05dfb0a0c8
+      labels:
+        app: risk-1
+        component: argo-hooks
+    spec:
+      restartPolicy: "Never"
+      containers:
+        - name: create-users
+          image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
+          imagePullPolicy: IfNotPresent
+          command: 
+            - ./manage.py
+            - shell
+            - -c
+            - |
+              import os;
+              from django.contrib.auth import get_user_model;
+              from django.db import transaction;
+            
+              User = get_user_model()
+            
+              user_credentials = [
+                user_credential.split(":")
+                for user_credential in os.environ["ADMIN_USER_EMAIL_PASSWORD_SET"].split(",")
+              ];
+            
+              print("Parsed provided credentials:", user_credentials);
+            
+              @transaction.atomic
+              def create_initial_users(user_credentials):
+                  for first_name, last_name, username, email, password_hash in user_credentials:
+                      user, created = User.objects.update_or_create(
+                          email=email,
+                          username=username,
+                          defaults={
+                            "first_name": first_name,
+                            "last_name": last_name,
+                            "password": password_hash,
+                            "is_superuser": True,
+                            "is_staff": True,
+                          },
+                      )
+                      action = "updated"
+                      if created:
+                        action = "created"
+                      print(f"Successfully {action} user({email=})");
+              create_initial_users(user_credentials);
+          resources:
+            limits:
+              cpu: "4"
+              memory: 1Gi
+            requests:
+              cpu: "0.1"
+              memory: 1Gi
+          envFrom:
+            - secretRef:
+                name: risk-1-secret
+            - configMapRef:
+                name: risk-1-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "hook"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+            - name: ADMIN_USER_EMAIL_PASSWORD_SET
+              value: "IFRC:Admin:admin@ifrc.org:password_hash"
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/argo-hooks/hook-job.yaml
+# Hook: db-migrate
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: risk-1-db-migrate-
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    metadata:
+      annotations:
+        checksum/secret: a5d73225a01c3e24b1530c338a0a44cf07ab77dc8646dc0562caada4bbc1b61f
+        checksum/configmap: f00be2c6cf51cc19c80358f167f85af68caa5a8c2405a310fc0fab05dfb0a0c8
+      labels:
+        app: risk-1
+        component: argo-hooks
+    spec:
+      restartPolicy: "Never"
+      containers:
+        - name: db-migrate
+          image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
+          imagePullPolicy: IfNotPresent
+          command: 
+            - ./manage.py
+            - migrate
+          resources:
+            limits:
+              cpu: "4"
+              memory: 1Gi
+            requests:
+              cpu: "0.1"
+              memory: 1Gi
+          envFrom:
+            - secretRef:
+                name: risk-1-secret
+            - configMapRef:
+                name: risk-1-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "hook"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/api-ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: fircgo-risk-module-minio-api
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 500m
+spec:
+  ingressClassName: "nginx"
+  rules:
+    - host: risk-minio-1.ifrcgo.local.example.com
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: fircgo-risk-module-minio
+                port:
+                  name: minio-api
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: risk-1-api
+  labels:
+    app: risk-1
+    component: api
+    environment: ALPHA-1
+    release: release-name
+spec:
+  ingressClassName: "nginx"
+  rules:
+    - host: "risk-1.ifrcgo.local.example.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: risk-1-api
+                port:
+                  number: 80
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/extraManifests.yaml
+# Manifest: dragonflydb-cluster
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  labels:
+    app.kubernetes.io/name: dragonfly
+  name: risk-module-dragonfly
+spec:
+  args:
+  - --dbfilename=mainSnapshot
+  replicas: 1
+  resources:
+    limits:
+      cpu: "1"
+      memory: 750Mi
+    requests:
+      cpu: "0.1"
+      memory: 500Mi
+  snapshot:
+    cron: '*/5 * * * *'
+    persistentVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: local-path
+---
+# Source: ifrcgo-risk-module-helm/charts/app/charts/minio/templates/provisioning-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: fircgo-risk-module-minio-provisioning
+  namespace: "default"
+  labels:
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: minio
+    app.kubernetes.io/version: 2024.12.18
+    helm.sh/chart: minio-14.10.5
+    app.kubernetes.io/component: minio-provisioning
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-delete-policy: before-hook-creation
+spec: 
+  ttlSecondsAfterFinished: 600 
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/version: 2024.12.18
+        helm.sh/chart: minio-14.10.5
+        app.kubernetes.io/component: minio-provisioning
+    spec:
+      
+      restartPolicy: OnFailure
+      terminationGracePeriodSeconds: 0
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: Always
+        supplementalGroups: []
+        sysctls: []
+      serviceAccountName: fircgo-risk-module-minio
+      initContainers:
+        - name: wait-for-available-minio
+          image: docker.io/bitnami/os-shell:12-debian-12-r35
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+            - -c
+            - |-
+              set -e;
+              echo "Waiting for Minio";
+              wait-for-port \
+                --host=fircgo-risk-module-minio \
+                --state=inuse \
+                --timeout=120 \
+                9000;
+              echo "Minio is available";
+          resources:
+            limits:
+              cpu: 150m
+              ephemeral-storage: 2Gi
+              memory: 192Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 50Mi
+              memory: 128Mi
+      containers:
+        - name: minio
+          image: docker.io/bitnamilegacy/minio:2024.12.18-debian-12-r1
+          imagePullPolicy: "IfNotPresent"
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsGroup: 1001
+            runAsNonRoot: true
+            runAsUser: 1001
+            seLinuxOptions: {}
+            seccompProfile:
+              type: RuntimeDefault
+          command:
+            - /bin/bash
+            - -c
+            - |-
+              set -e;
+              echo "Start Minio provisioning";
+
+              retry_while() {
+                local -r cmd="${1:?cmd is missing}"
+                local -r retries="${2:-12}"
+                local -r sleep_time="${3:-5}"
+                local return_value=1
+
+                read -r -a command <<< "$cmd"
+                for ((i = 1 ; i <= retries ; i+=1 )); do
+                    "${command[@]}" && return_value=0 && break
+                    sleep "$sleep_time"
+                done
+                return $return_value
+              }
+
+              function attachPolicy() {
+                local tmp=$(mc admin $1 info provisioning $2 | sed -n -e 's/^Policy.*: \(.*\)$/\1/p');
+                IFS=',' read -r -a CURRENT_POLICIES <<< "$tmp";
+                if [[ ! "${CURRENT_POLICIES[*]}" =~ "$3" ]]; then
+                  mc admin policy attach provisioning $3 --$1=$2;
+                fi;
+              };
+
+              function detachDanglingPolicies() {
+                local tmp=$(mc admin $1 info provisioning $2 | sed -n -e 's/^Policy.*: \(.*\)$/\1/p');
+                IFS=',' read -r -a CURRENT_POLICIES <<< "$tmp";
+                IFS=',' read -r -a DESIRED_POLICIES <<< "$3";
+                for current in "${CURRENT_POLICIES[@]}"; do
+                  if [[ ! "${DESIRED_POLICIES[*]}" =~ "${current}" ]]; then
+                    mc admin policy detach provisioning $current --$1=$2;
+                  fi;
+                done;
+              }
+
+              function addUsersFromFile() {
+                local username=$(grep -oP '^username=\K.+' $1);
+                local password=$(grep -oP '^password=\K.+' $1);
+                local disabled=$(grep -oP '^disabled=\K.+' $1);
+                local policies_list=$(grep -oP '^policies=\K.+' $1);
+                local set_policies=$(grep -oP '^setPolicies=\K.+' $1);
+
+                mc admin user add provisioning "${username}" "${password}";
+
+                IFS=',' read -r -a POLICIES <<< "${policies_list}";
+                for policy in "${POLICIES[@]}"; do
+                  attachPolicy user "${username}" "${policy}";
+                done;
+                if [ "${set_policies}" == "true" ]; then
+                  detachDanglingPolicies user "${username}" "${policies_list}";
+                fi;
+
+                local user_status="enable";
+                if [[ "${disabled}" != "" && "${disabled,,}" == "true" ]]; then
+                  user_status="disable";
+                fi;
+
+                mc admin user "${user_status}" provisioning "${username}";
+              };
+              mc alias set provisioning $MINIO_SCHEME://fircgo-risk-module-minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD;
+
+              mc admin service restart provisioning --wait --json;
+
+              # Adding a sleep to ensure that the check below does not cause
+              # a race condition. We check for the MinIO port because the
+              # "mc admin service restart --wait" command is not working as expected
+              sleep 5;
+              echo "Waiting for Minio to be available after restart";
+              if ! retry_while "mc admin info provisioning"; then
+                  echo "Error connecting to Minio"
+                  exit 1
+              fi
+              echo "Minio is available. Executing provisioning commands";
+              
+              mc anonymous set download provisioning/risk-module-storage;
+
+              echo "End Minio provisioning";
+          env:
+            - name: MINIO_SCHEME
+              value: "http"
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: fircgo-risk-module-minio
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fircgo-risk-module-minio
+                  key: root-password
+          envFrom:
+          resources:
+            limits:
+              cpu: 150m
+              ephemeral-storage: 2Gi
+              memory: 192Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 50Mi
+              memory: 128Mi
+          volumeMounts:
+            - name: empty-dir
+              mountPath: /.mc
+              subPath: app-mc-dir
+            - name: empty-dir
+              mountPath: /opt/bitnami/minio/tmp
+              subPath: app-tmp-dir
+            - name: empty-dir
+              mountPath: /tmp
+              subPath: tmp-dir
+            - name: minio-provisioning
+              mountPath: /etc/ilm
+      volumes:
+        - name: empty-dir
+          emptyDir: {}
+        - name: minio-provisioning
+          configMap:
+            name: fircgo-risk-module-minio-provisioning

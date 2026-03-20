@@ -1,0 +1,11 @@
+name: Lint commits
+
+on: [pull_request]
+
+jobs:
+  lint:
+    name: Commit Lint
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+    - uses: toggle-corp/commit-lint@main
