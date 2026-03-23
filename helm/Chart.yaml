@@ -3,17 +3,11 @@ name: ifrcgo-risk-module-helm
 description: "Helm Chart to deploy the IFRC GO Risk Module Infrastructure"
 type: application
 version: 0.0.1-SET-BY-CICD
-# appVersion: "1.16.0"
 sources:
   - https://github.com/IFRCGo/go-risk-module-api
 
-
 dependencies:
-  - name: postgresql
-    version: 15.5.32
-    condition: postgresql.enabled
-    repository: https://charts.bitnami.com/bitnami
-  - name: redis
-    version: 20.0.4
-    condition: redis.enabled
-    repository: https://charts.bitnami.com/bitnami
+  - name: toggle-django-helm
+    alias: app
+    version: 0.2.5
+    repository: oci://ghcr.io/toggle-corp

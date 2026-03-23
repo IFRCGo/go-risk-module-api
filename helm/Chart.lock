@@ -1,9 +1,6 @@
 dependencies:
-- name: postgresql
-  repository: https://charts.bitnami.com/bitnami
-  version: 15.5.32
-- name: redis
-  repository: https://charts.bitnami.com/bitnami
-  version: 20.0.4
-digest: sha256:059705d9a5ad3755db9ef9307145e85146664191bbaf86618ec8b13ec80ddaee
-generated: "2024-11-20T12:21:02.641728835+05:45"
+- name: toggle-django-helm
+  repository: oci://ghcr.io/toggle-corp
+  version: 0.2.5
+digest: sha256:94f65db722244c4ba17db79c144bc75bd43f4e21c4e221a3697a78c523fc4298
+generated: "2026-03-21T22:29:52.126868712+05:45"

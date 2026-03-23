@@ -10,14 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-import os
 from pathlib import Path
 
 import environ
+from azure.identity import DefaultAzureCredential
 from celery.schedules import crontab
 from django.utils.log import DEFAULT_LOGGING
 
 from risk_module import sentry
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(
     # Application info
@@ -35,12 +38,28 @@ env = environ.Env(
     DATABASE_PASSWORD=str,
     DATABASE_PORT=int,
     DATABASE_HOST=str,
-    # S3 (NOTE: Not used anywhere)
-    USE_AWS_FOR_MEDIA=(bool, False),
-    S3_AWS_ACCESS_KEY_ID=str,
-    S3_AWS_SECRET_ACCESS_KEY=str,
-    S3_STORAGE_BUCKET_NAME=str,
-    S3_REGION_NAME=str,
+    # Storage
+    # Static, Media configs
+    DJANGO_STATIC_URL=(str, "/static/"),
+    DJANGO_MEDIA_URL=(str, "/media/"),
+    # -- File System
+    DJANGO_STATIC_ROOT=(str, BASE_DIR / "storage/static"),  # Where to store
+    DJANGO_MEDIA_ROOT=(str, BASE_DIR / "storage/media"),  # Where to store
+    # -- S3
+    USE_S3_BUCKET=(bool, False),
+    AWS_S3_ENDPOINT_URL=str,
+    AWS_S3_ACCESS_KEY_ID=str,
+    AWS_S3_SECRET_ACCESS_KEY=str,
+    AWS_S3_REGION=str,
+    AWS_S3_BUCKET_NAME=str,
+    # -- Azure blob storage
+    USE_AZURE_STORAGE=(bool, False),
+    AZURE_STORAGE_CONTAINER=str,
+    AZURE_STORAGE_CONNECTION_STRING=(str, None),
+    AZURE_STORAGE_ACCOUNT_NAME=str,
+    AZURE_STORAGE_ACCOUNT_KEY=(str, None),
+    AZURE_STORAGE_TOKEN_CREDENTIAL=(str, None),
+    AZURE_STORAGE_MANAGED_IDENTITY=(bool, False),
     # Redis
     CELERY_REDIS_URL=str,  # redis://redis:6379/0
     CACHE_REDIS_URL=str,  # redis://redis:6379/1
@@ -65,9 +84,6 @@ env = environ.Env(
 SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 DEBUG = env("DJANGO_DEBUG")
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 ALLOWED_HOSTS = ["server", *env("DJANGO_ALLOWED_HOSTS")]
 
@@ -246,31 +262,43 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
+# https://docs.djangoproject.com/en/4.0/howto/static-files/
 
+STATIC_URL = env("DJANGO_STATIC_URL")
+MEDIA_URL = env("DJANGO_MEDIA_URL")
 
-if env("USE_AWS_FOR_MEDIA"):
-    AWS_S3_ACCESS_KEY_ID = env("S3_AWS_ACCESS_KEY_ID")
-    AWS_S3_SECRET_ACCESS_KEY = env("S3_AWS_SECRET_ACCESS_KEY")
-    AWS_STORAGE_BUCKET_NAME = env("S3_STORAGE_BUCKET_NAME")
-    AWS_S3_REGION_NAME = env("S3_REGION_NAME")
+if env("USE_AZURE_STORAGE"):
+    AZURE_CONNECTION_STRING = env("AZURE_STORAGE_CONNECTION_STRING")
+    if not AZURE_CONNECTION_STRING:
+        AZURE_ACCOUNT_NAME = env("AZURE_STORAGE_ACCOUNT_NAME")
+        AZURE_ACCOUNT_KEY = env("AZURE_STORAGE_ACCOUNT_KEY")
+        AZURE_TOKEN_CREDENTIAL = env("AZURE_STORAGE_TOKEN_CREDENTIAL")
+        if env("AZURE_STORAGE_MANAGED_IDENTITY"):
+            AZURE_TOKEN_CREDENTIAL = DefaultAzureCredential()
+    AZURE_CONTAINER = env("AZURE_STORAGE_CONTAINER")
+
+    AZURE_OVERWRITE_FILES = False
+    DEFAULT_FILE_STORAGE = "storages.backends.azure_storage.AzureStorage"
+    STATICFILES_STORAGE = "storages.backends.azure_storage.AzureStorage"
+
+elif env("USE_S3_BUCKET"):
+    AWS_S3_ENDPOINT_URL = env("AWS_S3_ENDPOINT_URL")
+    AWS_S3_ACCESS_KEY_ID = env("AWS_S3_ACCESS_KEY_ID")
+    AWS_S3_SECRET_ACCESS_KEY = env("AWS_S3_SECRET_ACCESS_KEY")
+    AWS_S3_REGION_NAME = env("AWS_S3_REGION")
+    AWS_STORAGE_BUCKET_NAME = env("AWS_S3_BUCKET_NAME")
 
     AWS_S3_FILE_OVERWRITE = False
-    AWS_DEFAULT_ACL = "private"
-
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-
-STATIC_ROOT = os.path.join(BASE_DIR, "storage/static")
-STATIC_URL = "/static/"
-
-MEDIA_ROOT = os.path.join(BASE_DIR, "storage/media")
-MEDIA_URL = "/media/"
+    STATICFILES_STORAGE = "storages.backends.s3boto3.S3StaticStorage"
+else:
+    STATIC_ROOT = env("DJANGO_STATIC_ROOT")
+    MEDIA_ROOT = env("DJANGO_MEDIA_ROOT")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 
 # https://docs.celeryq.dev/en/stable/userguide/configuration.html
 CELERY_REDIS_URL = env("CELERY_REDIS_URL")

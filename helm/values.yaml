@@ -1,167 +1,159 @@
-environment: prod
+app:
+  environment: PROD
+  nameOverride: ifrcgo-risk-module
 
-image:
-  name: SET-BY-CICD-IMAGE
-  tag: SET-BY-CICD-TAG
+  appTypeEnvName: "DJANGO_APP_TYPE"
 
-imagePullSecrets: []
+  # Global Image
+  image:
+    name: SET-BY-CICD-IMAGE
+    tag: SET-BY-CICD-TAG
+    imagePullPolicy: IfNotPresent
 
-ingress:
-  enabled: false
-  className: webapprouting.kubernetes.azure.com
-  host:
+  ingress:
+    enabled: true
+    className:
+    host:
 
-
-# Subchart configuration
-# XXX: This is for local/playground usages only.
-# For production use azure postgres server and provide credentials using azure keyvault
-postgresql:
-  enabled: false
-  fullnameOverride: ifrcgo-risk-module-postgresql
-  architecture: standalone
-  auth:
-    postgresPassword: "postgres"
-    username: "postgres"
-    password: "postgres"
-    database: "risk"
-  primary:
-    persistence:
-      enabled: true
-      storageClass: ""
-      size: 8Gi
-
-redis:
-  enabled: false
-  architecture: standalone
-  fullnameOverride: ifrcgo-risk-module-redis
-  auth:
+  rabbitmq:
     enabled: false
-  master:
-    persistence:
-      enabled: true
-      storageClass: ""
-      size: .5Gi
 
-api:
-  enabled: true
-  replicaCount: 1
-  containerPort: 80
-  resources:
-    requests:
-      cpu: "2"
-      memory: 0.5Gi
-    limits:
-      cpu: "2"
-      memory: 1Gi
+  # XXX: This is for local/playground usages only.
+  postgresql:
+    enabled: false
+    fullnameOverride: ifrcgo-risk-module-pg
+    architecture: standalone
+    auth:
+      postgresPassword: ""
+      username: ""
+      password: ""
+      database: ""
+    primary:
+      persistence:
+        enabled: true
+        storageClass: ""
+        size: 8Gi
 
-env:
-  # Application info
-  # RISK_ENVIRONMENT: .environment is used
-  RISK_API_FQDN:
-  # Django configs
-  DJANGO_DEBUG: false
-  DJANGO_ALLOWED_HOSTS: "*"
-  TIME_ZONE: "UTC"
-  # Sentry
-  SENTRY_TRACE_SAMPLE_RATE: "0.2"
-  SENTRY_PROFILE_SAMPLE_RATE: "0.2"
-  # Logging
-  APPS_LOGGING_LEVEL: "WARNING"
+  redis:
+    enabled: false
+    architecture: standalone
+    fullnameOverride: ifrcgo-risk-module-redis
+    auth:
+      enabled: false
+    master:
+      persistence:
+        enabled: true
+        storageClass: ""
+        size: .5Gi
 
-secretsName: ""
-secrets:
-  DJANGO_SECRET_KEY:
-  # Database
-  DATABASE_NAME:
-  DATABASE_USER:
-  DATABASE_PASSWORD:
-  DATABASE_HOST:
-  DATABASE_PORT: 5432
-  # Sentry
-  SENTRY_DSN: ""
-  # PDC
-  PDC_USERNAME:
-  PDC_PASSWORD:
-  PDC_ACCESS_TOKEN:
-  # Meteoswiss
-  METEOSWISS_S3_ENDPOINT_URL:
-  METEOSWISS_S3_BUCKET:
-  METEOSWISS_S3_ACCESS_KEY:
-  METEOSWISS_S3_SECRET_KEY:
+  minio:
+    enabled: false
 
-worker:
-  enabled: true
-  defaultResources:
-    requests:
-      cpu: "1"
-      memory: 1Gi
-    limits:
-      cpu: "1"
-      memory: 2Gi
-  # NOTE: Application level configuration
-  cronjobs:
-    "import_earthquake_data":
-      schedule: "0 0 * * *"
-      enabled: true
-      # timeLimit: 7200
-    "create_pdc_data":
-      schedule: "0 */2 * * *"
-      enabled: true
-    "create_pdc_daily":
-      schedule: "0 5 * * *"
-      enabled: true
-    "create_pdc_displacement":
-      schedule: "0 */3 * * *"
-      enabled: true
-    "create_pdc_polygon":
-      schedule: "0 */6 * * *"
-      enabled: true
-    "create_pdc_intensity":
-      schedule: "0 */7 * * *"
-      enabled: true
-    "check_pdc_status":
-      schedule: "0 1 * * *"
-      enabled: true
-    "create_hazard_information":
-      schedule: "0 0 2 * *"
-      enabled: true
-    "create_adam_exposure":
-      schedule: "0 */4 * * *"
-      enabled: true
-    "update_adam_cyclone":
-      schedule: "0 */4 * * *"
-      enabled: true
-    "update_adam_alert_level":
-      schedule: "0 */4 * * *"
-      enabled: true
-    "import_gdacs_data":
-      schedule: "0 */4 * * *"
-      enabled: true
-    "pull_meteoswiss":
-      schedule: "0 */4 * * *"
-      enabled: true
-    "pull_meteoswiss_geo":
-      schedule: "0 */4 * * *"
-      enabled: true
-    "meteoswiss_agg":
-      schedule: "0 */4 * * *"
-      enabled: true
+  api:
+    enabled: true
+    replicaCount: 1
+    containerPort: 80
+    command: ["gunicorn", "risk_module.wsgi:application", "--bind", "0.0.0.0:80"]
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 2Gi
 
-# Azure configurations
-azure:
-  aksSecretsProviderAvailable: false
-  keyvault:
-    name: ""
-    clientId: ""
-    tenantId: ""
+  worker:
+    enabled: true
+    flower:
+      enabled: false
+    beat:
+      command:
+        - celery
+        - --app=risk_module
+        - beat
+        - --max-interval=3600
+        - --loglevel=info
+        - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+      resources:
+        requests:
+          cpu: "0.1"
+          memory: 0.2Gi
+        limits:
+          cpu: "1"
+          memory: 0.5Gi
+    queueDefaultResources:
+      requests:
+        cpu: "0.1"
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 2Gi
+    queueCommandPrefix:
+      - celery
+      - --app=risk_module
+      - worker
+      - --loglevel=INFO
+    queues:
+      # NOTE: Make sure keys are lowercase
+      default:
+        enabled: true
+        replicaCount: 1
+        celeryArgs: ["--queues=celery", "--max-tasks-per-child=20"]
+        resources:
+          requests:
+            memory: 4Gi
+          limits:
+            memory: 4Gi
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  # Required when using workload identity to access Azure Key Vault Secrets
-  create: false
-  automount: true
-  annotations:
-    azure.workload.identity/client-id : "<workload_identity_client_id>"
-  labels:
-    azure.workload.identity/use: "true"
-  name: ""
+  argoHook:
+    enabled: true
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 1Gi
+    hooks:
+      # NOTE: Make sure keys are lowercase
+      db-migrate:
+        enabled: true
+        hook: PostSync
+        preserveHistory: true
+        command: ["/bin/bash", "-c"]
+        args:
+          - "./manage.py wait_for_resources --db && ./manage.py migrate"
+      collect-static:
+        enabled: true
+        hook: PostSync
+        command: ["./manage.py", "collectstatic", "--noinput"]
+
+  env:
+    # Application info
+    RISK_RELEASE: "{{ $.Values.image.tag }}"
+    RISK_ENVIRONMENT: "{{ $.Values.environment }}"
+    RISK_API_FQDN: "{{ required \".app.secrets.EOAPI_STAC_API\" nil }}"
+    # Django configs
+    DJANGO_DEBUG: "false"
+    DJANGO_TIME_ZONE: UTC
+    DJANGO_ALLOWED_HOSTS: "*"
+    TIME_ZONE: "UTC"
+    # Sentry
+    SENTRY_TRACE_SAMPLE_RATE: "0.2"
+    SENTRY_PROFILE_SAMPLE_RATE: "0.2"
+    # Logging
+    APPS_LOGGING_LEVEL: "WARNING"
+
+  secrets:
+    DJANGO_SECRET_KEY: "{{ required \".app.secrets.DJANGO_SECRET_KEY\" nil }}"
+    # Sentry
+    SENTRY_DSN: "{{ required \".app.secrets.SENTRY_DSN\" nil }}"
+    # PDC
+    PDC_USERNAME: "{{ required \".app.secrets.PDC_USERNAME\" nil }}"
+    PDC_PASSWORD: "{{ required \".app.secrets.PDC_PASSWORD\" nil }}"
+    PDC_ACCESS_TOKEN: "{{ required \".app.secrets.PDC_ACCESS_TOKEN\" nil }}"
+    # Meteoswiss
+    METEOSWISS_S3_ENDPOINT_URL: "{{ required \".app.secrets.METEOSWISS_S3_ENDPOINT_URL\" nil }}"
+    METEOSWISS_S3_BUCKET: "{{ required \".app.secrets.METEOSWISS_S3_BUCKET\" nil }}"
+    METEOSWISS_S3_ACCESS_KEY: "{{ required \".app.secrets.METEOSWISS_S3_ACCESS_KEY\" nil }}"
+    METEOSWISS_S3_SECRET_KEY: "{{ required \".app.secrets.METEOSWISS_S3_SECRET_KEY\" nil }}"

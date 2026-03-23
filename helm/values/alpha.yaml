@@ -1,0 +1,154 @@
+app:
+  ingress:
+    enabled: true
+    className: nginx
+
+  postgresql:
+    enabled: true
+    auth:
+      username: "risk-module"
+      database: "risk-module"
+    primary:
+      resources:
+        requests:
+          cpu: "0.2"
+          memory: 1Gi
+        limits:
+          cpu: "4"
+      initdb:
+        scripts:
+          my_init_script.sh: |
+            #!/bin/sh -e
+            DATABASE_DUMP_URL="$DUMP_REGISTRY_URL$DUMP_FILENAME"
+            # Don't have curl here
+            /usr/lib/apt/apt-helper download-file -o "Acquire::https::Verify-Peer=false" "$DATABASE_DUMP_URL" /tmp/db.dump
+            du -sh /tmp/db.dump
+            PGPASSWORD="${POSTGRES_PASSWORD}" PGUSER=$POSTGRES_USER pg_restore -v --no-owner --no-privileges -d "$POSTGRES_DATABASE" < /tmp/db.dump
+
+  minio:
+    enabled: true
+    disableWebUI: true
+    mode: standalone
+    fullnameOverride: fircgo-risk-module-minio
+    apiIngress:
+      enabled: true
+      ingressClassName: nginx
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-body-size: "500m"
+    auth:
+      forceNewKeys: True
+      rootUser: risk-module
+      rootPassword:
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: 128Mi
+      limits:
+        cpu: "4"
+        memory: 256Mi
+    persistence:
+      enabled: true
+      size: 500Mi
+    defaultBuckets: risk-module-storage
+    provisioning:
+      enabled: true
+      resourcesPreset: "nano"
+      cleanupAfterFinished:
+        enabled: true
+      extraCommands:
+        - "mc anonymous set download provisioning/risk-module-storage"
+
+
+  api:
+    resources:
+      requests:
+        cpu: "0.1"
+        memory: "2Gi"
+      limits:
+        cpu: "4"
+        memory: "2Gi"
+
+  worker:
+    enabled: true
+    beat:
+      resources:
+        limits:
+          cpu: "4"
+    queueDefaultResources:
+      requests:
+        cpu: "0.1"
+        memory: 1Gi
+      limits:
+        cpu: "4"
+        memory: 2Gi
+
+  env:
+    # Sentry
+    SENTRY_TRACE_SAMPLE_RATE: "0.8"
+    SENTRY_PROFILE_SAMPLE_RATE: "0.8"
+
+  secrets:
+    # Database
+    DATABASE_NAME: "{{ $.Values.postgresql.auth.database }}"
+    DATABASE_USER: "postgres"
+    DATABASE_PASSWORD: "{{ $.Values.postgresql.auth.postgresPassword }}"
+    DATABASE_HOST: "{{ include \"postgresql.v1.primary.fullname\" $.Subcharts.postgresql }}"
+    DATABASE_PORT: "{{ include \"postgresql.v1.service.port\" $.Subcharts.postgresql }}"
+    # Minio
+    USE_S3_BUCKET: "true"
+    AWS_S3_ENDPOINT_URL: "https://{{ .Values.minio.apiIngress.hostname }}/"
+    AWS_S3_ACCESS_KEY_ID: "{{ required \".Values.minio.auth.rootUser\" .Values.minio.auth.rootUser }}"
+    AWS_S3_SECRET_ACCESS_KEY: "{{ required \".Values.minio.auth.rootPassword\" .Values.minio.auth.rootPassword }}"
+    AWS_S3_BUCKET_NAME: "risk-module-storage"
+    AWS_S3_REGION: "us-east-1"
+
+  argoHook:
+    enabled: true
+    hooks:
+      # NOTE: Make sure keys are lowercase
+      collect-static:
+        command: ["/bin/bash", "-c"]
+        args:
+          - "./manage.py wait_for_resources --minio && ./manage.py collectstatic --noinput"
+      create-users:
+        enabled: true
+        # env:
+        #   ADMIN_USER_EMAIL_PASSWORD_SET: "IFRC:Admin:ifrc-admin:admin@ifrc.org:password_hash"
+        hook: PostSync
+        command:
+          - ./manage.py
+          - shell
+          - -c
+          - |
+            import os;
+            from django.contrib.auth import get_user_model;
+            from django.db import transaction;
+
+            User = get_user_model()
+
+            user_credentials = [
+              user_credential.split(":")
+              for user_credential in os.environ["ADMIN_USER_EMAIL_PASSWORD_SET"].split(",")
+            ];
+
+            print("Parsed provided credentials:", user_credentials);
+
+            @transaction.atomic
+            def create_initial_users(user_credentials):
+                for first_name, last_name, username, email, password_hash in user_credentials:
+                    user, created = User.objects.update_or_create(
+                        email=email,
+                        username=username,
+                        defaults={
+                          "first_name": first_name,
+                          "last_name": last_name,
+                          "password": password_hash,
+                          "is_superuser": True,
+                          "is_staff": True,
+                        },
+                    )
+                    action = "updated"
+                    if created:
+                      action = "created"
+                    print(f"Successfully {action} user({email=})");
+            create_initial_users(user_credentials);

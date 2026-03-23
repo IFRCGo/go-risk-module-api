@@ -1,0 +1,35 @@
+app:
+  extraEnvVars:
+    # Checkout the resources defined by extraManifests
+    - name: CACHE_REDIS_URL
+      value: redis://risk-module-dragonfly:6379/0
+    - name: CELERY_REDIS_URL
+      value: redis://risk-module-dragonfly:6379/1
+
+  extraManifests:
+    dragonflydb-cluster:
+      apiVersion: dragonflydb.io/v1alpha1
+      kind: Dragonfly
+      metadata:
+        labels:
+          app.kubernetes.io/name: dragonfly
+        name: risk-module-dragonfly  # NOTE: this will be the service name
+      spec:
+        replicas: 1
+        args: ["--dbfilename=mainSnapshot"]  # NOTE: Only maintains 1 last snapshot
+        resources:
+          requests:
+            cpu: "0.1"
+            memory: 500Mi
+          limits:
+            cpu: "1"
+            memory: 750Mi
+        snapshot:
+          cron: "*/5 * * * *"
+          persistentVolumeClaimSpec:
+            # storageClassName:
+            accessModes:
+            - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
