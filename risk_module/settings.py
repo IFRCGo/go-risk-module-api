@@ -244,6 +244,17 @@ LOGGING = {
             "level": env("APPS_LOGGING_LEVEL"),
             "propagate": False,
         },
+        # Silence Azure
+        "azure.core.pipeline.policies.http_logging_policy": {
+            "level": "WARNING",
+            "handlers": ["console"],
+            "propagate": False,
+        },
+        "azure": {
+            "level": "WARNING",
+            "handlers": ["console"],
+            "propagate": False,
+        },
     },
 }
 
