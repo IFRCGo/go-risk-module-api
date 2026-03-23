@@ -106,6 +106,10 @@ app:
     enabled: true
     hooks:
       # NOTE: Make sure keys are lowercase
+      collect-static:
+        command: ["/bin/bash", "-c"]
+        args:
+          - "./manage.py wait_for_resources --minio && ./manage.py collectstatic --noinput"
       create-users:
         enabled: true
         # env:

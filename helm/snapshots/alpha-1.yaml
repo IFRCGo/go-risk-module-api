@@ -954,9 +954,10 @@ spec:
           image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
           imagePullPolicy: IfNotPresent
           command: 
-            - ./manage.py
-            - collectstatic
-            - --noinput
+            - /bin/bash
+            - -c
+          args: 
+            - ./manage.py wait_for_resources --minio && ./manage.py collectstatic --noinput
           resources:
             limits:
               cpu: "4"
@@ -1083,8 +1084,10 @@ spec:
           image: "local.git.com/ifrcgo/risk:develop.xxxxxxxx"
           imagePullPolicy: IfNotPresent
           command: 
-            - ./manage.py
-            - migrate
+            - /bin/bash
+            - -c
+          args: 
+            - ./manage.py wait_for_resources --db && ./manage.py migrate
           resources:
             limits:
               cpu: "4"
