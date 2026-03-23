@@ -132,7 +132,7 @@ app:
     # Application info
     RISK_RELEASE: "{{ $.Values.image.tag }}"
     RISK_ENVIRONMENT: "{{ $.Values.environment }}"
-    RISK_API_FQDN: "{{ required \".app.secrets.EOAPI_STAC_API\" nil }}"
+    RISK_API_FQDN: "{{ required \".app.env.RISK_API_FQDN\" nil }}"
     # Django configs
     DJANGO_DEBUG: "false"
     DJANGO_TIME_ZONE: UTC

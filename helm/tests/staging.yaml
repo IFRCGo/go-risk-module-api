@@ -1,0 +1,23 @@
+app:
+  ingress:
+    host: "go-risk-api-stage.ifrc.org"
+    tls:
+      secretName: "risk-helm-secret-cert"
+  env:
+    RISK_API_FQDN: "https://go-risk-api-stage.ifrc.org"
+    DJANGO_ALLOWED_HOSTS: "go-risk-api-stage.ifrc.org"
+    # Blob Storage Configs
+    USE_AZURE_STORAGE: "true"
+    AZURE_CLIENT_ID: AZURE_CLIENT_ID-XYZ
+    AZURE_TENANT_ID: AZURE_TENANT_ID-XYZ
+    AZURE_STORAGE_CONTAINER: AZURE_STORAGE_CONTAINER-XYZ
+    AZURE_STORAGE_ACCOUNT_NAME: AZURE_STORAGE_ACCOUNT_NAME-XYX
+    AZURE_STORAGE_MANAGED_IDENTITY: "true"
+  serviceAccount:
+    annotations:
+      azure.workload.identity/client-id:
+  secretsStoreCsiDriver:
+    parameters:
+      clientID: AZURE_CLIENT_ID-XYZ
+      keyvaultName: AZURE_VAULT_NAME-XYZ
+      tenantId: AZURE_TENANT_ID-XYZ

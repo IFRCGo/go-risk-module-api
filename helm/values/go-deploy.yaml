@@ -1,0 +1,61 @@
+app:
+  fullnameOverride: risk-module
+
+  podLabels:
+    azure.workload.identity/use: 'true'
+
+  ingress:
+    enabled: true
+    className: nginx
+    tls:
+      enabled: true
+
+  env:
+    DJANGO_DEBUG: "false"
+    # RISK_API_FQDN: XXX: go-deploy
+    # DJANGO_ALLOWED_HOSTS: XXX: go-deploy
+    # -- Azure configs
+    # USE_AZURE_STORAGE: "true" XXX: go-deploy
+    # AZURE_CLIENT_ID: XXX: go-deploy
+    # AZURE_TENANT_ID: XXX: go-deploy
+    # AZURE_STORAGE_CONTAINER: XXX: go-deploy
+    # AZURE_STORAGE_ACCOUNT_NAME: XXX: go-deploy
+    # AZURE_STORAGE_MANAGED_IDENTITY: "true"  XXX: go-deploy
+
+  serviceAccountName: "service-token-reader"
+  serviceAccount:
+    create: true
+    automountServiceAccountToken: true
+    # annotations:
+    #   azure.workload.identity/client-id: # XXX: go-deploy
+    labels:
+      azure.workload.identity/use: "true"
+
+  secretsStoreCsiDriver:
+    create: true
+    provider: azure
+    parameters:
+      usePodIdentity: "false"
+      # clientID: # XXX: go-deploy
+      # keyvaultName: # XXX: go-deploy
+      # tenantId: # XXX: go-deploy
+    secretsKeyMap:
+      DJANGO_SECRET_KEY: DJANGO-SECRET-KEY
+      # -- Misc
+      SENTRY_DSN: SENTRY-DSN
+      # -- DB
+      DATABASE_NAME: DATABASE-NAME
+      DATABASE_HOST: DATABASE-HOST
+      DATABASE_USER: DATABASE-USER
+      DATABASE_PASSWORD: DATABASE-PASSWORD
+      DATABASE_PORT: DATABASE-PORT
+      # -- Sources
+      # PDC
+      PDC_USERNAME: PDC-USERNAME
+      PDC_PASSWORD: PDC-PASSWORD
+      PDC_ACCESS_TOKEN: PDC-ACCESS-TOKEN
+      # Meteoswiss
+      METEOSWISS_S3_ENDPOINT_URL: METEOSWISS-S3-ENDPOINT-URL
+      METEOSWISS_S3_BUCKET: METEOSWISS-S3-BUCKET
+      METEOSWISS_S3_ACCESS_KEY: METEOSWISS-S3-ACCESS-KEY
+      METEOSWISS_S3_SECRET_KEY: METEOSWISS-S3-SECRET-KEY

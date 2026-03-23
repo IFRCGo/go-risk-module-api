@@ -1,0 +1,549 @@
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/service-account.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: service-token-reader
+  annotations:
+    
+    azure.workload.identity/client-id: null
+  labels:
+    
+    azure.workload.identity/use: "true"
+automountServiceAccountToken: true
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/config/configmap.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: risk-module-env-name
+  labels:
+    app: risk-module
+    environment: STAGING
+    release: release-name
+data:
+  # Configs
+  APPS_LOGGING_LEVEL: "WARNING"
+  AZURE_CLIENT_ID: "AZURE_CLIENT_ID-XYZ"
+  AZURE_STORAGE_ACCOUNT_NAME: "AZURE_STORAGE_ACCOUNT_NAME-XYX"
+  AZURE_STORAGE_CONTAINER: "AZURE_STORAGE_CONTAINER-XYZ"
+  AZURE_STORAGE_MANAGED_IDENTITY: "true"
+  AZURE_TENANT_ID: "AZURE_TENANT_ID-XYZ"
+  DJANGO_ALLOWED_HOSTS: "go-risk-api-stage.ifrc.org"
+  DJANGO_DEBUG: "false"
+  DJANGO_TIME_ZONE: "UTC"
+  RISK_API_FQDN: "https://go-risk-api-stage.ifrc.org"
+  RISK_ENVIRONMENT: "STAGING"
+  RISK_RELEASE: "SET-BY-CICD-TAG"
+  SENTRY_PROFILE_SAMPLE_RATE: "0.2"
+  SENTRY_TRACE_SAMPLE_RATE: "0.2"
+  TIME_ZONE: "UTC"
+  USE_AZURE_STORAGE: "true"
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: risk-module-api
+  labels:
+    app: risk-module
+    component: api
+    environment: STAGING
+    release: release-name
+spec:
+  type: ClusterIP
+  selector:
+    app: risk-module
+    component: api
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-module-api
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: risk-module
+    component: api
+    environment: STAGING
+    release: release-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: risk-module
+      component: api
+  template:
+    metadata:
+      annotations:
+        checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configmap: 67eb0f9044e57138910d5ed8f6553af55e8963c555414715c09f4cdb7427f0da
+      labels:
+        app: risk-module
+        component: api
+        azure.workload.identity/use: "true"
+    spec:
+      volumes:
+        - name: risk-module-secret
+          csi:
+            driver: "secrets-store.csi.k8s.io"
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: risk-module-secret-provider
+      serviceAccountName: service-token-reader
+      containers:
+        - name: api
+          image: "SET-BY-CICD-IMAGE:SET-BY-CICD-TAG"
+          imagePullPolicy: IfNotPresent
+          command:
+            - gunicorn
+            - risk_module.wsgi:application
+            - --bind
+            - 0.0.0.0:80
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          # TODO: livenessProbe
+          resources:
+            limits:
+              cpu: "4"
+              memory: 2Gi
+            requests:
+              cpu: "0.1"
+              memory: 1Gi
+          envFrom:
+            - secretRef:
+                name: risk-module-secret
+            - configMapRef:
+                name: risk-module-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "web"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+          volumeMounts:
+            - name: risk-module-secret
+              mountPath: /mnt/secrets-store
+              readOnly: true
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/worker-beat/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-module-worker-beat
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: risk-module
+    component: worker-beat
+    environment: STAGING
+    release: release-name
+spec:
+  replicas: 1  # This should only 1
+  selector:
+    matchLabels:
+      app: risk-module
+      component: worker-beat
+  template:
+    metadata:
+      annotations:
+        checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configmap: 67eb0f9044e57138910d5ed8f6553af55e8963c555414715c09f4cdb7427f0da
+      labels:
+        app: risk-module
+        component: worker-beat
+        azure.workload.identity/use: "true"
+    spec:
+      volumes:
+        - name: risk-module-secret
+          csi:
+            driver: "secrets-store.csi.k8s.io"
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: risk-module-secret-provider
+      serviceAccountName: service-token-reader
+      containers:
+        - name: worker-beat
+          image: "SET-BY-CICD-IMAGE:SET-BY-CICD-TAG"
+          imagePullPolicy: IfNotPresent
+          command:
+            - celery
+            - --app=risk_module
+            - beat
+            - --max-interval=3600
+            - --loglevel=info
+            - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+          # TODO: livenessProbe
+          resources:
+            limits:
+              cpu: "1"
+              memory: 0.5Gi
+            requests:
+              cpu: "0.1"
+              memory: 0.2Gi
+          envFrom:
+            - secretRef:
+                name: risk-module-secret
+            - configMapRef:
+                name: risk-module-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "worker"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+          volumeMounts:
+            - name: risk-module-secret
+              mountPath: /mnt/secrets-store
+              readOnly: true
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/worker/deployment.yaml
+# Queue: default
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: risk-module-worker-default
+  annotations:
+    reloader.stakater.com/auto: "true"
+  labels:
+    app: risk-module
+    component: worker
+    queue: default
+    environment: STAGING
+    release: release-name
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: risk-module
+      component: worker
+      queue: default
+  template:
+    metadata:
+      annotations:
+        checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configmap: 67eb0f9044e57138910d5ed8f6553af55e8963c555414715c09f4cdb7427f0da
+      labels:
+        app: risk-module
+        component: worker
+        queue: default
+        azure.workload.identity/use: "true"
+    spec:
+      volumes:
+        - name: risk-module-secret
+          csi:
+            driver: "secrets-store.csi.k8s.io"
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: risk-module-secret-provider
+      serviceAccountName: service-token-reader
+      containers:
+        - name: worker
+          command:
+            - celery
+            - --app=risk_module
+            - worker
+            - --loglevel=INFO
+            - --queues=celery
+            - --max-tasks-per-child=20
+          image: "SET-BY-CICD-IMAGE:SET-BY-CICD-TAG"
+          imagePullPolicy: IfNotPresent
+          # TODO: livenessProbe
+          resources:
+            limits:
+              cpu: "4"
+              memory: 4Gi
+            requests:
+              cpu: "0.1"
+              memory: 4Gi
+          envFrom:
+            - secretRef:
+                name: risk-module-secret
+            - configMapRef:
+                name: risk-module-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "worker"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+          volumeMounts:
+            - name: risk-module-secret
+              mountPath: /mnt/secrets-store
+              readOnly: true
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/argo-hooks/hook-job.yaml
+# Hook: collect-static
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: risk-module-collect-static
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    metadata:
+      annotations:
+        checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configmap: 67eb0f9044e57138910d5ed8f6553af55e8963c555414715c09f4cdb7427f0da
+      labels:
+        app: risk-module
+        component: argo-hooks
+        azure.workload.identity/use: "true"
+    spec:
+      restartPolicy: "Never"
+      volumes:
+        - name: risk-module-secret
+          csi:
+            driver: "secrets-store.csi.k8s.io"
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: risk-module-secret-provider
+      serviceAccountName: service-token-reader
+      containers:
+        - name: collect-static
+          image: "SET-BY-CICD-IMAGE:SET-BY-CICD-TAG"
+          imagePullPolicy: IfNotPresent
+          command: 
+            - ./manage.py
+            - collectstatic
+            - --noinput
+          resources:
+            limits:
+              cpu: "4"
+              memory: 1Gi
+            requests:
+              cpu: "0.1"
+              memory: 1Gi
+          envFrom:
+            - secretRef:
+                name: risk-module-secret
+            - configMapRef:
+                name: risk-module-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "hook"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+          volumeMounts:
+            - name: risk-module-secret
+              mountPath: /mnt/secrets-store
+              readOnly: true
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/argo-hooks/hook-job.yaml
+# Hook: db-migrate
+apiVersion: batch/v1
+kind: Job
+metadata:
+  generateName: risk-module-db-migrate-
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    metadata:
+      annotations:
+        checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/configmap: 67eb0f9044e57138910d5ed8f6553af55e8963c555414715c09f4cdb7427f0da
+      labels:
+        app: risk-module
+        component: argo-hooks
+        azure.workload.identity/use: "true"
+    spec:
+      restartPolicy: "Never"
+      volumes:
+        - name: risk-module-secret
+          csi:
+            driver: "secrets-store.csi.k8s.io"
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: risk-module-secret-provider
+      serviceAccountName: service-token-reader
+      containers:
+        - name: db-migrate
+          image: "SET-BY-CICD-IMAGE:SET-BY-CICD-TAG"
+          imagePullPolicy: IfNotPresent
+          command: 
+            - /bin/bash
+            - -c
+          args: 
+            - ./manage.py wait_for_resources --db && ./manage.py migrate
+          resources:
+            limits:
+              cpu: "4"
+              memory: 1Gi
+            requests:
+              cpu: "0.1"
+              memory: 1Gi
+          envFrom:
+            - secretRef:
+                name: risk-module-secret
+            - configMapRef:
+                name: risk-module-env-name
+          env:
+            - name: DJANGO_APP_TYPE
+              value: "hook"
+            - name: CACHE_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/0
+            - name: CELERY_REDIS_URL
+              value: redis://risk-module-dragonfly:6379/1
+          volumeMounts:
+            - name: risk-module-secret
+              mountPath: /mnt/secrets-store
+              readOnly: true
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: risk-module-api
+  labels:
+    app: risk-module
+    component: api
+    environment: STAGING
+    release: release-name
+spec:
+  ingressClassName: "nginx"
+  rules:
+    - host: "go-risk-api-stage.ifrc.org"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: risk-module-api
+                port:
+                  number: 80
+  tls:
+    - secretName: risk-helm-secret-cert
+      hosts:
+        - "go-risk-api-stage.ifrc.org"
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/extraManifests.yaml
+# Manifest: dragonflydb-cluster
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  labels:
+    app.kubernetes.io/name: dragonfly
+  name: risk-module-dragonfly
+spec:
+  args:
+  - --dbfilename=mainSnapshot
+  replicas: 1
+  resources:
+    limits:
+      cpu: "1"
+      memory: 750Mi
+    requests:
+      cpu: "0.1"
+      memory: 500Mi
+  snapshot:
+    cron: '*/5 * * * *'
+    persistentVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1Gi
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/api/secrets-provider-class.yaml
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: risk-module-secret-provider
+spec:
+  provider: azure
+  parameters:
+    clientID: AZURE_CLIENT_ID-XYZ
+    keyvaultName: AZURE_VAULT_NAME-XYZ
+    tenantId: AZURE_TENANT_ID-XYZ
+    usePodIdentity: "false"
+    objects: |
+      array:
+        - |
+          objectName: DATABASE-HOST
+          objectType: secret
+        - |
+          objectName: DATABASE-NAME
+          objectType: secret
+        - |
+          objectName: DATABASE-PASSWORD
+          objectType: secret
+        - |
+          objectName: DATABASE-PORT
+          objectType: secret
+        - |
+          objectName: DATABASE-USER
+          objectType: secret
+        - |
+          objectName: DJANGO-SECRET-KEY
+          objectType: secret
+        - |
+          objectName: METEOSWISS-S3-ACCESS-KEY
+          objectType: secret
+        - |
+          objectName: METEOSWISS-S3-BUCKET
+          objectType: secret
+        - |
+          objectName: METEOSWISS-S3-ENDPOINT-URL
+          objectType: secret
+        - |
+          objectName: METEOSWISS-S3-SECRET-KEY
+          objectType: secret
+        - |
+          objectName: PDC-ACCESS-TOKEN
+          objectType: secret
+        - |
+          objectName: PDC-PASSWORD
+          objectType: secret
+        - |
+          objectName: PDC-USERNAME
+          objectType: secret
+        - |
+          objectName: SENTRY-DSN
+          objectType: secret
+  secretObjects:
+    - secretName: risk-module-secret
+      type: Opaque
+      data:
+        - objectName: DATABASE-HOST
+          key: DATABASE_HOST
+        - objectName: DATABASE-NAME
+          key: DATABASE_NAME
+        - objectName: DATABASE-PASSWORD
+          key: DATABASE_PASSWORD
+        - objectName: DATABASE-PORT
+          key: DATABASE_PORT
+        - objectName: DATABASE-USER
+          key: DATABASE_USER
+        - objectName: DJANGO-SECRET-KEY
+          key: DJANGO_SECRET_KEY
+        - objectName: METEOSWISS-S3-ACCESS-KEY
+          key: METEOSWISS_S3_ACCESS_KEY
+        - objectName: METEOSWISS-S3-BUCKET
+          key: METEOSWISS_S3_BUCKET
+        - objectName: METEOSWISS-S3-ENDPOINT-URL
+          key: METEOSWISS_S3_ENDPOINT_URL
+        - objectName: METEOSWISS-S3-SECRET-KEY
+          key: METEOSWISS_S3_SECRET_KEY
+        - objectName: PDC-ACCESS-TOKEN
+          key: PDC_ACCESS_TOKEN
+        - objectName: PDC-PASSWORD
+          key: PDC_PASSWORD
+        - objectName: PDC-USERNAME
+          key: PDC_USERNAME
+        - objectName: SENTRY-DSN
+          key: SENTRY_DSN
