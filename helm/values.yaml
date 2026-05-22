@@ -101,9 +101,9 @@ app:
         celeryArgs: ["--queues=celery", "--max-tasks-per-child=20"]
         resources:
           requests:
-            memory: 4Gi
+            memory: 1Gi
           limits:
-            memory: 4Gi
+            memory: 2Gi
 
   argoHook:
     enabled: true

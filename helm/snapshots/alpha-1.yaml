@@ -715,10 +715,10 @@ spec:
           resources:
             limits:
               cpu: "4"
-              memory: 4Gi
+              memory: 2Gi
             requests:
               cpu: "0.1"
-              memory: 4Gi
+              memory: 1Gi
           envFrom:
             - secretRef:
                 name: risk-1-secret
