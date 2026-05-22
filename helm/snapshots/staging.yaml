@@ -11,6 +11,7 @@ metadata:
     
     azure.workload.identity/use: "true"
 automountServiceAccountToken: true
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/config/configmap.yaml
 kind: ConfigMap
@@ -39,6 +40,7 @@ data:
   SENTRY_TRACE_SAMPLE_RATE: "0.2"
   TIME_ZONE: "UTC"
   USE_AZURE_STORAGE: "true"
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/api/service.yaml
 apiVersion: v1
@@ -59,6 +61,7 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/api/deployment.yaml
 apiVersion: apps/v1
@@ -133,6 +136,7 @@ spec:
             - name: risk-module-secret
               mountPath: /mnt/secrets-store
               readOnly: true
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/worker-beat/deployment.yaml
 apiVersion: apps/v1
@@ -205,6 +209,7 @@ spec:
             - name: risk-module-secret
               mountPath: /mnt/secrets-store
               readOnly: true
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/worker/deployment.yaml
 # Queue: default
@@ -281,6 +286,7 @@ spec:
             - name: risk-module-secret
               mountPath: /mnt/secrets-store
               readOnly: true
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/argo-hooks/hook-job.yaml
 # Hook: collect-static
@@ -402,6 +408,7 @@ spec:
             - name: risk-module-secret
               mountPath: /mnt/secrets-store
               readOnly: true
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/api/ingress.yaml
 apiVersion: networking.k8s.io/v1
@@ -430,6 +437,7 @@ spec:
     - secretName: risk-helm-secret-cert
       hosts:
         - "go-risk-api-stage.ifrc.org"
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/extraManifests.yaml
 # Manifest: dragonflydb-cluster
@@ -458,6 +466,7 @@ spec:
       resources:
         requests:
           storage: 1Gi
+
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/api/secrets-provider-class.yaml
 apiVersion: secrets-store.csi.x-k8s.io/v1
