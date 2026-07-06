@@ -10,50 +10,18 @@ app:
     tag: SET-BY-CICD-TAG
     imagePullPolicy: IfNotPresent
 
-  ingress:
-    enabled: true
-    className:
-    host:
-
-  rabbitmq:
-    enabled: false
-
-  # XXX: This is for local/playground usages only.
-  postgresql:
-    enabled: false
-    fullnameOverride: ifrcgo-risk-module-pg
-    architecture: standalone
-    auth:
-      postgresPassword: ""
-      username: ""
-      password: ""
-      database: ""
-    primary:
-      persistence:
-        enabled: true
-        storageClass: ""
-        size: 8Gi
-
-  redis:
-    enabled: false
-    architecture: standalone
-    fullnameOverride: ifrcgo-risk-module-redis
-    auth:
-      enabled: false
-    master:
-      persistence:
-        enabled: true
-        storageClass: ""
-        size: .5Gi
-
-  minio:
-    enabled: false
-
   api:
     enabled: true
-    replicaCount: 1
     containerPort: 80
     command: ["gunicorn", "risk_module.wsgi:application", "--bind", "0.0.0.0:80"]
+    ingress:
+      enabled: true
+      className:
+      host:
+    probes:
+      # banjo-utils HealthProbeMiddleware serves /healthz/live/ and /healthz/ready/.
+      # Chart defaults (liveness /healthz/live/, readiness+startup /healthz/ready/) apply.
+      enabled: true
     resources:
       requests:
         cpu: "0.1"
@@ -64,69 +32,98 @@ app:
 
   worker:
     enabled: true
-    flower:
-      enabled: false
-    beat:
-      command:
+    queueDefaults:
+      commandPrefix:
         - celery
         - --app=risk_module
-        - beat
-        - --max-interval=3600
-        - --loglevel=info
-        - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+        - worker
+        - --loglevel=INFO
+      # banjo-celery-probe heartbeat wiring (writer via setup_worker_heartbeat,
+      # reader via banjo-celery-probe) on a RAM emptyDir.
+      extraEnv:
+        BANJO_CELERY_HEARTBEAT_FILE: /var/run/celery/worker_heartbeat
+      volumes:
+        celery-heartbeat: {emptyDir: {medium: Memory, sizeLimit: 1Mi}}
+      volumeMounts:
+        celery-heartbeat: {mountPath: /var/run/celery}
+      probes:
+        enabled: true
+        liveness:
+          exec: {command: [banjo-celery-probe]}
+          periodSeconds: 20
+          timeoutSeconds: 5
+          failureThreshold: 6
+        startup:
+          exec: {command: [banjo-celery-probe]}
+          periodSeconds: 5
+          failureThreshold: 30
       resources:
         requests:
           cpu: "0.1"
-          memory: 0.2Gi
+          memory: 1Gi
         limits:
-          cpu: "1"
-          memory: 0.5Gi
-    queueDefaultResources:
-      requests:
-        cpu: "0.1"
-        memory: 1Gi
-      limits:
-        cpu: "4"
-        memory: 2Gi
-    queueCommandPrefix:
-      - celery
-      - --app=risk_module
-      - worker
-      - --loglevel=INFO
+          cpu: "4"
+          memory: 2Gi
     queues:
       # NOTE: Make sure keys are lowercase
       default:
         enabled: true
-        replicaCount: 1
         celeryArgs: ["--queues=celery", "--max-tasks-per-child=20"]
         resources:
           requests:
             memory: 1Gi
           limits:
             memory: 2Gi
+    addons:
+      beat:
+        enabled: true
+        command:
+          - celery
+          - --app=risk_module
+          - beat
+          - --max-interval=3600
+          - --loglevel=info
+          - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+        strategy: {type: Recreate}
+        extraEnv:
+          BANJO_CELERY_HEARTBEAT_FILE: /var/run/celery/beat_heartbeat
+        volumes:
+          celery-heartbeat: {emptyDir: {medium: Memory, sizeLimit: 1Mi}}
+        volumeMounts:
+          celery-heartbeat: {mountPath: /var/run/celery}
+        probes:
+          enabled: true
+          liveness:
+            # --max-age must exceed beat's persistent-scheduler tick (300s)
+            exec: {command: [banjo-celery-probe, --max-age, "360"]}
+            periodSeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 3
+        resources:
+          requests:
+            cpu: "0.1"
+            memory: 0.2Gi
+          limits:
+            cpu: "1"
+            memory: 0.5Gi
 
-  argoHook:
+  hooks:
     enabled: true
-    resources:
-      requests:
-        cpu: "0.1"
-        memory: 1Gi
-      limits:
-        cpu: "4"
-        memory: 1Gi
-    hooks:
-      # NOTE: Make sure keys are lowercase
-      db-migrate:
-        enabled: true
-        hook: PostSync
-        preserveHistory: true
-        command: ["/bin/bash", "-c"]
-        args:
-          - "./manage.py wait_for_resources --db && ./manage.py migrate"
-      collect-static:
-        enabled: true
-        hook: PostSync
-        command: ["./manage.py", "collectstatic", "--noinput"]
+    defaults:
+      resources:
+        requests:
+          cpu: "0.1"
+          memory: 1Gi
+        limits:
+          cpu: "4"
+          memory: 1Gi
+    jobs:
+      # NOTE: Make sure keys are lowercase.
+      # db-migrate and collect-static inherit the chart defaults verbatim
+      # (Sync hook @ wave 20, `manage.py migrate` / `collectstatic --noinput`).
+      # Only wait-for-resources overrides the default (bare) command.
+      wait-for-resources:
+        command: ["./manage.py", "wait_for_resources", "--db", "--cache"]
 
   env:
     # Application info

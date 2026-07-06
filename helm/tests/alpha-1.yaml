@@ -6,36 +6,9 @@ app:
     name: local.git.com/ifrcgo/risk
     tag: develop.xxxxxxxx
 
-  ingress:
-    host: risk-1.ifrcgo.local.example.com
-
-  postgresql:
-    auth:
-      postgresPassword: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-      password: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    primary:
-      nodeSelector:
-        kubernetes.io/hostname: "desktop-01"
-      persistence:
-        storageClass: "local-path"
-        size: 2Gi
-      extraEnvVars:
-        - name: DUMP_REGISTRY_URL
-          value: https://user:password@secure-dump.com
-        - name: DUMP_FILENAME
-          value: /risk/k8s-alpha-init-db.dump
-
-  minio:
-    nodeSelector:
-      kubernetes.io/hostname: "desktop-01"
-    global:
-      defaultStorageClass: "local-path"
-    apiIngress:
-      hostname: risk-minio-1.ifrcgo.local.example.com
-    auth:
-      rootPassword: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-    persistence:
-      size: 0.5Gi
+  api:
+    ingress:
+      host: risk-1.ifrcgo.local.example.com
 
   env:
     # App Domain
@@ -54,14 +27,13 @@ app:
     METEOSWISS_S3_ACCESS_KEY: "dummy-access-key"
     METEOSWISS_S3_SECRET_KEY: "dummy-secret-key"
 
-  argoHook:
+  hooks:
     enabled: true
-    hooks:
+    jobs:
       # NOTE: Make sure keys are lowercase
       create-users:
         enabled: true
-        hook: PostSync
-        env:
+        extraEnv:
           ADMIN_USER_EMAIL_PASSWORD_SET: "IFRC:Admin:admin@ifrc.org:password_hash"
 
   extraManifests:
