@@ -14,6 +14,10 @@ from pathlib import Path
 
 import environ
 from azure.identity import DefaultAzureCredential
+from banjo_utils.health import (
+    is_health_probe_path,
+    make_sentry_traces_sampler_with_health_probe_ignore,
+)
 from celery.schedules import crontab
 from django.utils.log import DEFAULT_LOGGING
 
@@ -102,6 +106,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "storages",
     "drf_spectacular",
+    "banjo_utils",
     #  Health-check
     "health_check",  # required
     "health_check.db",  # stock Django health checkers
@@ -120,6 +125,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "banjo_utils.health.HealthProbeMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -204,6 +210,26 @@ def log_render_extra_context(record):
     return True
 
 
+def skip_health_probe_logs(record):
+    """Drop request-line log records for k8s health-probe paths (/healthz/*).
+
+    The kubelet hits liveness/readiness/startup every few seconds; without this
+    the request-line logger is swamped by probe traffic. Reads the path from
+    ``gunicorn.access`` (dict args, key ``U``) or ``django.server`` (the
+    ``"GET /path HTTP/1.1"`` request line) records, honouring the
+    BANJO_HEALTH_PROBE_* overrides via ``is_health_probe_path``.
+    """
+    args = record.args
+    path = ""
+    if isinstance(args, dict):  # gunicorn.access
+        path = args.get("U", "")
+    elif isinstance(args, (tuple, list)) and args:  # django.server request line
+        request_line = str(args[0]).strip('"').split(" ")
+        if len(request_line) >= 2:
+            path = request_line[1]
+    return not is_health_probe_path(path)
+
+
 LOGGING = {
     **DEFAULT_LOGGING,
     "formatters": {
@@ -219,6 +245,10 @@ LOGGING = {
             "()": "django.utils.log.CallbackFilter",
             "callback": log_render_extra_context,
         },
+        "skip_health_probes": {
+            "()": "django.utils.log.CallbackFilter",
+            "callback": skip_health_probe_logs,
+        },
     },
     "handlers": {
         **DEFAULT_LOGGING["handlers"],
@@ -228,6 +258,11 @@ LOGGING = {
             "class": "logging.StreamHandler",
             "formatter": "simple",
             "filters": ["render_extra_context"],
+        },
+        # runserver request-line logger: drop /healthz/* probe spam
+        "django.server": {
+            **DEFAULT_LOGGING["handlers"]["django.server"],
+            "filters": ["skip_health_probes"],
         },
     },
     "loggers": {
@@ -243,6 +278,13 @@ LOGGING = {
             "handlers": ["console"],
             "level": env("APPS_LOGGING_LEVEL"),
             "propagate": False,
+        },
+        # gunicorn access log (prod): drop /healthz/* probe spam
+        "gunicorn.access": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+            "filters": ["skip_health_probes"],
         },
         # Silence Azure
         "azure.core.pipeline.policies.http_logging_policy": {
@@ -413,7 +455,8 @@ RISK_API_FQDN = env("RISK_API_FQDN")
 SENTRY_CONFIG = {
     "dsn": SENTRY_DSN,
     "send_default_pii": True,
-    "traces_sample_rate": SENTRY_TRACE_SAMPLE_RATE,
+    # Drop health-probe transactions from tracing (banjo-utils health endpoints).
+    "traces_sampler": make_sentry_traces_sampler_with_health_probe_ignore(SENTRY_TRACE_SAMPLE_RATE),
     "profiles_sample_rate": SENTRY_PROFILE_SAMPLE_RATE,
     "release": RISK_RELEASE,
     "environment": RISK_ENVIRONMENT,
@@ -443,6 +486,10 @@ SPECTACULAR_SETTINGS = {
         "common.utils.postprocess_schema",
     ],
 }
+
+# banjo-utils HealthProbeMiddleware endpoints
+BANJO_HEALTH_PROBE_LIVE_URL = "/healthz/live/"
+BANJO_HEALTH_PROBE_READY_URL = "/healthz/ready/"
 
 # Health-check config
 REDIS_URL = env("CACHE_REDIS_URL")

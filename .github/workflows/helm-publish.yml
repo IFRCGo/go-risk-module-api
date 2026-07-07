@@ -15,7 +15,7 @@ jobs:
       # Job: Pre-commit
       pre_commit__apt_packages: "gdal-bin libgdal-dev"
       # Job: Docker
-      docker__wait_cmd: "./manage.py wait_for_resources --db --redis"
+      docker__wait_cmd: "./manage.py wait_for_resources --db --cache"
       docker__migration_dummy_test: "risk_module.tests.FakeTest"
       docker__run_graphql_check: false
       docker__run_openapi_check: true

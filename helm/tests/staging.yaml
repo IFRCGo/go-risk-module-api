@@ -1,8 +1,9 @@
 app:
-  ingress:
-    host: "go-risk-api-stage.ifrc.org"
-    tls:
-      secretName: "risk-helm-secret-cert"
+  api:
+    ingress:
+      host: "go-risk-api-stage.ifrc.org"
+      tls:
+        secretName: "risk-helm-secret-cert"
   env:
     RISK_API_FQDN: "https://go-risk-api-stage.ifrc.org"
     DJANGO_ALLOWED_HOSTS: "go-risk-api-stage.ifrc.org"

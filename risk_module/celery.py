@@ -30,6 +30,10 @@ app = Celery("risk_module")
 app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
+from banjo_utils.celery_health.worker import setup_worker_heartbeat  # noqa: E402
+
+setup_worker_heartbeat(app)
+
 
 @app.task(bind=True)
 def debug_task(self):

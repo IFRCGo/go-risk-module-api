@@ -40,7 +40,11 @@ dependencies = [
     "django-health-check",
     "psutil",
     "azure-identity",
+    "banjo-utils",
 ]
+
+[tool.uv.sources]
+banjo-utils = { git = "https://github.com/toggle-corp/banjo-utils.git", branch = "feature/health-endpoints" }
 
 [dependency-groups]
 dev = [
