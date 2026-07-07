@@ -83,7 +83,7 @@ app:
           - beat
           - --max-interval=3600
           - --loglevel=info
-          - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+          - --scheduler=banjo_utils.celery_health.database.HeartbeatDatabaseScheduler
         strategy: {type: Recreate}
         extraEnv:
           BANJO_CELERY_HEARTBEAT_FILE: /var/run/celery/beat_heartbeat

@@ -221,7 +221,7 @@ spec:
             - beat
             - --max-interval=3600
             - --loglevel=info
-            - --scheduler=django_celery_beat.schedulers:DatabaseScheduler
+            - --scheduler=banjo_utils.celery_health.database.HeartbeatDatabaseScheduler
           livenessProbe:
             exec:
               command:
