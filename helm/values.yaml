@@ -141,16 +141,16 @@ app:
     # Logging
     APPS_LOGGING_LEVEL: "WARNING"
 
-  secrets:
-    DJANGO_SECRET_KEY: "{{ required \".app.secrets.DJANGO_SECRET_KEY\" nil }}"
-    # Sentry
-    SENTRY_DSN: "{{ required \".app.secrets.SENTRY_DSN\" nil }}"
-    # PDC
-    PDC_USERNAME: "{{ required \".app.secrets.PDC_USERNAME\" nil }}"
-    PDC_PASSWORD: "{{ required \".app.secrets.PDC_PASSWORD\" nil }}"
-    PDC_ACCESS_TOKEN: "{{ required \".app.secrets.PDC_ACCESS_TOKEN\" nil }}"
-    # Meteoswiss
-    METEOSWISS_S3_ENDPOINT_URL: "{{ required \".app.secrets.METEOSWISS_S3_ENDPOINT_URL\" nil }}"
-    METEOSWISS_S3_BUCKET: "{{ required \".app.secrets.METEOSWISS_S3_BUCKET\" nil }}"
-    METEOSWISS_S3_ACCESS_KEY: "{{ required \".app.secrets.METEOSWISS_S3_ACCESS_KEY\" nil }}"
-    METEOSWISS_S3_SECRET_KEY: "{{ required \".app.secrets.METEOSWISS_S3_SECRET_KEY\" nil }}"
+  secrets: {}
+    # DJANGO_SECRET_KEY:
+    # # Sentry
+    # SENTRY_DSN:
+    # # PDC
+    # PDC_USERNAME:
+    # PDC_PASSWORD:
+    # PDC_ACCESS_TOKEN:
+    # # Meteoswiss
+    # METEOSWISS_S3_ENDPOINT_URL:
+    # METEOSWISS_S3_BUCKET:
+    # METEOSWISS_S3_ACCESS_KEY:
+    # METEOSWISS_S3_SECRET_KEY:
