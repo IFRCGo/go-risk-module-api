@@ -21,6 +21,7 @@ app:
         annotations:
           argocd.argoproj.io/hook: "Sync"
           argocd.argoproj.io/sync-wave: "25"
+          argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
         # extraEnv:
         #   ADMIN_USER_EMAIL_PASSWORD_SET: "IFRC:Admin:ifrc-admin:admin@ifrc.org:password_hash"
         # Script mounted as a file (per-job ConfigMap) and piped into the shell.

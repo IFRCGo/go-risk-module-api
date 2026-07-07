@@ -398,6 +398,7 @@ metadata:
   name: risk-1-create-users
   annotations:
     argocd.argoproj.io/hook: Sync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
     argocd.argoproj.io/sync-wave: "25"
   labels:
     app: risk-1
