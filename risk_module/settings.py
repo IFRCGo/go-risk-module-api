@@ -211,23 +211,32 @@ def log_render_extra_context(record):
 
 
 def skip_health_probe_logs(record):
-    """Drop request-line log records for k8s health-probe paths (/healthz/*).
+    """Drop *successful* request-line log records for k8s health-probe paths (/healthz/*).
 
     The kubelet hits liveness/readiness/startup every few seconds; without this
-    the request-line logger is swamped by probe traffic. Reads the path from
-    ``gunicorn.access`` (dict args, key ``U``) or ``django.server`` (the
-    ``"GET /path HTTP/1.1"`` request line) records, honouring the
-    BANJO_HEALTH_PROBE_* overrides via ``is_health_probe_path``.
+    the request-line logger is swamped by probe traffic. Reads the path and
+    status from ``gunicorn.access`` (dict args, keys ``U``/``s``) or
+    ``django.server`` (the ``"GET /path HTTP/1.1"`` request line + status code)
+    records, honouring the BANJO_HEALTH_PROBE_* overrides via
+    ``is_health_probe_path``.
+
+    Only 2xx probe hits are dropped; probe 4xx/5xx responses are kept so real
+    probe failures stay visible in the logs.
     """
     args = record.args
     path = ""
+    status = ""
     if isinstance(args, dict):  # gunicorn.access
         path = args.get("U", "")
+        status = str(args.get("s", ""))
     elif isinstance(args, (tuple, list)) and args:  # django.server request line
         request_line = str(args[0]).strip('"').split(" ")
         if len(request_line) >= 2:
             path = request_line[1]
-    return not is_health_probe_path(path)
+        if len(args) >= 2:
+            status = str(args[1])
+    is_probe_ok = is_health_probe_path(path) and status.startswith("2")
+    return not is_probe_ok
 
 
 LOGGING = {
