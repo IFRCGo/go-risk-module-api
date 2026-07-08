@@ -217,7 +217,6 @@ spec:
             - celery
             - --app=risk_module
             - beat
-            - --max-interval=3600
             - --loglevel=info
             - --scheduler=banjo_utils.celery_health.database.HeartbeatDatabaseScheduler
           livenessProbe:

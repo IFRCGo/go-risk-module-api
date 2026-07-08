@@ -66,7 +66,7 @@ services:
   celery-beat:
     <<: *base_server_setup
     # TODO: Use development mode
-    command: bash -c "celery -A risk_module beat --max-interval 3600 -l debug --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    command: bash -c "celery -A risk_module beat -l debug --scheduler django_celery_beat.schedulers:DatabaseScheduler"
 
   celery:
     <<: *base_server_setup
