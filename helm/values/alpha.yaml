@@ -18,7 +18,7 @@ app:
         command: ["./manage.py", "wait_for_resources", "--db", "--cache", "--minio"]
       create-users:
         enabled: true
-        annotations:
+        jobAnnotations:
           argocd.argoproj.io/hook: "Sync"
           argocd.argoproj.io/sync-wave: "25"
           argocd.argoproj.io/hook-delete-policy: BeforeHookCreation

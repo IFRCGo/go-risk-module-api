@@ -54,10 +54,9 @@ kind: ConfigMap
 metadata:
   name: risk-1-create-users-files
   annotations:
-    argocd.argoproj.io/hook: "Sync"
-    argocd.argoproj.io/sync-wave: "25"
-    # Refresh content on every sync and clean up before the next run.
+    argocd.argoproj.io/hook: Sync
     argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+    argocd.argoproj.io/sync-wave: "25"
   labels:
     app: risk-1
     component: hook

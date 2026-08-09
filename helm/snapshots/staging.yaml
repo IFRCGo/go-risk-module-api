@@ -5,10 +5,8 @@ kind: ServiceAccount
 metadata:
   name: service-token-reader
   annotations:
-    
-    azure.workload.identity/client-id: null
+    azure.workload.identity/client-id: test-client-id
   labels:
-    
     azure.workload.identity/use: "true"
 automountServiceAccountToken: true
 
