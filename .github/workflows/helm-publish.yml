@@ -9,7 +9,7 @@ on:
 
 jobs:
   _:
-    uses: toggle-corp/banjo-action/.github/workflows/pipeline.yml@v0.2.0
+    uses: toggle-corp/banjo-action/.github/workflows/pipeline.yml@v0.4.0
     with:
       # -- Same as validate
       # Job: Pre-commit
