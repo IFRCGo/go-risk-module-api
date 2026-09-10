@@ -559,8 +559,9 @@ metadata:
     release: release-name
   annotations:
     argocd.argoproj.io/sync-wave: "30"
+    traefik.ingress.kubernetes.io/router.middlewares: default-risk-module-body-size@kubernetescrd
 spec:
-  ingressClassName: "nginx"
+  ingressClassName: "traefik"
   rules:
     - host: "go-risk-api-stage.ifrc.org"
       http:
@@ -605,6 +606,16 @@ spec:
       resources:
         requests:
           storage: 1Gi
+---
+# Source: ifrcgo-risk-module-helm/charts/app/templates/extraManifests.yaml
+# Manifest: traefik-body-size-middleware
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: risk-module-body-size
+spec:
+  buffering:
+    maxRequestBodyBytes: 524288000
 
 ---
 # Source: ifrcgo-risk-module-helm/charts/app/templates/api/secrets-provider-class.yaml
