@@ -2,7 +2,9 @@ tests:
   alpha-1.yaml:
     - values/operators.yaml
     - values/alpha.yaml
+    - values/traefik.yaml
   staging.yaml:
     - values/operators.yaml
     - values/go-deploy.yaml
     - values/staging.yaml
+    - values/traefik.yaml
