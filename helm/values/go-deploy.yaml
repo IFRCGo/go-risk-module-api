@@ -12,6 +12,8 @@ app:
 
   env:
     DJANGO_DEBUG: "false"
+    # Disk usage is a node-level metric here, so leave the disk check to cluster monitoring.
+    HEALTH_CHECK_DISK_USAGE_MAX: "none"
     # RISK_API_FQDN: XXX: go-deploy
     # DJANGO_ALLOWED_HOSTS: XXX: go-deploy
     # -- Azure configs

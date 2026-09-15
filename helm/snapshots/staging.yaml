@@ -33,6 +33,7 @@ data:
   DJANGO_ALLOWED_HOSTS: "go-risk-api-stage.ifrc.org"
   DJANGO_DEBUG: "false"
   DJANGO_TIME_ZONE: "UTC"
+  HEALTH_CHECK_DISK_USAGE_MAX: "none"
   RISK_API_FQDN: "https://go-risk-api-stage.ifrc.org"
   RISK_ENVIRONMENT: "STAGING"
   RISK_RELEASE: "SET-BY-CICD-TAG"
@@ -86,7 +87,7 @@ spec:
     metadata:
       annotations:
         checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/configmap: 6bb12019ab73830b633f2ae29f18793c8c037930dd68e415694e62dfb9453d54
+        checksum/configmap: 11e2534e0dd1ee342f32d9a3659abb7f03206870ac021b63c142f19e9d20678e
       labels:
         app: risk-module
         component: api
@@ -188,7 +189,7 @@ spec:
     metadata:
       annotations:
         checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/configmap: 6bb12019ab73830b633f2ae29f18793c8c037930dd68e415694e62dfb9453d54
+        checksum/configmap: 11e2534e0dd1ee342f32d9a3659abb7f03206870ac021b63c142f19e9d20678e
       labels:
         app: risk-module
         component: worker-addon
@@ -278,7 +279,7 @@ spec:
     metadata:
       annotations:
         checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/configmap: 6bb12019ab73830b633f2ae29f18793c8c037930dd68e415694e62dfb9453d54
+        checksum/configmap: 11e2534e0dd1ee342f32d9a3659abb7f03206870ac021b63c142f19e9d20678e
       labels:
         app: risk-module
         component: worker
@@ -368,7 +369,7 @@ spec:
     metadata:
       annotations:
         checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/configmap: 6bb12019ab73830b633f2ae29f18793c8c037930dd68e415694e62dfb9453d54
+        checksum/configmap: 11e2534e0dd1ee342f32d9a3659abb7f03206870ac021b63c142f19e9d20678e
       labels:
         app: risk-module
         component: hook
@@ -435,7 +436,7 @@ spec:
     metadata:
       annotations:
         checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/configmap: 6bb12019ab73830b633f2ae29f18793c8c037930dd68e415694e62dfb9453d54
+        checksum/configmap: 11e2534e0dd1ee342f32d9a3659abb7f03206870ac021b63c142f19e9d20678e
       labels:
         app: risk-module
         component: hook
@@ -500,7 +501,7 @@ spec:
     metadata:
       annotations:
         checksum/secret: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
-        checksum/configmap: 6bb12019ab73830b633f2ae29f18793c8c037930dd68e415694e62dfb9453d54
+        checksum/configmap: 11e2534e0dd1ee342f32d9a3659abb7f03206870ac021b63c142f19e9d20678e
       labels:
         app: risk-module
         component: hook

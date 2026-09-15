@@ -67,6 +67,9 @@ env = environ.Env(
     # Redis
     CELERY_REDIS_URL=str,  # redis://redis:6379/0
     CACHE_REDIS_URL=str,  # redis://redis:6379/1
+    # Health-check
+    HEALTH_CHECK_DISK_USAGE_MAX=(str, "80"),  # percent; empty/"none" -> disk check skipped
+    HEALTH_CHECK_MEMORY_MIN=(str, "100"),  # MB (toggles the memory check on); empty/"none" -> skipped
     # Sentry
     SENTRY_DSN=(str, None),
     SENTRY_TRACE_SAMPLE_RATE=(float, 0.2),
@@ -503,9 +506,27 @@ BANJO_HEALTH_PROBE_READY_URL = "/healthz/ready/"
 # Health-check config
 REDIS_URL = env("CACHE_REDIS_URL")
 HEALTHCHECK_CACHE_KEY = "go_risk_healthcheck_key"
+
+
+def _health_check_threshold(env_key):
+    # Empty / "none" disables the corresponding psutil check (the plugin isn't registered);
+    # any other value is the numeric threshold. Lets each environment toggle it via env alone.
+    raw = env(env_key).strip()
+    return None if raw.lower() in ("", "none") else int(raw)
+
+
 HEALTH_CHECK = {
-    "DISK_USAGE_MAX": 80,  # percent
-    "MEMORY_MIN": 100,  # in MB
+    # percent; None -> disk check skipped (env HEALTH_CHECK_DISK_USAGE_MAX)
+    "DISK_USAGE_MAX": _health_check_threshold("HEALTH_CHECK_DISK_USAGE_MAX"),
+    # MB toggle; None -> memory check skipped (env HEALTH_CHECK_MEMORY_MIN)
+    "MEMORY_MIN": _health_check_threshold("HEALTH_CHECK_MEMORY_MIN"),
+    # Both psutil checks raise a *warning*, and the library turns warnings into errors by
+    # default - so a node running low on disk would make /health-check/ (and
+    # `manage.py health_check`) fail on every pod at once. Both metrics are node-level
+    # anyway: the disk check measures the filesystem behind the working directory and the
+    # memory check reads host-wide totals, not the container's cgroup limit. Report them
+    # in the response, don't fail the endpoint on them.
+    "WARNINGS_AS_ERRORS": False,
 }
 
 # Cache
