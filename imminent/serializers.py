@@ -12,14 +12,6 @@ from imminent.models import (
     PdcDisplacement,
 )
 
-"""
-def get_cloud_optimized_file(file):
-    destination_file = os.path.join(settings.BASE_DIR, 'media/test', 'test.tif')
-    scaled_command_using_glad = f'gdalwarp {file} {destination_file} -of COG'
-    data = subprocess.Popen(scaled_command_using_glad, stdout=subprocess.PIPE, shell=True)
-    _, tail = os.path.split(destination_file)
-    return os.path.join('oddrin/cog_files', tail)"""
-
 
 class OddrinSerializer(serializers.ModelSerializer):
     hazard_type_display = serializers.CharField(source="get_hazard_type_display", read_only=True)

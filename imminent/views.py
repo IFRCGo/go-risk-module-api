@@ -50,7 +50,7 @@ class EarthquakeViewSet(viewsets.ReadOnlyModelViewSet):
     filterset_class = EarthquakeFilterSet
 
 
-class OddrinViewSet(viewsets.ModelViewSet):
+class OddrinViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Oddrin.objects.all()
     serializer_class = OddrinSerializer
 
